@@ -1,0 +1,19 @@
+{
+  "storage": {
+    "rules": "storage.rules"
+  },
+  "hosting": {
+    "public": "dist/version1/browser",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ],
+    "rewrites": [
+      {
+        "source": "**",
+        "destination": "dist/version1/browser/index.html"
+      }
+    ]
+  }
+}

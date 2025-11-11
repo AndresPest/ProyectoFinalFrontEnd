@@ -1,0 +1,43 @@
+.navbar-superior {
+  background-color: #1e3a8a;
+  color: white;
+  padding: 1rem 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+
+  h1 {
+    font-size: 1.4rem;
+    font-weight: 600;
+  }
+
+  .navbar-contenido {
+    display: contents;  
+  }
+
+  .navbar-botones {
+    display: flex;
+    gap: 1.5rem;
+
+    .nav-btn {
+      background: none;
+      border: none;
+      color: white;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      cursor: pointer;
+      transition: opacity 0.3s ease;
+
+      &:hover {
+        opacity: 0.8;
+      }
+
+      svg {
+        fill: white;
+      }
+    }
+  }
+}

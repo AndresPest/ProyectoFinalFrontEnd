@@ -1,0 +1,18 @@
+<app-navbar></app-navbar>
+<router-outlet></router-outlet>
+
+<div class="login-container">
+  <h2>Iniciar sesión</h2>
+
+  <mat-form-field appearance="fill">
+    <mat-label>Usuario</mat-label>
+    <input matInput [(ngModel)]="usuario" />
+  </mat-form-field>
+
+  <mat-form-field appearance="fill">
+    <mat-label>Contraseña</mat-label>
+    <input matInput [(ngModel)]="password" type="password" />
+  </mat-form-field>
+
+  <button mat-raised-button color="primary" (click)="iniciarSesion()">Entrar</button>
+</div>

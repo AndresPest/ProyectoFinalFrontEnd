@@ -1,0 +1,28 @@
+<app-navbar></app-navbar>
+<router-outlet></router-outlet>
+
+<div class="questionnaire-container">
+  <h2>Cuestionario de Estrés PSS-10 (Nivel 1)</h2>
+    <div [@fadeIn] [@.disabled]="false" [@fadeInTrigger]="preguntaKey" class="questionnaire-container" *ngIf="preguntaActual">
+    <p class="pregunta">{{ cuestionario[currentQuestionIndex].pregunta }}</p>
+
+  <mat-form-field appearance="fill" class="selector">
+    <mat-label>Selecciona una respuesta</mat-label>
+    <mat-select [(ngModel)]="selectedAnswer">
+      <mat-option *ngFor="let opcion of opciones" [value]="opcion">{{ opcion }}</mat-option>
+    </mat-select>
+  </mat-form-field>
+
+  <button mat-raised-button color="primary" (click)="confirmAnswer()" [disabled]="!selectedAnswer">
+    Confirmar respuesta
+  </button>
+
+  <div class="progress">
+    Pregunta {{ currentQuestionIndex + 1 }} de {{ cuestionario.length }}
+  </div>
+</div>
+
+<section class="resultado-estres" *ngIf="nivel_estres">
+  <h2>Tu nivel de estrés</h2>
+  <p><strong>{{ nivel_estres }}</strong> ({{ resultado }} puntos)</p>
+</section>

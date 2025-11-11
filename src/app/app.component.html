@@ -1,0 +1,4 @@
+<h2>Evaluar Estres</h2>
+    <input type="number" [ngModel]="puntaje" (ngModelChange)="puntaje = $event" />
+    <button (click)="enviar()">Enviar</button>
+    <p *ngIf="respuesta">{{ respuesta }}</p>

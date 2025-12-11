@@ -24,53 +24,41 @@
         <!-- Panel lateral -->
         <div class="barra-lateral">
           <div class="barra-emociones">
-            <h3>Emociones detectadas</h3>
+            <h3>Panel de Resultados</h3>
             <ul>
-              <li>Felicidad: <span class="valor-emocion" data-emocion="felicidad">0%</span></li>
-              <li>Tristeza: <span class="valor-emocion" data-emocion="tristeza">0%</span></li>
-              <li>Enojo: <span class="valor-emocion" data-emocion="enojo">0%</span></li>
-              <li>Miedo: <span class="valor-emocion" data-emocion="miedo">0%</span></li>
-              <li>Sorpresa: <span class="valor-emocion" data-emocion="sorpresa">0%</span></li>
-              <li>Desagrado: <span class="valor-emocion" data-emocion="desagrado">0%</span></li>
-              <li>Neutralidad: <span class="valor-emocion" data-emocion="neutralidad">0%</span></li>
+                <div *ngIf="resultado"> 
+                  <h3>Estado emocional: {{ mensaje }}</h3>
+                  <div class="porcentajes">
+                    <div *ngFor="let emocion of resultado.porcentajes | keyvalue">
+                      <label>{{ emocion.key }}:</label>
+                      <progress [value]="emocion.value" max="100"></progress>
+                      <span>{{ emocion.value }}%</span>
+                    </div>
+                  </div>
+                </div>
             </ul>
           </div>
-          <div class="barra-progreso">
-            <h4>Progreso de detección</h4>
+          <div class="barra-progreso" *ngIf="cargando" class="cargando">
+            <h4>Procesando Captura...</h4>
             <div class="progreso-container">
               <div class="progreso" id="progreso"></div>
             </div>
             <p id="porcentaje">0%</p>
           </div>
-
-          <div class="pasos-captura">
-            <h4>Ángulos capturados</h4>
-            <ul>
-              <li id="frontal"><span class="icono"></span> Frontal</li>
-              <li id="izquierda"><span class="icono"></span> Perfil Izquierdo</li>
-              <li id="derecha"><span class="icono"></span> Perfil Derecho</li>
-              <li id="arriba"><span class="icono"></span> Inclinación Arriba</li>
-              <li id="abajo"><span class="icono"></span> Inclinación Abajo</li>
-            </ul>
-          </div>
            
         </div>
       </div>
       <div class="resultados">
-            <h3>Panel de resultados</h3>
+            <br>
+            <h3>Resumen de resultados</h3>
             <p>Estado emocional: <span *ngIf="mensaje" class="emocion">{{ mensaje }}</span></p>
             <p>Tiempo actual: {{ tiempo }}</p>  
-            <button (click)="enviarImagenAlDetectorEstres()">Capturar</button>
-
               
         </div>
       <div class="botones">
-        <button id="capturar">Capturar Emoción</button>
+        <button id="capturar " (click)="enviarImagenAlDetectorEstres()">Capturar Emoción</button>
       </div>
-
-      <p class="nota">
-        Tu rostro será analizado desde diferentes ángulos. Procura estar en un lugar bien iluminado y mirar al frente cuando se te indique.
-      </p>
+      
     </div>
   </main>
 
@@ -78,49 +66,3 @@
     <p>&copy; 2025 Erick | Sistema de Evaluación Emocional</p>
   </footer>
 </div>
-
-<script>
-  document.addEventListener("DOMContentLoaded", () => {
-  const barra = document.getElementById("progreso");
-  const porcentajeTexto = document.getElementById("porcentaje");
-  const botonCapturar = document.getElementById("capturar");
-  const valoresEmociones = document.querySelectorAll(".valor-emocion");
-  const estadoCaptura = document.getElementById("estado-captura");
-
-  const pasos = ["frontal", "izquierda", "derecha", "arriba", "abajo"];
-  let pasoActual = 0;
-  let progreso = 0;
-
-  // --- Emociones en tiempo real ---
-  function actualizarEmociones() {
-    valoresEmociones.forEach((span) => {
-      const valor = Math.floor(Math.random() * 100);
-      span.textContent = valor + "%";
-    });
-  }
-  setInterval(actualizarEmociones, 2000);
-
-  // --- Captura de ángulos ---
-  botonCapturar.addEventListener("click", () => {
-    if (pasoActual < pasos.length) {
-      const id = pasos[pasoActual];
-      const li = document.getElementById(id);
-      li.classList.add("completado");
-
-      progreso += 20; // cada ángulo vale 20%
-      barra.style.width = progreso + "%";
-      porcentajeTexto.textContent = progreso + "%";
-
-      estadoCaptura.textContent = `Ángulo ${id} capturado`;
-      pasoActual++;
-    }
-
-    if (pasoActual === pasos.length) {
-      estadoCaptura.textContent = "Captura completada. Los resultados estarán disponibles en el siguiente nivel.";
-    }
-  });
-});
-
-
-
-</script>

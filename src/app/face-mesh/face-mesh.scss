@@ -377,3 +377,56 @@ html, body {
   border-radius: 2px;
   align-self: stretch; // 🔑 ocupa toda la altura disponible (igual que el canva)
 }
+
+.boton-captura {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.boton-captura button {
+  padding: 10px 20px;
+  font-size: 1rem;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.boton-captura button:hover {
+  background-color: #0056b3;
+}
+
+.cargando {
+  text-align: center;
+  font-size: 1.2rem;
+  color: #555;
+  margin-top: 10px;
+}
+
+.porcentajes {
+  margin-top: 20px;
+}
+
+.porcentajes div {
+  display: flex;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.porcentajes label {
+  width: 100px;
+  font-weight: bold;
+}
+
+.porcentajes progress {
+  flex: 1;
+  margin: 0 10px;
+  height: 16px;
+}
+
+.porcentajes span {
+  width: 50px;
+  text-align: right;
+}

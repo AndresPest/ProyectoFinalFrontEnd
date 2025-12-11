@@ -1,0 +1,64 @@
+.galeria-activaciones {
+  padding: 20px;
+  background-color: #f9f9f9;
+}
+
+.galeria-activaciones h2 {
+  text-align: center;
+  margin-bottom: 20px;
+  font-size: 1.8rem;
+  color: #333;
+}
+
+.grid-activaciones {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 20px;
+}
+
+.card {
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  padding: 15px;
+  text-align: center;
+  transition: transform 0.2s ease;
+}
+
+.card:hover {
+  transform: scale(1.05);
+}
+
+.card h3 {
+  margin-bottom: 10px;
+  font-size: 1.2rem;
+  color: #444;
+}
+
+.card img {
+  width: 100%;
+  height: auto;
+  border-radius: 8px;
+}
+.boton-activaciones {
+  margin-top: 30px;
+  display: flex;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+.boton-activaciones button {
+  padding: 10px 20px;
+  font-size: 1rem;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.boton-activaciones button:hover {
+  
+  background-color: #0056b3;
+}

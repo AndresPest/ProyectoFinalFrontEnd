@@ -1,5 +1,5 @@
 {
-  "name": "version1",
+  "name": "TESISFRONTEND",
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",
@@ -38,7 +38,7 @@
     "zone.js": "^0.15.1"
   },
   "devDependencies": {
-    "@angular/build": "^20.0.5",
+    "@angular-devkit/build-angular": "^20.0.5",
     "@angular/cli": "^20.0.5",
     "@angular/compiler-cli": "^20.0.0",
     "@types/jasmine": "~5.1.0",

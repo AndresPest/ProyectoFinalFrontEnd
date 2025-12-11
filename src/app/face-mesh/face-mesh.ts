@@ -8,6 +8,9 @@ import { drawConnectors, drawLandmarks, FACEMESH_IRISES } from '../utils/drawing
 import { FormsModule } from '@angular/forms';
 import { NavbarComponent } from '../navbar/navbar';
 import { RouterOutlet } from '@angular/router';
+import { CapturaService } from '../services/captura.service';
+
+
 
 @Component({
   selector: 'app-face-mesh',
@@ -20,7 +23,8 @@ export class FaceMeshComponent implements AfterViewInit {
   @ViewChild('video') videoRef!: ElementRef<HTMLVideoElement>;
   @ViewChild('canvas') canvasRef!: ElementRef<HTMLCanvasElement>;
 
-
+  cargando = false;
+  resultado: any = null;
   //VARIABLES NIVEL 2
   mensaje = '';
   porcentaje = '';
@@ -37,8 +41,7 @@ export class FaceMeshComponent implements AfterViewInit {
   mostrarHeatmap = false;
   rutaHeatmap = 'assets/heatmap.png';
 
-  constructor(private http: HttpClient) {
-  }
+  constructor(private http: HttpClient, private capturaService: CapturaService) {}
 
   async ngAfterViewInit() {
     const video = this.videoRef.nativeElement;
@@ -100,15 +103,37 @@ export class FaceMeshComponent implements AfterViewInit {
   }
 
   enviarImagenAlDetectorEstres() { 
+    this.cargando = true;
+    this.resultado = null;
+
+    
     const canvas = this.canvasRef.nativeElement; 
     const imagenB64 = canvas.toDataURL('image/jpg').split(',')[1]; 
-    this.http.post<any>('http://localhost:5000/api/emocion', { imagen: imagenB64 }) 
+
+    this.capturaService.setImagen(imagenB64);
+
+    if (!imagenB64) {
+    console.warn('⚠️ No hay captura disponible todavía');
+    this.cargando = false;
+    return;
+    }
+    
+
+   this.http.post<any>('http://localhost:5000/api/emocion', { imagen: imagenB64 }) 
     .subscribe({ next: res => { 
-      this.mensaje = `${res.emocion} (${(res.confianza * 100).toFixed(1)}%)`; 
-      this.porcentaje = (res.confianza * 100).toFixed(1); }, 
+      this.mensaje = `${res.emocion} (${(res.confianza).toFixed(1)}%)`; 
+      this.porcentaje = (res.confianza * 100).toFixed(1); 
+      this.resultado = res;
+      this.cargando = false;  
+    }, 
     error: err => { 
       console.error('❌ Error en detección de estrés', err); 
-      this.mensaje = '❌ No se pudo analizar el estrés'; } }); 
+      this.mensaje = '❌ No se pudo analizar el estrés'; 
+      this.cargando = false;
+      } 
+    }); 
+  
+
   }
 
   procesarImagen(event: Event) {

@@ -4,6 +4,7 @@ import { StressQuestionnaireComponent } from './stress-questionnaire/stress-ques
 import { FaceMeshComponent } from './face-mesh/face-mesh';
 import { ResultadosComponent } from './resultados/resultados';
 import { RegisterComponent } from './register/register';
+import { MapasDeCalorComponent } from './mapas-de-calor/mapas-de-calor.component';
 
 export const routes: Routes = [
     { path: '', redirectTo: 'login', pathMatch: 'full' },
@@ -12,4 +13,5 @@ export const routes: Routes = [
     { path: 'cuestionario', component: StressQuestionnaireComponent },
     { path: 'face-mesh', component: FaceMeshComponent },
     { path: 'resultados', component: ResultadosComponent },
+    { path: 'mapas-de-calor', component: MapasDeCalorComponent },
 ];

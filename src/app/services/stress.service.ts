@@ -8,10 +8,10 @@ export class StressService {
   constructor(private http: HttpClient) {}
 
   submitAnswers(respuestas: EstresCuestionario[]): Observable<any> {
-    return this.http.post('http://localhost:5000/api/stress', { respuestas });
+    return this.http.post('https://proyectofinalbackend-iuk0.onrender.com/api/stress', { respuestas });
   }
 
   submitScore(puntaje: number): Observable<any> {
-  return this.http.post('http://localhost:5000/api/estrescuestionario', { puntaje });
+  return this.http.post('https://proyectofinalbackend-iuk0.onrender.com/api/estrescuestionario', { puntaje });
   }
 }

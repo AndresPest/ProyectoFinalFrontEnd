@@ -1,5 +1,9 @@
 {
   "projects": {
-    "default": "reconocimiento-emocional-2d6e4"
-  }
+    "default": "reconocimiento-emocional-2d6e4",
+    "emo": "emociones-84302",
+    "emocion": "emociones-2beb4"
+  },
+  "targets": {},
+  "etags": {}
 }

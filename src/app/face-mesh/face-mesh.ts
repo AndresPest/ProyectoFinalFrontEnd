@@ -79,8 +79,8 @@ export class FaceMeshComponent implements AfterViewInit {
 
     const camera = new Camera(video, {
       onFrame: async () => await faceMesh.send({ image: video }),
-      width: 640,
-      height: 480
+      width: 200,
+      height: 200
     });
     camera.start();
   }
@@ -89,7 +89,7 @@ export class FaceMeshComponent implements AfterViewInit {
     const canvas = this.canvasRef.nativeElement;
     const imagenB64 = canvas.toDataURL('image/jpeg').split(',')[1];
 
-    this.http.post<any>('http://localhost:5000/api/face-mesh', { imagen: imagenB64 })
+    this.http.post<any>('https://proyectofinalbackend-iuk0.onrender.com/api/face-mesh', { imagen: imagenB64 })
       .subscribe({
         next: res => {
           this.mensaje = `✅ Rostro detectado con ${res.puntos?.length || 0} puntos`;
@@ -108,7 +108,11 @@ export class FaceMeshComponent implements AfterViewInit {
 
     
     const canvas = this.canvasRef.nativeElement; 
-    const imagenB64 = canvas.toDataURL('image/jpg').split(',')[1]; 
+
+    // Redimensionar el canvas internamente si es muy grande
+    canvas.width = 200; 
+    canvas.height = 200;
+    const imagenB64 = canvas.toDataURL('image/jpg', 0.7).split(',')[1]; 
 
     this.capturaService.setImagen(imagenB64);
 
@@ -118,8 +122,8 @@ export class FaceMeshComponent implements AfterViewInit {
     return;
     }
     
-
-   this.http.post<any>('http://localhost:5000/api/emocion', { imagen: imagenB64 }) 
+    
+   this.http.post<any>('https://proyectofinalbackend-iuk0.onrender.com/api/emocion', { imagen: imagenB64 }) 
     .subscribe({ next: res => { 
       this.mensaje = `${res.emocion} (${(res.confianza).toFixed(1)}%)`; 
       this.porcentaje = (res.confianza * 100).toFixed(1); 

@@ -1,9 +1,6 @@
 {
-  "storage": {
-    "rules": "storage.rules"
-  },
   "hosting": {
-    "public": "dist/version1/browser",
+    "public": "dist/TESISFRONTEND/browser", 
     "ignore": [
       "firebase.json",
       "**/.*",
@@ -12,7 +9,7 @@
     "rewrites": [
       {
         "source": "**",
-        "destination": "dist/version1/browser/index.html"
+        "destination": "/index.html"
       }
     ]
   }

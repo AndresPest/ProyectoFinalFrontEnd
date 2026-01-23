@@ -8,6 +8,6 @@ export class AuthService {
   private http = inject(HttpClient);
 
   login(usuario: string, password: string): Observable<any> {
-    return this.http.post('http://localhost:5000/api/login', { usuario, password });
+    return this.http.post('https://proyectofinalbackend-iuk0.onrender.com/api/login', { usuario, password });
   }
 }

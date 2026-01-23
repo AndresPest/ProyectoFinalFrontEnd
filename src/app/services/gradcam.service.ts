@@ -6,7 +6,7 @@ import { Observable } from 'rxjs';
   providedIn: 'root'
 })
 export class GradcamService {
-  private apiUrl = 'http://localhost:5000/api/gradcam'; // ajusta host/puerto
+  private apiUrl = 'https://proyectofinalbackend-iuk0.onrender.com/api/gradcam'; // ajusta host/puerto
         
   constructor(private http: HttpClient) {}
 

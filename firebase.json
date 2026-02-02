@@ -1,6 +1,10 @@
 {
   "hosting": {
+
     "public": "dist/TESISFRONTEND/browser", 
+
+    "public": "dist/version1/browser/",
+
     "ignore": [
       "firebase.json",
       "**/.*",
@@ -12,5 +16,9 @@
         "destination": "/index.html"
       }
     ]
-  }
+  },
+  "functions":
+    {
+      "predeploy": []
+    }
 }

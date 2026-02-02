@@ -1,0 +1,60 @@
+<app-navbar></app-navbar>
+<router-outlet></router-outlet>
+
+<div class="questionnaire-container">
+  <h2>Reconocimiento de emociones por voz</h2>
+  <div class="voice-emotion-card">
+    <div class="contenedor-grabaciones">
+      <div class="recording-visualizer" *ngIf="recording || secondsElapsed > 0">
+            <div class="recording-dot" *ngIf="recording"></div>
+            <div class="timer">{{ recordingTime }}</div>
+            <canvas #waveformCanvas id="waveform"></canvas>
+            <button class="btn-discard" *ngIf="!recording && secondsElapsed > 0" (click)="discardRecording()" title="Descartar grabación"> <i class="fas fa-trash"></i> </button>
+            <div class="timer" *ngIf="!recording && secondsElapsed > 0"></div>
+
+      </div>
+
+      <div class="controls-row">
+        <button 
+          class="btn-record" 
+          (click)="toggleRecording()" 
+          [disabled]="!recording && secondsElapsed > 0"
+          [class.is-recording]="recording">
+          
+          <span *ngIf="!recording && secondsElapsed === 0">🎤 Grabar</span>
+          <span *ngIf="recording">⏹️ Detener</span>
+          <span *ngIf="!recording && secondsElapsed > 0">✅ Grabación lista</span>
+        </button>
+      </div>
+    </div>
+      <div class="upload-alt">
+        <span>Subir archivo de audio (.wav): </span>
+        <input type="file" (change)="$any($event).target.files[0] && onFileSelected($event)" accept=".wav">
+        <button class="btn-download-alt" *ngIf="!recording && secondsElapsed > 0" (click)="downloadRecording()">
+        📥 Descargar
+      </button>
+      </div>
+    </div>
+
+    <div class="result-card" *ngIf="result" [@fadeIn]>
+      <div class="main-result">
+        <span class="emoji">{{ getEmotionEmoji(result.label) }}</span>
+        <div>
+          <h3>{{ result.label | uppercase }}</h3>
+          <p>Confianza: <strong>{{ (result.confidence * 100) | number:'1.1-1' }}%</strong></p>
+        </div>
+      </div>
+
+      <div class="probability-bars">
+        <div class="bar-item" *ngFor="let p of result.probs; let i = index">
+          <div class="bar-label">
+            <span>{{ result.classes[i] }}</span>
+            <span>{{ (p * 100) | number:'1.0-0' }}%</span>
+          </div>
+          <div class="bar-bg">
+            <div class="bar-fill" [style.width.%]="p * 100"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+</div>

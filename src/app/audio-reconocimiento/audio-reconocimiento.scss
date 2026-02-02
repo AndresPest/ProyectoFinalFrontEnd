@@ -1,0 +1,112 @@
+.voice-emotion-card {
+  background: #f0f2f5;
+  border-radius: 20px;
+  padding: 25px;
+  max-width: 600px;
+  margin: 20px auto;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+.contenedor-grabaciones {
+  display: flex;
+  justify-content: space-evenly;
+  margin-bottom: 10px;
+}
+
+.recording-visualizer {
+  color: #1E3A8A;
+  width: 40%;
+  background: white;
+  height: 45px;
+  border-radius: 40px;
+  display: flex;
+  align-items: center;
+  padding: 0 20px;
+  margin-bottom: 20px;
+  position: relative;
+  overflow: hidden;
+  border: 2px solid gray;
+}
+
+#waveform {
+  width: 50%;
+  height: 50px;
+}
+
+.timer {
+  font-family: 'Orbitron', sans-serif;
+  color: #54656f;
+  margin-right: 15px;
+  font-weight: bold;
+}
+
+.recording-dot {
+  width: 12px;
+  height: 12px;
+  background: #ff2e2e;
+  border-radius: 50%;
+  margin-left: 10px;
+  animation: pulse 1s infinite;
+}
+
+.btn-discard {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  margin-left: 15px;
+  padding: 5px;
+  transition: transform 0.2s, filter 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-discard:hover {
+  filter: drop-shadow(0 0 5px gray);
+}
+
+.fa-trash {
+  color: gray;
+}
+
+@keyframes pulse {
+  0% { opacity: 1; }
+  50% { opacity: 0.3; }
+  100% { opacity: 1; }
+}
+
+.btn-record {
+  background: #1E3A8A;
+  color: white;
+  border: none;
+  padding: 12px 25px;
+  border-radius: 30px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.btn-record.is-recording {
+  background: #ae1f34;
+  animation: pulse-border 1.5s infinite;
+}
+
+.btn-record:disabled {
+  background-color: #aebac1;
+  cursor: not-allowed;
+  opacity: 0.8;
+}
+
+@keyframes pulse-border {
+  0% { box-shadow: 0 0 0 0 rgba(234, 0, 56, 0.4); }
+  70% { box-shadow: 0 0 0 10px rgba(234, 0, 56, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(234, 0, 56, 0); }
+}
+
+/* Estilo de las barras de probabilidad */
+.probability-bars { margin-top: 20px; }
+.bar-item { margin-bottom: 10px; }
+.bar-bg { background: #ddd; height: 8px; border-radius: 4px; overflow: hidden; }
+.bar-fill { background: #1E3A8A; height: 100%; transition: width 0.5s ease-out; }
+.bar-label { display: flex; justify-content: space-between; font-size: 0.8em; margin-bottom: 3px; }

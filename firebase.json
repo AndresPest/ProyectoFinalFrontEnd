@@ -3,8 +3,6 @@
 
     "public": "dist/TESISFRONTEND/browser", 
 
-    "public": "dist/version1/browser/",
-
     "ignore": [
       "firebase.json",
       "**/.*",

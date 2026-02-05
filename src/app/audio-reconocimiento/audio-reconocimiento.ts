@@ -17,7 +17,6 @@ import { AudioEmotionService } from '../audio-reconocimiento/audio-reconocimient
 
 export class AudioReconocimiento {
   recording = false;
-  result: any = null;
   @ViewChild('waveformCanvas') canvas!: ElementRef<HTMLCanvasElement>;
   public recordingTime: string = '00:00';
   private audioContext?: AudioContext;
@@ -28,6 +27,9 @@ export class AudioReconocimiento {
   private mediaRecorder?: MediaRecorder;
   private audioChunks: Blob[] = [];
   private audioUrl?: string;
+  isAnalyzing = false;
+  public resultsArray: any[] = [];
+  public result: any;
 
   constructor(private api: AudioEmotionService, private zone: NgZone) {}
 
@@ -189,6 +191,111 @@ stopRecording() {
     } else {
       console.error("No hay datos de audio para descargar");
     }
+  }
+
+  async analyzeAudio() {
+    if (this.audioChunks.length === 0) return;
+
+    this.isAnalyzing = true;
+    this.resultsArray = []; // [Mejora] Limpiamos resultados previos antes de empezar
+
+    try {
+      // CONVERTIMOS A WAV ANTES DE ENVIAR
+      const wavBlob = await this.createWavBlob(this.audioChunks);
+
+      this.api.predictEmotion(wavBlob).subscribe({
+        next: (res) => {
+          this.zone.run(() => {
+            console.log("Respuesta completa del servidor:", res);
+            this.result = res;
+            
+            // Verificación de seguridad: ¿Vienen los datos necesarios?
+            if (res.classes && res.probs) {
+              this.resultsArray = res.classes.map((name: string, index: number) => {
+                const percentage = (res.probs[index] * 100).toFixed(2);
+                return {
+                  name: name,
+                  value: percentage,
+                  percent: parseFloat(percentage)
+                };
+              });
+              
+              console.log("Array procesado para las barras:", this.resultsArray);
+            }
+            
+            this.isAnalyzing = false;
+          });
+        },
+        error: (err) => {
+          this.zone.run(() => {
+            this.isAnalyzing = false;
+            console.error("Error en la predicción:", err);
+            alert("Hubo un problema al procesar el audio.");
+          });
+        }
+      });
+    } catch (error) {
+      this.isAnalyzing = false;
+      console.error("Error al convertir audio a WAV:", error);
+    }
+  }
+
+  bufferToWav(abuffer: AudioBuffer): Blob {
+    const numOfChan = abuffer.numberOfChannels;
+    const length = abuffer.length * numOfChan * 2 + 44;
+    const buffer = new ArrayBuffer(length);
+    const view = new DataView(buffer);
+    const channels = [];
+    let i;
+    let sample;
+    let offset = 0;
+    let pos = 0;
+
+    // Escribir cabecera WAV (RIFF)
+    setUint32(0x46464952); // "RIFF"
+    setUint32(length - 8); // tamaño archivo
+    setUint32(0x45564157); // "WAVE"
+    setUint32(0x20746d66); // "fmt " chunk
+    setUint32(16);         // longitud chunk
+    setUint16(1);          // PCM
+    setUint16(numOfChan);
+    setUint32(abuffer.sampleRate);
+    setUint32(abuffer.sampleRate * 2 * numOfChan);
+    setUint16(numOfChan * 2);
+    setUint16(16);         // 16-bit
+    setUint32(0x61746164); // "data" chunk
+    setUint32(length - pos - 4);
+
+    // Escribir los datos de audio
+    for(i = 0; i < abuffer.numberOfChannels; i++)
+      channels.push(abuffer.getChannelData(i));
+
+    while(pos < length) {
+      for(i = 0; i < numOfChan; i++) {
+        sample = Math.max(-1, Math.min(1, channels[i][offset]));
+        sample = (sample < 0 ? sample * 0x8000 : sample * 0x7FFF);
+        view.setInt16(pos, sample, true);
+        pos += 2;
+      }
+      offset++;
+    }
+
+    return new Blob([buffer], { type: 'audio/wav' });
+
+    function setUint16(data: any) { view.setUint16(pos, data, true); pos += 2; }
+    function setUint32(data: any) { view.setUint32(pos, data, true); pos += 4; }
+  }
+  
+  async createWavBlob(chunks: Blob[]): Promise<Blob> {
+    const audioContext = new AudioContext();
+    const blob = new Blob(chunks, { type: 'audio/webm' });
+    const arrayBuffer = await blob.arrayBuffer();
+    const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
+    
+    return new Promise((resolve) => {
+      const wavBlob = this.bufferToWav(audioBuffer);
+      resolve(wavBlob);
+    });
   }
 
 }

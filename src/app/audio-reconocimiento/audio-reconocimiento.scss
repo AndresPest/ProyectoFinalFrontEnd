@@ -98,6 +98,94 @@
   opacity: 0.8;
 }
 
+.btn-process {
+  background-color: #673ab7; /* Color Púrpura IA */
+  color: white;
+  border: none;
+  padding: 12px 25px;
+  border-radius: 30px;
+  font-weight: bold;
+  cursor: pointer;
+  margin-left: 10px;
+  transition: all 0.3s;
+}
+
+.btn-process:hover:not(:disabled) {
+  background-color: #512da8;
+  box-shadow: 0 0 15px rgba(103, 58, 183, 0.4);
+}
+
+.btn-process:disabled {
+  opacity: 0.7;
+  cursor: wait;
+}
+
+.controls-row {
+    display: flex;
+    width: 50%;
+    height: 45px;
+}
+
+.results-container {
+  background: white;
+  padding: 30px;
+  border-radius: 15px;
+  max-width: 450px;
+  margin: 20px auto;
+  font-family: Arial, sans-serif;
+}
+
+.panel-title {
+  text-align: center;
+  font-size: 1.4rem;
+  color: #333;
+  margin-bottom: 10px;
+}
+
+.main-prediction {
+  text-align: center;
+  font-size: 1.2rem;
+  margin-bottom: 30px;
+  color: #444;
+}
+
+.emotion-row {
+  display: flex;
+  align-items: center;
+  margin-bottom: 15px;
+  gap: 15px;
+}
+
+.label {
+  width: 90px;
+  text-align: right;
+  font-weight: bold;
+  color: #555;
+  text-transform: lowercase;
+}
+
+.bar-background {
+  flex-grow: 1;
+  background: #f0f0f0;
+  height: 12px;
+  border-radius: 10px;
+  border: 1px solid #ccc; /* El borde gris de tu imagen */
+  overflow: hidden;
+}
+
+.bar-fill {
+  background: #1b8a1b; /* El verde oscuro de tu referencia */
+  height: 100%;
+  border-radius: 10px;
+  transition: width 1s ease-out; /* Animación al cargar */
+}
+
+.percentage {
+  width: 60px;
+  font-size: 0.95rem;
+  color: #444;
+}
+
 @keyframes pulse-border {
   0% { box-shadow: 0 0 0 0 rgba(234, 0, 56, 0.4); }
   70% { box-shadow: 0 0 0 10px rgba(234, 0, 56, 0); }

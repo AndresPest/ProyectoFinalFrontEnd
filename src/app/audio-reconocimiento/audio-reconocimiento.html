@@ -15,45 +15,38 @@
       </div>
 
       <div class="controls-row">
-        <button 
-          class="btn-record" 
-          (click)="toggleRecording()" 
-          [disabled]="!recording && secondsElapsed > 0"
-          [class.is-recording]="recording">
-          
-          <span *ngIf="!recording && secondsElapsed === 0">🎤 Grabar</span>
-          <span *ngIf="recording">⏹️ Detener</span>
-          <span *ngIf="!recording && secondsElapsed > 0">✅ Grabación lista</span>
+        <button class="btn-record" (click)="toggleRecording()" [disabled]="(recording || secondsElapsed > 0) && !recording">
+          {{ recording ? '⏹️ Detener' : (secondsElapsed > 0 ? '✅ Grabación Lista' : '🎤 Grabar') }}
+        </button>
+
+        <button class="btn-process" *ngIf="!recording && secondsElapsed > 0" (click)="analyzeAudio()" [disabled]="isAnalyzing">
+          <span *ngIf="!isAnalyzing">Analizar</span>
+          <span *ngIf="isAnalyzing">Procesando...</span>
         </button>
       </div>
     </div>
       <div class="upload-alt">
         <span>Subir archivo de audio (.wav): </span>
         <input type="file" (change)="$any($event).target.files[0] && onFileSelected($event)" accept=".wav">
-        <button class="btn-download-alt" *ngIf="!recording && secondsElapsed > 0" (click)="downloadRecording()">
-        📥 Descargar
-      </button>
+        <button class="btn-download-alt" *ngIf="!recording && secondsElapsed > 0" (click)="downloadRecording()"> 📥 Descargar </button>
       </div>
     </div>
 
-    <div class="result-card" *ngIf="result" [@fadeIn]>
-      <div class="main-result">
-        <span class="emoji">{{ getEmotionEmoji(result.label) }}</span>
-        <div>
-          <h3>{{ result.label | uppercase }}</h3>
-          <p>Confianza: <strong>{{ (result.confidence * 100) | number:'1.1-1' }}%</strong></p>
-        </div>
-      </div>
+    <div class="results-container" *ngIf="result && resultsArray.length > 0">
+      <h2 class="panel-title">Panel de Resultados</h2>
+      <h3 class="main-prediction">
+        Estado emocional: <strong>{{ result.label }} ({{ (result.confidence * 100).toFixed(1) }}%)</strong>
+      </h3>
 
-      <div class="probability-bars">
-        <div class="bar-item" *ngFor="let p of result.probs; let i = index">
-          <div class="bar-label">
-            <span>{{ result.classes[i] }}</span>
-            <span>{{ (p * 100) | number:'1.0-0' }}%</span>
+      <div class="emotions-grid">
+        <div class="emotion-row" *ngFor="let emotion of resultsArray">
+          <span class="label">{{ emotion.name }}:</span>
+          
+          <div class="bar-background">
+            <div class="bar-fill" [style.width.%]="emotion.percent"></div>
           </div>
-          <div class="bar-bg">
-            <div class="bar-fill" [style.width.%]="p * 100"></div>
-          </div>
+          
+          <span class="percentage">{{ emotion.value }}%</span>
         </div>
       </div>
     </div>

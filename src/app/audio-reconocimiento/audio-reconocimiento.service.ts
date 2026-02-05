@@ -7,9 +7,9 @@ export class AudioEmotionService {
 
   constructor(private http: HttpClient) {}
 
-  predictEmotion(file: Blob) {
+  predictEmotion(audioBlob: Blob) {
     const formData = new FormData();
-    formData.append('file', file, 'recording.wav');
-    return this.http.post<any>(`${this.baseUrl}`, formData);
+    formData.append('file', audioBlob, 'recording.wav');
+    return this.http.post<any>(this.baseUrl, formData);
   }
 }

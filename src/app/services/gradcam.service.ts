@@ -6,7 +6,7 @@ import { Observable } from 'rxjs';
   providedIn: 'root'
 })
 export class GradcamService {
-  private apiUrl = 'https://proyectofinalbackend-iuk0.onrender.com/api/gradcam'; // ajusta host/puerto
+  private apiUrl = 'https://croxx312-reconocimientoemocional.hf.space/api/gradcam'; // ajusta host/puerto
         
   constructor(private http: HttpClient) {}
 

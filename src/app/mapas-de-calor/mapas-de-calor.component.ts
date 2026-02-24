@@ -48,7 +48,7 @@ export class MapasDeCalorComponent {
       return;
     }
 
-    this.http.post<any>('https://proyectofinalbackend-iuk0.onrender.com/api/activaciones-color', { image: imagenB64 })
+    this.http.post<any>('https://croxx312-reconocimientoemocional.hf.space/api/activaciones-color', { image: imagenB64 })
   .subscribe({
     next: res => {
       this.activaciones = res.activaciones;

@@ -1,41 +1,49 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
-import { FormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
-import { UserService } from '../services/user.service';
-import { User } from '../models/usuario.model';
-import { NavbarComponent } from '../navbar/navbar';
-import { RouterOutlet } from '@angular/router';
+import { Router, RouterOutlet } from '@angular/router'; // <--- Importante: RouterOutlet
+
+// Importa tu NavbarComponent (verifica que la ruta sea correcta)
+import { NavbarComponent } from '../navbar/navbar'; 
+import { AuthService } from '../services/auth';
 
 @Component({
   selector: 'app-register',
   standalone: true,
   templateUrl: './register.html',
   styleUrls: ['./register.scss'],
-  imports: [CommonModule, ReactiveFormsModule, NavbarComponent, RouterOutlet, FormsModule, MatFormFieldModule, MatInputModule, MatButtonModule],
+  imports: [
+    CommonModule, 
+    ReactiveFormsModule, 
+    MatFormFieldModule, 
+    MatInputModule, 
+    MatButtonModule,
+    NavbarComponent, 
+    RouterOutlet    
+  ],
 })
 export class RegisterComponent {
-  form: FormGroup;
-  user = {
-    displayName: '',
-    email: '',
-    password: ''
-  };
+  private fb = inject(FormBuilder);
+  private authService = inject(AuthService);
+  private router = inject(Router);
 
-  constructor(private fb: FormBuilder, private userService: UserService) {
-    this.form = this.fb.group({
-      displayName: ['', Validators.required],
-      email: ['', [Validators.required, Validators.email]],
-      password: ['', [Validators.required, Validators.minLength(6)]]
-    });
-  }
+  form: FormGroup = this.fb.group({
+    displayName: ['', [Validators.required]],
+    email: ['', [Validators.required, Validators.email]],
+    password: ['', [Validators.required, Validators.minLength(6)]]
+  });
 
-  register() {
-    if (this.form.valid) {
-      this.userService.register(this.form.value as User);
+  async register() {
+    if (this.form.invalid) return;
+    const { email, password, displayName } = this.form.value;
+    try {
+      await this.authService.register(email, password, displayName);
+      this.router.navigate(['/login']);
+    } catch (error: any) {
+      alert('Error: ' + error.message);
     }
   }
 }

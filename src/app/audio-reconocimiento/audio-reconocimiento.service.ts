@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 
 @Injectable({ providedIn: 'root' })
 export class AudioEmotionService {
-  private baseUrl = 'http://localhost:5000/api/audio';
+  private baseUrl = 'https://croxx312-reconocimientoemocional.hf.space/api/audio';
 
   constructor(private http: HttpClient) {}
 

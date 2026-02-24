@@ -13,13 +13,13 @@ import { CapturaService } from '../services/captura.service';
 
 
 @Component({
-  selector: 'app-face-mesh',
+  selector: 'app-facemesh',
   standalone: true,
   imports: [CommonModule, HttpClientModule, FormsModule, NavbarComponent, RouterOutlet],
-  templateUrl: `face-mesh.html`,
-  styleUrl: 'face-mesh.scss'
+  templateUrl: `facemesh.html`,
+  styleUrl: 'facemesh.scss'
 })
-export class FaceMeshComponent implements AfterViewInit {
+export class FaceMesh1Component implements AfterViewInit {
   @ViewChild('video') videoRef!: ElementRef<HTMLVideoElement>;
   @ViewChild('canvas') canvasRef!: ElementRef<HTMLCanvasElement>;
 
@@ -64,7 +64,15 @@ export class FaceMeshComponent implements AfterViewInit {
       ctx.drawImage(results.image, 0, 0, canvas.width, canvas.height);
       if (results.multiFaceLandmarks) {
         for (const landmarks of results.multiFaceLandmarks) {
-         
+          // Dibuja la malla facial (triángulos)
+          drawConnectors(ctx, landmarks, mp_face_mesh.FACEMESH_TESSELATION, { color: '#C0C0C070', lineWidth: 1 });
+          // Dibuja los contornos (ojos, labios, cejas)
+          drawConnectors(ctx, landmarks, mp_face_mesh.FACEMESH_CONTOURS, { color: '#00FF00', lineWidth: 2 });
+          // Dibuja el iris (si refineLandmarks es true)
+          drawConnectors(ctx, landmarks, FACEMESH_IRISES, { color: '#00afff', lineWidth: 1 });
+
+        
+          drawLandmarks(ctx, landmarks, { color: '#FF0000', radius: 1 });
         }
       }
     });

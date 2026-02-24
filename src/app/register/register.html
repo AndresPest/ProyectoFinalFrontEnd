@@ -1,24 +1,27 @@
 <app-navbar></app-navbar>
 <router-outlet></router-outlet>
+
 <div class="register-wrapper">
-  <form (ngSubmit)="register()" #form="ngForm">
+  <form [formGroup]="form" (ngSubmit)="register()">
     <h2 class="form-title">Registro</h2>
 
     <mat-form-field appearance="fill">
       <mat-label>Nombre completo</mat-label>
-      <input matInput name="displayName" [(ngModel)]="user.displayName" required />
+      <input matInput formControlName="displayName" required />
     </mat-form-field>
 
     <mat-form-field appearance="fill">
       <mat-label>Correo electrónico</mat-label>
-      <input matInput type="email" name="email" [(ngModel)]="user.email" required email />
+      <input matInput type="email" formControlName="email" required />
     </mat-form-field>
 
     <mat-form-field appearance="fill">
       <mat-label>Contraseña</mat-label>
-      <input matInput type="password" name="password" [(ngModel)]="user.password" required minlength="6" />
+      <input matInput type="password" formControlName="password" required />
     </mat-form-field>
 
-    <button mat-raised-button color="primary" type="submit" class="register-button">Registrarse</button>
+    <button mat-raised-button color="primary" type="submit" class="register-button" [disabled]="form.invalid">
+      Registrarse
+    </button>
   </form>
 </div>

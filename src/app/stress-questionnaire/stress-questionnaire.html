@@ -7,6 +7,45 @@
     <p>Selecciona el instrumento que deseas aplicar</p>
   </header>
 
+  <div class="modal-consentimiento" *ngIf="!consentimientoAceptado">
+    <div class="card-consentimiento animate__animated animate__fadeIn">
+      <div class="header-ia">
+        <div class="logo-ia">IA</div>
+        <div>
+          <h2>Análisis Emocional</h2>
+          <p>Información importante sobre la evaluación</p>
+        </div>
+      </div>
+
+      <hr>
+
+      <div class="contenido-texto">
+        <p><strong>Antes de comenzar, por favor lee atentamente lo siguiente:</strong></p>
+        
+        <p>Esta evaluación consta de cuestionarios diseñados para tu bienestar. Para complementar el análisis, se utilizará tu cámara para capturar fotogramas instantáneos en momentos clave.</p>
+
+        <p>El propósito es que nuestra Inteligencia Artificial analice tus expresiones faciales para detectar emociones como estrés, ansiedad o tranquilidad mediante modelos de <strong>Face-Mesh</strong> y <strong>CNN</strong>.</p>
+
+        <div class="alerta-privacidad">
+          <p><strong>🛡️ Privacidad Garantizada:</strong> Las fotografías <strong>NO</strong> se guardarán en ningún servidor. El sistema procesa la imagen en tiempo real, extrae la emoción detectada (ej. "Estrés") y el nivel de confianza, descartando la imagen original inmediatamente.</p>
+        </div>
+
+        <p>Tu participación es completamente voluntaria. Al hacer clic en el botón de abajo, confirmas que comprendes y aceptas estas condiciones.</p>
+      </div>
+
+      <button class="btn-entendido" (click)="aceptarConsentimiento()">
+        Entiendo y Aceptar
+      </button>
+
+      <footer class="footer-modal">
+        © 2026 Innovación Tecnológica. Todos los derechos reservados.
+      </footer>
+    </div>
+  </div>
+
+  <video #video autoplay muted hidden class="camara-oculta"></video>
+  <canvas #canvas class="camara-oculta"></canvas>
+
   <div class="grid-menu" *ngIf="!testSeleccionado">
       <div 
         class="test-card" 
@@ -180,5 +219,22 @@
 
         </div>
       </div>
+    </div>
+    <div class="resultado-container" *ngIf="resultadoEstres">
+      <div class="emocion-detectada">
+        📌 Emoción: <strong>{{ mensajeEstres }}</strong>
+      </div>
+      
+      <div class="progreso">
+        <label>Confianza del análisis:</label>
+        <div class="progress-bar">
+          <div class="progress-fill" [style.width.%]="porcentajeEstres"></div>
+        </div>
+        <span>{{ porcentajeEstres }}%</span>
+      </div>
+    </div>
+
+    <div *ngIf="cargandoEstres" class="text-info">
+      Procesando tu expresión facial...
     </div>
 </div>

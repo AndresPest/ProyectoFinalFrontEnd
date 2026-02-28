@@ -143,10 +143,59 @@ export class FaceMesh1Component implements AfterViewInit {
 
   const lector = new FileReader();
   lector.onload = () => {
-    const imagenB64 = (lector.result as string).split(',')[1]; // elimina el encabezado data:image/...
+    const imagenB64 = (lector.result as string).split(',')[1];
     //this.enviarImagenAlDetectorEstres(imagenB64);
   };
   lector.readAsDataURL(archivo);
+}
+
+private redimensionarImagen(base64Str: string): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.src = 'data:image/jpeg;base64,' + base64Str;
+    
+    img.onload = () => {
+      const canvas = document.createElement('canvas');
+      canvas.width = 48;
+      canvas.height = 48;
+      const ctx = canvas.getContext('2d');
+
+      if (!ctx) {
+        console.error("No se pudo obtener el contexto del canvas");
+        return;
+      }
+
+      ctx.drawImage(img, 0, 0, 48, 48);
+      
+      const nuevoBase64 = canvas.toDataURL('image/jpeg').split(',')[1];
+      resolve(nuevoBase64);
+    };
+
+    img.onerror = (err) => reject(err);
+  });
+}
+
+async enviarFrameAlBackendConParametro(imagenB64: string) {
+  if (!imagenB64) return;
+
+  // 1. Redimensionamos a 48x48
+  const imagenRedimensionada = await this.redimensionarImagen(imagenB64);
+
+  // 2. Enviamos al backend
+  return this.http.post<any>('https://proyectofinalbackend-iuk0.onrender.com/api/face-mesh', { 
+    imagen: imagenRedimensionada 
+  })
+  .subscribe({
+    next: res => {
+      this.mensaje = `${res.emocion} (${(res.confianza).toFixed(1)}%)`; 
+      this.porcentaje = (res.confianza * 100).toFixed(1); 
+      this.resultado = res;
+      this.cargando = false;
+      this.mensaje = `Frame 48x48 enviado correctamente`;
+      console.log('Respuesta backend:', res);
+    },
+    error: err => console.error('Error al enviar frame reducido:', err)
+  });
 }
 
 /*enviarImagenAlDetectorEstres(imagenB64: string) {

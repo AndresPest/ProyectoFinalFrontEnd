@@ -10,7 +10,7 @@
   <div class="modal-consentimiento" *ngIf="!consentimientoAceptado">
     <div class="card-consentimiento animate__animated animate__fadeIn">
       <div class="header-ia">
-        <div class="logo-ia">IA</div>
+        <div class="logo-ia">AE</div>
         <div>
           <h2>Análisis Emocional</h2>
           <p>Información importante sobre la evaluación</p>
@@ -22,24 +22,27 @@
       <div class="contenido-texto">
         <p><strong>Antes de comenzar, por favor lee atentamente lo siguiente:</strong></p>
         
-        <p>Esta evaluación consta de cuestionarios diseñados para tu bienestar. Para complementar el análisis, se utilizará tu cámara para capturar fotogramas instantáneos en momentos clave.</p>
+        <p>Esta evaluación consta de tres cuestionarios científicos: Test de Vulnerabilidad, CEAU e Inventario SISCO.</p>
 
-        <p>El propósito es que nuestra Inteligencia Artificial analice tus expresiones faciales para detectar emociones como estrés, ansiedad o tranquilidad mediante modelos de <strong>Face-Mesh</strong> y <strong>CNN</strong>.</p>
+        <p>Para complementar el análisis, se utilizará tu cámara para detectar emociones mediante modelos de IA <strong>Face-Mesh</strong> y <strong>CNN</strong>.</p>
 
         <div class="alerta-privacidad">
-          <p><strong>🛡️ Privacidad Garantizada:</strong> Las fotografías <strong>NO</strong> se guardarán en ningún servidor. El sistema procesa la imagen en tiempo real, extrae la emoción detectada (ej. "Estrés") y el nivel de confianza, descartando la imagen original inmediatamente.</p>
+          <p><strong>🛡️ Privacidad Garantizada:</strong> Las fotografías <strong>NO</strong> se guardarán en ningún servidor. El sistema procesa la imagen en tiempo real, extrae la emoción detectada y el nivel de confianza, descartando la imagen original inmediatamente.</p>
+        </div>
+        <div class="alerta-privacidad">
+          <p><strong>📍 Apoyo Primario:</strong> Esta herramienta ofrece <strong>ayuda inicial y orientación </strong>, pero <strong>no sustituye la asesoría de un profesional</strong>. Su objetivo es brindarte herramientas prácticas de apoyo; al finalizar, encontrarás opciones para contactar a profesionales capacitados en tu zona si lo requieres.</p>
         </div>
 
-        <p>Tu participación es completamente voluntaria. Al hacer clic en el botón de abajo, confirmas que comprendes y aceptas estas condiciones.</p>
+        <p>Tu participación es completamente voluntaria. Al hacer clic en el botón de abajo, confirmas que comprendes y aceptas estos terminos.</p>
       </div>
 
       <button class="btn-entendido" (click)="aceptarConsentimiento()">
         Entiendo y Aceptar
       </button>
-
       <footer class="footer-modal">
-        © 2026 Innovación Tecnológica. Todos los derechos reservados.
-      </footer>
+      © 2026 Aplicación de Reconocimiento Emocional para proporcionar Apoyo Psicológico - Caso de Estudio: Estudiantes de la UCAB Guayana
+      Andrés Pestana - Erick Espinoza
+    </footer>
     </div>
   </div>
 

@@ -1,55 +1,44 @@
-import { Component, ElementRef, ViewChild, AfterViewInit } from '@angular/core';
+import { Component, ElementRef, ViewChild, AfterViewInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { HttpClientModule, HttpClient } from '@angular/common/http';
+import { HttpClient, HttpClientModule } from '@angular/common/http';
+import { RouterModule } from '@angular/router';
+import { NavbarComponent } from '../navbar/navbar'; 
 import { FaceMesh } from '@mediapipe/face_mesh';
 import * as mp_face_mesh from '@mediapipe/face_mesh';
 import { Camera } from '@mediapipe/camera_utils';
-import { drawConnectors, drawLandmarks, FACEMESH_IRISES } from '../utils/drawing-utils';
-import { FormsModule } from '@angular/forms';
-import { NavbarComponent } from '../navbar/navbar';
-import { RouterOutlet } from '@angular/router';
-import { CapturaService } from '../services/captura.service';
-
-
+import { drawConnectors } from '../utils/drawing-utils';
+import { AuthService } from '../services/auth';
 
 @Component({
   selector: 'app-facemesh',
   standalone: true,
-  imports: [CommonModule, HttpClientModule, FormsModule, NavbarComponent, RouterOutlet],
-  templateUrl: `facemesh.html`,
-  styleUrl: 'facemesh.scss'
+  imports: [
+    CommonModule, 
+    HttpClientModule, 
+    RouterModule,
+    NavbarComponent
+  ],
+  templateUrl: './facemesh.html',
+  styleUrls: ['./facemesh.scss']
 })
 export class FaceMesh1Component implements AfterViewInit {
   @ViewChild('video') videoRef!: ElementRef<HTMLVideoElement>;
   @ViewChild('canvas') canvasRef!: ElementRef<HTMLCanvasElement>;
+  
+  private authService = inject(AuthService);
+  private http = inject(HttpClient);
+  
+  public cargando = false;
+  public resultado: any = null;
+  public mensaje: string = '';
+  public tiempo: string = '00:00'; 
+  private ultimosLandmarks: any = null;
 
-  cargando = false;
-  resultado: any = null;
-  //VARIABLES NIVEL 2
-  mensaje = '';
-  porcentaje = '';
-  nivelEstres = 'Alto';
-  emocion = 'Neutro';
-  tiempo = new Date().toLocaleTimeString();
-  fuenteVideo = 'webcam';
-  activarAnalisis = true;
-  umbral = 0.6;
-  historial = [
-    { fecha: '24/07', nivel: 'Alto' },
-    { fecha: '23/07', nivel: 'Moderado' }
-  ];
-  mostrarHeatmap = false;
-  rutaHeatmap = 'assets/heatmap.png';
-
-  constructor(private http: HttpClient, private capturaService: CapturaService) {}
+  private urlAPI = 'https://crojas3-detectoremociones.hf.space/api/emocion-facemesh';
 
   async ngAfterViewInit() {
-    const video = this.videoRef.nativeElement;
-    const canvas = this.canvasRef.nativeElement;
-    const ctx = canvas.getContext('2d')!;
-
-    const faceMesh = new FaceMesh({
-      locateFile: file => `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${file}`
+    const faceMesh = new FaceMesh({ 
+      locateFile: f => `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${f}` 
     });
 
     faceMesh.setOptions({
@@ -58,113 +47,66 @@ export class FaceMesh1Component implements AfterViewInit {
       minDetectionConfidence: 0.5,
       minTrackingConfidence: 0.5
     });
-
-    faceMesh.onResults(results => {
+    
+    faceMesh.onResults(res => {
+      const canvas = this.canvasRef.nativeElement;
+      const ctx = canvas.getContext('2d')!;
+      
+      // Limpiar y dibujar cámara
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-      ctx.drawImage(results.image, 0, 0, canvas.width, canvas.height);
-      if (results.multiFaceLandmarks) {
-        for (const landmarks of results.multiFaceLandmarks) {
-          // Dibuja la malla facial (triángulos)
-          drawConnectors(ctx, landmarks, mp_face_mesh.FACEMESH_TESSELATION, { color: '#C0C0C070', lineWidth: 1 });
-          // Dibuja los contornos (ojos, labios, cejas)
-          drawConnectors(ctx, landmarks, mp_face_mesh.FACEMESH_CONTOURS, { color: '#00FF00', lineWidth: 2 });
-          // Dibuja el iris (si refineLandmarks es true)
-          drawConnectors(ctx, landmarks, FACEMESH_IRISES, { color: '#00afff', lineWidth: 1 });
+      ctx.drawImage(res.image, 0, 0, canvas.width, canvas.height);
 
-        
-          drawLandmarks(ctx, landmarks, { color: '#FF0000', radius: 1 });
-        }
+      if (res.multiFaceLandmarks && res.multiFaceLandmarks[0]) {
+        this.ultimosLandmarks = res.multiFaceLandmarks[0];
+        // Dibujar la malla verde (Tesselation)
+        drawConnectors(ctx, this.ultimosLandmarks, mp_face_mesh.FACEMESH_TESSELATION, {
+          color: '#00FF0070', 
+          lineWidth: 1
+        });
       }
     });
 
-    const camera = new Camera(video, {
-      onFrame: async () => await faceMesh.send({ image: video }),
-      width: 200,
-      height: 200
+    const camera = new Camera(this.videoRef.nativeElement, {
+      onFrame: async () => await faceMesh.send({image: this.videoRef.nativeElement}),
+      width: 640, height: 480
     });
     camera.start();
   }
 
-  enviarFrameAlBackend() {
-    const canvas = this.canvasRef.nativeElement;
-    const imagenB64 = canvas.toDataURL('image/jpeg').split(',')[1];
-
-    this.http.post<any>('https://proyectofinalbackend-iuk0.onrender.com/api/face-mesh', { imagen: imagenB64 })
-      .subscribe({
-        next: res => {
-          this.mensaje = `✅ Rostro detectado con ${res.puntos?.length || 0} puntos`;
-          console.log(res.puntos);
-        },
-        error: err => {
-          console.error('Error al contactar con backend:', err);
-          this.mensaje = '❌ No se pudo contactar con el backend';
-        }
-      });
-  }
-
-  enviarImagenAlDetectorEstres() { 
-    this.cargando = true;
-    this.resultado = null;
-
-    
-    const canvas = this.canvasRef.nativeElement; 
-
-    
-    const imagenB64 = canvas.toDataURL('image/jpeg', 0.7).split(',')[1];
-    this.capturaService.setImagen(imagenB64);
-
-    if (!imagenB64) {
-    console.warn('⚠️ No hay captura disponible todavía');
-    this.cargando = false;
-    return;
+  enviarImagenAlDetectorEstres() {
+    if (!this.ultimosLandmarks) {
+      this.mensaje = "No se detecta rostro";
+      return;
     }
-    
-    
-   this.http.post<any>('https://crojas3-detectoremociones.hf.space/api/emocion', { imagen: imagenB64 }) 
-    .subscribe({ next: res => { 
-      this.mensaje = `${res.emocion} (${(res.confianza).toFixed(1)}%)`; 
-      this.porcentaje = (res.confianza * 100).toFixed(1); 
-      this.resultado = res;
-      this.cargando = false;  
-    }, 
-    error: err => { 
-      console.error('❌ Error en detección de estrés', err); 
-      this.mensaje = '❌ No se pudo analizar el estrés'; 
-      this.cargando = false;
-      } 
-    }); 
-  
 
-  }
+    this.cargando = true;
+    const canvas = this.canvasRef.nativeElement;
+    const imgB64 = canvas.toDataURL('image/jpeg', 0.7).split(',')[1];
 
-  procesarImagen(event: Event) {
-  const archivo = (event.target as HTMLInputElement).files?.[0];
-  if (!archivo) return;
+    // Enviamos imagen + puntos (Landmarks)
+    const body = { 
+      imagen: imgB64, 
+      puntos: this.ultimosLandmarks 
+    };
 
-  const lector = new FileReader();
-  lector.onload = () => {
-    const imagenB64 = (lector.result as string).split(',')[1]; // elimina el encabezado data:image/...
-    //this.enviarImagenAlDetectorEstres(imagenB64);
-  };
-  lector.readAsDataURL(archivo);
-}
+    this.http.post<any>(this.urlAPI, body).subscribe({
+      next: (res) => {
+        this.resultado = res;
+        this.mensaje = res.emocion;
+        this.cargando = false;
 
-/*enviarImagenAlDetectorEstres(imagenB64: string) {
-  
-  this.http.post<any>('http://localhost:5000/api/emocion', { imagen: imagenB64 })
-    .subscribe({
-      next: res => {
-        this.mensaje = `${res.emocion} (${(res.confianza * 100).toFixed(1)}%)`;
-        this.porcentaje = (res.confianza * 100).toFixed(1);
+        if (this.authService.currentUser) {
+          this.authService.guardarResultadoFacial(this.authService.currentUser.uid, {
+            modelo: 'FaceMesh-Landmarks',
+            emocion: res.emocion,
+            confianza: res.confianza
+          });
+        }
       },
-      error: err => {
-        console.error('❌ Error en detección de estrés', err);
-        this.mensaje = '❌ No se pudo analizar el estrés';
+      error: () => {
+        this.cargando = false;
+        this.mensaje = 'Error de conexión con la API';
       }
     });
-}*/
-
-
-
-
+  }
 }

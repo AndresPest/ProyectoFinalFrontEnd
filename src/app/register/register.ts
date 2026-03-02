@@ -4,9 +4,7 @@ import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angula
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
-import { Router, RouterOutlet } from '@angular/router'; // <--- Importante: RouterOutlet
-
-// Importa tu NavbarComponent (verifica que la ruta sea correcta)
+import { Router, RouterOutlet } from '@angular/router'; 
 import { NavbarComponent } from '../navbar/navbar'; 
 import { AuthService } from '../services/auth';
 

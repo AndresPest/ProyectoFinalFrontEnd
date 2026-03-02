@@ -1,184 +1,159 @@
 <app-navbar></app-navbar>
 <router-outlet></router-outlet>
+
 <div class="container2">
   
   <header class="main-header" *ngIf="!testSeleccionado">
     <h1>Test de Evaluación de Estrés</h1>
-    <p>Selecciona el instrumento que deseas aplicar</p>
+    <p>Selecciona el instrumento que deseas aplicar para tu análisis</p>
   </header>
 
-  <div class="grid-menu" *ngIf="!testSeleccionado">
-      <div 
-        class="test-card" 
-        *ngFor="let test of listaCuestionarios" 
-        (click)="seleccionarTest(test.identificador)">
-        <div class="card-content">
-          <span class="badge">{{ test.tiempoEstimado }}</span>
-          <h3>{{ test.nombre }}</h3>
-          <p>{{ test.descripcion }}</p>
-          <button class="btn-start" mat-raised-button color="primary" (click)="seleccionarTest(test.identificador)">
+  <div class="grid-menu" *ngIf="!testSeleccionado" [@fadeIn]>
+    <div 
+      class="test-card" 
+      *ngFor="let test of listaCuestionarios" 
+      (click)="seleccionarTest(test.identificador)">
+      <div class="card-content">
+        <span class="badge">{{ test.tiempoEstimado }}</span>
+        <h3>{{ test.nombre }}</h3>
+        <p>{{ test.descripcion }}</p>
+        <button class="btn-start" mat-raised-button color="primary">
           Iniciar prueba
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="test-view" *ngIf="testSeleccionado" [@fadeIn]>
+    <button class="btn-back" mat-raised-button color="warn" (click)="volverAlMenu()">
+      ← Volver al menú
+    </button>
+    
+    <div [ngSwitch]="testSeleccionado">
+      
+      <div *ngSwitchCase="'miller'" class="test-stepper">
+        <div class="progress-container">
+          <div class="progress-bar" [style.width.%]="progresoTestVulnerabilidad"></div>
+          <span class="progress-text">Pregunta {{ preguntaActual + 1 }} de {{ preguntasTestVulnerabilidad.length }}</span>
+        </div>
+
+        <div class="pregunta-card-single" [@fadeInTrigger]="preguntaActual">
+          <button class="btn-mini-back" *ngIf="preguntaActual > 0" (click)='anteriorPregunta()'>
+            ← Anterior
+          </button>
+
+          <div class="pregunta-content">
+            <h2 class="pregunta-numero">Pregunta #{{ preguntasTestVulnerabilidad[preguntaActual].id }}</h2>
+            <p class="pregunta-texto-grande">{{ preguntasTestVulnerabilidad[preguntaActual].texto }}</p>
+            
+            <div class="opciones-verticales">
+              <button 
+                *ngFor="let opcion of escalaTestVulnerabilidad; let i = index" 
+                type="button"
+                class="btn-opcion-grande"
+                [class.active]="preguntasTestVulnerabilidad[preguntaActual].valor === i + 1"
+                (click)="seleccionarOpcionTestVulnerabilidad(preguntasTestVulnerabilidad[preguntaActual], i + 1)">
+                <span class="circulo">{{ i + 1 }}</span>
+                {{ opcion }}
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="footer-stepper" *ngIf="preguntaActual === preguntasTestVulnerabilidad.length - 1 && preguntasTestVulnerabilidad[preguntaActual].valor !== null">
+          <button class="btn-finalizar-grande" (click)="calcularResultadoTestVulnerabilidad()">
+            Guardar y Obtener Resultados
           </button>
         </div>
       </div>
-    </div>
 
-    <div class="test-view" *ngIf="testSeleccionado">
-      <button class="btn-back" mat-raised-button color="primary" (click)="volverAlMenu()">
-      Volver al menú
-      </button>
-      
-      <div [ngSwitch]="testSeleccionado">
-        <div *ngSwitchCase="'miller'">
-          <div *ngSwitchCase="'miller'" class="test-stepper animate__animated animate__fadeIn">
-            <div class="progress-container">
-              <div class="progress-bar" [style.width.%]="progresoTestVulnerabilidad"></div>
-              <span class="progress-text">Pregunta {{ preguntaActual + 1 }} de {{ preguntasTestVulnerabilidad.length }}</span>
-            </div>
-            <div class="pregunta-card-single">
-              <button class="btn-mini-back" *ngIf="preguntaActual > 0" (click)='anteriorPregunta()'>
-                ← Anterior
-              </button>
+      <div *ngSwitchCase="'ceau'" class="test-stepper">
+        <div class="progress-container">
+          <div class="progress-bar" [style.width.%]="progresoCEAU"></div>
+          <span class="progress-text">Pregunta {{ indiceCEAU + 1 }} de {{ preguntasCEAU.length }}</span>
+        </div>
 
-              <div class="pregunta-content">
-                <h2 class="pregunta-numero">Pregunta #{{ preguntasTestVulnerabilidad[preguntaActual].id }}</h2>
-                <p class="pregunta-texto-grande">{{ preguntasTestVulnerabilidad[preguntaActual].texto }}</p>
-                
-                <div class="opciones-verticales">
-                  <button 
-                    *ngFor="let opcion of escalaTestVulnerabilidad; let i = index" 
-                    type="button"
-                    class="btn-opcion-grande"
-                    [class.active]="preguntasTestVulnerabilidad[preguntaActual].valor === i + 1"
-                    (click)="seleccionarOpcionTestVulnerabilidad(preguntasTestVulnerabilidad[preguntaActual], i + 1)">
-                    <span class="circulo">{{ i + 1 }}</span>
-                    {{ opcion }}
-                  </button>
-                </div>
-              </div>
-            </div>
-            <div class="footer-stepper" *ngIf="preguntaActual === preguntasTestVulnerabilidad.length - 1 && preguntasTestVulnerabilidad[preguntaActual].valor !== null">
-              <button class="btn-finalizar-grande" (click)="calcularResultadoTestVulnerabilidad()">
-                Obtener Resultados
+        <div class="pregunta-card-single" [@fadeInTrigger]="indiceCEAU">
+          <button class="btn-mini-back" *ngIf="indiceCEAU > 0" (click)='anteriorCEAU()'>
+            ← Anterior
+          </button>
+
+          <div class="pregunta-content">
+            <h2 class="pregunta-numero">Situación #{{ preguntasCEAU[indiceCEAU].id }}</h2>
+            <p class="enunciado-fijo">¿En qué medida te estresa esta situación académica?</p>
+            <p class="pregunta-texto-grande">{{ preguntasCEAU[indiceCEAU].texto }}</p>
+            
+            <div class="opciones-verticales">
+              <button 
+                *ngFor="let opcion of escalaCEAU; let i = index" 
+                class="btn-opcion-grande"
+                [class.active]="preguntasCEAU[indiceCEAU].valor === i + 1"
+                (click)="seleccionarOpcionCEAU(preguntasCEAU[indiceCEAU], i + 1)">
+                <span class="circulo">{{ i }}</span>
+                {{ opcion }}
               </button>
             </div>
           </div>
         </div>
-        <div *ngSwitchCase="'ceau'">
-          
-          <div *ngSwitchCase="'ceau'" class="test-stepper animate__animated animate__fadeIn">
-  
-            <div class="progress-container">
-              <div class="progress-bar" [style.width.%]="progresoCEAU"></div>
-              <span class="progress-text">Progreso: {{ indiceCEAU + 1 }} / {{ preguntasCEAU.length }}</span>
-            </div>
 
-            <div class="pregunta-card-single">
-              <button class="btn-mini-back" *ngIf="indiceCEAU > 0" (click)='anteriorCEAU()'>
-                ← Anterior
-              </button>
-
-              <div class="pregunta-content">
-                <h2 class="pregunta-numero">Situación Estresante #{{ preguntasCEAU[indiceCEAU].id }}</h2>
-                <p class="enunciado-fijo">¿En qué medida te estresa la siguiente situación?</p>
-                <p class="pregunta-texto-grande">{{ preguntasCEAU[indiceCEAU].texto }}</p>
-                
-                <div class="opciones-verticales">
-                  <button 
-                    *ngFor="let opcion of escalaCEAU; let i = index" 
-                    type="button"
-                    class="btn-opcion-grande"
-                    [class.active]="preguntasCEAU[indiceCEAU].valor === i + 1"
-                    (click)="seleccionarOpcionCEAU(preguntasCEAU[indiceCEAU], i + 1)">
-                    <span class="circulo">{{ i }}</span>
-                    {{ opcion }}
-                  </button>
-                </div>
-              </div>
-            </div>
-
-            <div class="footer-stepper" *ngIf="indiceCEAU === preguntasCEAU.length - 1 && preguntasCEAU[indiceCEAU].valor !== null">
-              <button class="btn-finalizar-grande" (click)="calcularResultadoCEAU()">
-                Finalizar Cuestionario CEAU
-              </button>
-            </div>
-          </div>
-
+        <div class="footer-stepper" *ngIf="indiceCEAU === preguntasCEAU.length - 1 && preguntasCEAU[indiceCEAU].valor !== null">
+          <button class="btn-finalizar-grande" (click)="calcularResultadoCEAU()">
+            Finalizar y Guardar CEAU
+          </button>
         </div>
-        <div *ngSwitchCase="'sisco'">
-          
-          <div *ngSwitchCase="'sisco'" class="test-stepper animate__animated animate__fadeIn">
-  
-            <div class="pregunta-card-single" *ngIf="!siscoFiltroPasado">
-              <h2 class="pregunta-numero">Pregunta de Filtro</h2>
-              <p class="pregunta-texto-grande">¿Durante el transcurso de este semestre has tenido momentos de preocupación o nerviosismo (estrés)?</p>
-              <div class="opciones-verticales">
-                <button class="btn-opcion-grande" (click)="validarFiltroSisco(true)">SÍ</button>
-                <button class="btn-opcion-grande" (click)="validarFiltroSisco(false)">NO</button>
-              </div>
-            </div>
+      </div>
 
-            <div class="pregunta-card-single" *ngIf="siscoFiltroPasado && indiceSisco === -1">
-              <h2 class="pregunta-numero">Nivel General</h2>
-              <p class="pregunta-texto-grande">Señala tu nivel de estrés del 1 al 5 (donde 1 es poco y 5 es mucho):</p>
-              <div class="opciones-horizontal-puntos">
-                <button *ngFor="let n of [1,2,3,4,5]" class="btn-punto" (click)="seleccionarOpcionSisco(n)">
-                  {{ n }}
-                </button>
-              </div>
-            </div>
+      <div *ngSwitchCase="'sisco'" class="test-stepper">
+        <div class="pregunta-card-single" *ngIf="!siscoFiltroPasado">
+          <h2 class="pregunta-numero">Pregunta de Filtro</h2>
+          <p class="pregunta-texto-grande">¿Has tenido momentos de estrés este semestre?</p>
+          <div class="opciones-verticales">
+            <button class="btn-opcion-grande" (click)="validarFiltroSisco(true)">SÍ</button>
+            <button class="btn-opcion-grande" (click)="validarFiltroSisco(false)">NO</button>
+          </div>
+        </div>
 
-            <div *ngIf="siscoFiltroPasado && indiceSisco >= 0">
-              <div class="progress-container">
+        <div *ngIf="siscoFiltroPasado && !mostrarResultadosFinales">
+            <div class="progress-container">
                 <div class="progress-bar" [style.width.%]="(indiceSisco+1)/preguntasSisco.length*100"></div>
-              </div>
+            </div>
 
-              <div class="pregunta-card-single">
+            <div class="pregunta-card-single" [@fadeInTrigger]="indiceSisco">
                 <header class="header-fijo-sisco">
-                  <span class="dim-badge">{{ preguntasSisco[indiceSisco].dim }}</span>
-                  <p class="enunciado-contexto">{{ preguntasSisco[indiceSisco].encabezado }}</p>
+                    <span class="dim-badge">{{ preguntasSisco[indiceSisco].dim }}</span>
+                    <p class="enunciado-contexto">{{ preguntasSisco[indiceSisco].encabezado }}</p>
                 </header>
-
                 <p class="pregunta-texto-grande">{{ preguntasSisco[indiceSisco].texto }}</p>
 
                 <div class="opciones-verticales">
-                  <button *ngFor="let opt of escalaSisco; let i = index" 
-                          class="btn-opcion-grande"
-                          [class.active]="preguntasSisco[indiceSisco].valor === i"
-                          (click)="seleccionarOpcionSisco(i)">
-                    {{ opt }}
-                  </button>
+                    <button *ngFor="let opt of escalaSisco; let i = index" 
+                            class="btn-opcion-grande"
+                            [class.active]="preguntasSisco[indiceSisco].valor === i"
+                            (click)="seleccionarOpcionSisco(i)">
+                        {{ opt }}
+                    </button>
                 </div>
-                <div *ngIf="!mostrarResultadosFinales">
-                  <div class="footer-stepper" *ngIf="indiceSisco === preguntasSisco.length - 1 && preguntasSisco[indiceSisco].valor !== null">
-                      <button class="btn-finalizar-grande" (click)="calcularResultadoSisco()">
-                        Finalizar y Ver Diagnóstico
-                      </button>
-                  </div>
-              </div>
-
-              <div *ngIf="mostrarResultadosFinales" class="reporte-sisco">
-                <h1>Análisis de Estrés Académico (SISCO)</h1>
-                
-                <div class="resultado-item">
-                  <p>Frecuencia de Estresores: <strong>{{ resultadosSisco?.estresores }}%</strong></p>
-                  </div>
-
-                <div class="resultado-item">
-                  <p>Reacciones (Síntomas): <strong>{{ resultadosSisco?.sintomas }}%</strong></p>
-                </div>
-
-                <div class="resultado-item">
-                  <p>Estrategias de Afrontamiento: <strong>{{ resultadosSisco?.afrontamiento }}%</strong></p>
-                </div>
-
-                <button (click)="resetearTodoSisco()">Regresar al Menú</button>
-              </div>
-              </div>
             </div>
-          </div>
 
+            <div class="footer-stepper" *ngIf="indiceSisco === preguntasSisco.length - 1">
+                <button class="btn-finalizar-grande" (click)="calcularResultadoSisco()">
+                    Finalizar y Guardar Análisis SISCO
+                </button>
+            </div>
         </div>
-      </div>
-    </div>
-</div>
+
+        <div *ngIf="mostrarResultadosFinales" class="reporte-sisco" [@fadeIn]>
+            <h1>Análisis de Estrés Académico (SISCO)</h1>
+            <div class="resultado-item">
+                <p>Nivel de Estresores: <strong>{{ resultadosSisco?.estresores }}%</strong></p>
+            </div>
+            <div class="resultado-item">
+                <p>Reacciones Físicas/Mentales: <strong>{{ resultadosSisco?.sintomas }}%</strong></p>
+            </div>
+            <div class="resultado-item">
+                <p>Estrategias de Afrontamiento: <strong>{{ resultadosSisco?.afrontamiento }}%</strong></p>
+            </div>
+            <button mat-raised-button color="primary" (click)="resetearTodoSisco()">Regresar al Menú</button>
+        </div>
+
+      </div> </div> </div> </div>

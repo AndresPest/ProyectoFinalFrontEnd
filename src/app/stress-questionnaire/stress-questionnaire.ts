@@ -60,10 +60,12 @@ export class StressQuestionnaireComponent implements AfterViewInit{
 
   // --- CONFIGURACIÓN INICIAL ---
   public testSeleccionado: string | null = null;
+  public preguntaActual: number = 0;
+
   public listaCuestionarios: CuestionarioInfo[] = [
-    { id: 1, nombre: 'Test de Vulnerabilidad al Estrés', identificador: 'miller', descripcion: 'Evalúa vulnerabilidad ante presiones cotidianas.', tiempoEstimado: '5 min' },
-    { id: 2, nombre: 'Cuestionario de Estrés Académico (CEAU)', identificador: 'ceau', descripcion: 'Identifica estresores en el entorno universitario.', tiempoEstimado: '8 min' },
-    { id: 3, nombre: 'Inventario SISCO', identificador: 'sisco', descripcion: 'Mide estresores, síntomas y afrontamiento.', tiempoEstimado: '10 min' }
+    { id: 1, nombre: 'Test de Vulnerabilidad al Estrés', identificador: 'miller', descripcion: 'Evalúa vulnerabilidad ante presiones cotidianas.', tiempoEstimado: '5 min - 10 min' },
+    { id: 2, nombre: 'Cuestionario de Estrés Académico (CEAU)', identificador: 'ceau', descripcion: 'Identifica estresores en el entorno universitario.', tiempoEstimado: '10 min - 15 min' },
+    { id: 3, nombre: 'Inventario SISCO', identificador: 'sisco', descripcion: 'Mide estresores, síntomas y afrontamiento.', tiempoEstimado: '10 min - 15 min' }
   ];
 
   // --- NAVEGACIÓN GENERAL ---
@@ -85,29 +87,37 @@ export class StressQuestionnaireComponent implements AfterViewInit{
   }
 
   // --- LÓGICA TEST MILLER ---
-  public preguntaActual: number = 0;
-  public escalaTestVulnerabilidad = ['Nunca', 'Casi nunca', 'Rara vez', 'Algunas veces', 'Casi siempre', 'Siempre'];
+
+    public escalaTestVulnerabilidad = [
+    'Nunca', 
+    'Casi nunca', 
+    'Rara vez', 
+    'Algunas veces', 
+    'Casi siempre', 
+    'Siempre'
+  ];
+
   public preguntasTestVulnerabilidad = [
-    { id: 1, texto: "Hago por lo menos una comida caliente y balanceada al día.", valor: null },
-    { id: 2, texto: "Por lo menos cuatro noches a la semana duermo de 7 a 8 horas.", valor: null },
-    { id: 3, texto: "Doy y recibo afecto regularmente.", valor: null },
-    { id: 4, texto: "En 50 millas a la redonda poseo, por lo menos, un familiar en el que puedo confiar.", valor: null },
-    { id: 5, texto: "Por lo menos dos veces a la semana hago ejercicios hasta sudar.", valor: null },
-    { id: 6, texto: "Fumo menos de media cajetilla de cigarrillos al día.", valor: null },
-    { id: 7, texto: "Tomo menos de 5 tragos (de bebida alcohólica) a la semana.", valor: null },
-    { id: 8, texto: "Tengo el peso apropiado para mi estatura.", valor: null },
-    { id: 9, texto: "Mis ingresos satisfacen mis gastos fundamentales.", valor: null },
-    { id: 10, texto: "Mis creencias me hacen mas fuerte.", valor: null },
-    { id: 11, texto: "Asisto regularmente a actividades sociales o del club.", valor: null },
-    { id: 12, texto: "Tengo una red de amigos y conocidos.", valor: null },
-    { id: 13, texto: "Tengo uno o más amigos a quienes puedo confiarle mis problemas personales.", valor: null },
-    { id: 14, texto: "Tengo buena salud (vista, oido, dentadura, etc.).", valor: null },
-    { id: 15, texto: "Soy capaz de hablar abiertamente sobre mis sentimientos.", valor: null },
-    { id: 16, texto: "Converso regularmente sobre problemas domesticos.", valor: null },
-    { id: 17, texto: "Por lo menos una vez a la semana hago algo para divertirme.", valor: null },
-    { id: 18, texto: "Soy capaz de organizar racionalmente mi tiempo.", valor: null },
-    { id: 19, texto: "Tomo menos de tres tazas de café al día.", valor: null },
-    { id: 20, texto: "Durante el día me dedico a mi mismo un rato de tranquilidad.", valor: null }
+    { id: 1, texto: "Hago por lo menos una comida caliente y balanceada al día.", valor: 0 },
+    { id: 2, texto: "Por lo menos cuatro noches a la semana duermo de 7 a 8 horas.", valor: 0 },
+    { id: 3, texto: "Doy y recibo afecto regularmente.", valor: 0 },
+    { id: 4, texto: "En 50 millas a la redonda poseo, por lo menos, un familiar en el que puedo confiar.", valor: 0 },
+    { id: 5, texto: "Por lo menos dos veces a la semana hago ejercicios hasta sudar.", valor: 0 },
+    { id: 6, texto: "Fumo menos de media cajetilla de cigarrillos al día.", valor: 0 },
+    { id: 7, texto: "Tomo menos de 5 tragos (de bebida alcohólica) a la semana.", valor: 0 },
+    { id: 8, texto: "Tengo el peso apropiado para mi estatura.", valor: 0 },
+    { id: 9, texto: "Mis ingresos satisfacen mis gastos fundamentales.", valor: 0 },
+    { id: 10, texto: "Mis creencias me hacen mas fuerte.", valor: 0 },
+    { id: 11, texto: "Asisto regularmente a actividades sociales o del club.", valor: 0 },
+    { id: 12, texto: "Tengo una red de amigos y conocidos.", valor: 0 },
+    { id: 13, texto: "Tengo uno o más amigos a quienes puedo confiarle mis problemas personales.", valor: 0 },
+    { id: 14, texto: "Tengo buena salud (vista, oido, dentadura, etc.).", valor: 0 },
+    { id: 15, texto: "Soy capaz de hablar abiertamente sobre mis sentimientos cuando me siento irritado o preocupado.", valor: 0 },
+    { id: 16, texto: "Converso regularmente sobre problemas domesticos con las personas que conviven conmigo.", valor: 0 },
+    { id: 17, texto: "Por lo menos una vez a la semana hago algo para divertirme.", valor: 0 },
+    { id: 18, texto: "Soy capaz de organizar racionalmente mi tiempo.", valor: 0 },
+    { id: 19, texto: "Tomo menos de tres tazas de café (o de té o refresco de cola) al día.", valor: 0 },
+    { id: 20, texto: "Durante el día me dedico a mi mismo un rato de tranquilidad.", valor: 0 }
   ];
 
   seleccionarOpcionTestVulnerabilidad(p: any, valor: number) {
@@ -117,15 +127,25 @@ export class StressQuestionnaireComponent implements AfterViewInit{
     }, 300);
   }
 
-  anteriorPregunta() { if (this.preguntaActual > 0) this.preguntaActual--; }
+  anteriorPregunta() {
+    if (this.preguntaActual > 0) {
+      this.preguntaActual--;
+    }
+  }
 
   get progresoTestVulnerabilidad(): number {
     return ((this.preguntaActual + 1) / this.preguntasTestVulnerabilidad.length) * 100;
   }
 
+  testCompletado(): boolean {
+    return this.preguntasTestVulnerabilidad.every(p => p.valor !== null);
+  }
+
   async calcularResultadoTestVulnerabilidad() {
     const sumaTotal = this.preguntasTestVulnerabilidad.reduce((acc, p) => acc + (Number(p.valor) || 0), 0);
     const user = this.authService.currentUser;
+    const puntajeFinal = sumaTotal - 20;
+    let diagnostico = '';
     if (user) {
       await this.authService.guardarResultadoCuestionario(user.uid, {
         identificador: 'Miller', puntaje: sumaTotal - 20, tiempo: 300
@@ -137,15 +157,37 @@ export class StressQuestionnaireComponent implements AfterViewInit{
 
   // --- LÓGICA TEST CEAU ---
   public indiceCEAU: number = 0;
-  public escalaCEAU = ['Nada', 'Poco', 'Algo', 'Bastante', 'Mucho'];
+
+  public escalaCEAU = [
+    'Nada de estrés', 
+    'Poco estrés', 
+    'Algo de estrés', 
+    'Bastante estrés', 
+    'Mucho estrés'
+  ];
+  
   public preguntasCEAU = [
-    { id: 1, texto: "Realización de exámenes.", valor: null },
-    { id: 2, texto: "Exposición de trabajo en clase.", valor: null },
-    { id: 3, texto: "Intervención en el aula.", valor: null },
-    { id: 4, texto: "Tratar con el profesor.", valor: null },
-    { id: 5, texto: "Sobrecarga académica.", valor: null },
-    { id: 6, texto: "Falta de tiempo.", valor: null }
-    // Puedes agregar más aquí...
+    { id: 1, texto: "Realización de exámenes.", valor: 0 },
+    { id: 2, texto: "Exposición de trabajo en clase.", valor: 0 },
+    { id: 3, texto: "Intervención en el aula (responder o realizar preguntas, debates).", valor: 0 },
+    { id: 4, texto: "Tratar con el profesor en su oficina (tutorías, consultas).", valor: 0 },
+    { id: 5, texto: "Sobrecarga académica (excesivo número de créditos, trabajos).", valor: 0 },
+    { id: 6, texto: "Masificación en las aulas.", valor: 0 },
+    { id: 7, texto: "Falta de tiempo para cumplir con las actividades académicas.", valor: 0 },
+    { id: 8, texto: "Competitividad entre compañeros.", valor: 0 },
+    { id: 9, texto: "Realización de trabajos obligatorios para aprobar asignaturas.", valor: 0 },
+    { id: 10, texto: "La tarea de estudio.", valor: 0 },
+    { id: 11, texto: "Trabajar en grupo.", valor: 0 },
+    { id: 12, texto: "Problemas o conflictos con los profesores.", valor: 0 },
+    { id: 13, texto: "Problemas o conflictos con los compañeros.", valor: 0 },
+    { id: 14, texto: "Poder asistir a todas las clases.", valor: 0 },
+    { id: 15, texto: "Exceso de responsabilidad por cumplir obligaciones académicas.", valor: 0 },
+    { id: 16, texto: "Obtener notas elevadas en distintas asignaturas.", valor: 0 },
+    { id: 17, texto: "Perspectivas profesionales futuras.", valor: 0 },
+    { id: 18, texto: "Elección de materias durante la carrera.", valor: 0 },
+    { id: 19, texto: "Mantener o conseguir una beca para estudiar.", valor: 0 },
+    { id: 20, texto: "Acabar la carrera en los plazos estipulados.", valor: 0 },
+    { id: 21, texto: "Presión familiar por obtener resultados adecuados.", valor: 0 }
   ];
 
   seleccionarOpcionCEAU(p: any, valor: number) {
@@ -155,7 +197,11 @@ export class StressQuestionnaireComponent implements AfterViewInit{
     }, 300);
   }
 
-  anteriorCEAU() { if (this.indiceCEAU > 0) this.indiceCEAU--; }
+  anteriorCEAU() {
+    if (this.indiceCEAU > 0) {
+      this.indiceCEAU--;
+    }
+  }
 
   get progresoCEAU(): number {
     return ((this.indiceCEAU + 1) / this.preguntasCEAU.length) * 100;
@@ -173,23 +219,91 @@ export class StressQuestionnaireComponent implements AfterViewInit{
   }
 
   // --- LÓGICA TEST SISCO ---
-  public siscoFiltroPasado: boolean = false;
   public mostrarResultadosFinales: boolean = false;
+  public siscoFiltroPasado: boolean = false;
   public indiceSisco: number = 0;
-  public escalaSisco = ['Nunca', 'Casi nunca', 'Rara vez', 'A veces', 'Casi siempre', 'Siempre'];
-  public resultadosSisco: any = null;
+
+  public escalaSisco = [
+    'Nunca', 
+    'Casi nunca', 
+    'Rara vez', 
+    'Algunas veces', 
+    'Casi siempre', 
+    'Siempre'
+  ];
+
+  public resultadosSisco: any = {
+    nivelGeneral: 0,
+    estresores: 0,
+    sintomas: 0,
+    afrontamiento: 0
+  };
+
   public preguntasSisco = [
-    { dim: 'Estresores', encabezado: '¿Frecuencia de estrés por:', texto: 'Competencia con compañeros', valor: 0 },
-    { dim: 'Estresores', encabezado: '¿Frecuencia de estrés por:', texto: 'Sobrecarga de tareas', valor: 0 },
-    { dim: 'Síntomas', encabezado: '¿Frecuencia de:', texto: 'Dolores de cabeza', valor: 0 }
+    // DIMENSIÓN ESTRESORES
+    { dim: 'Estresores', encabezado: '¿Con qué frecuencia te estresa:', texto: 'La competencia con mis compañeros del grupo', valor: 0 },
+    { dim: 'Estresores', encabezado: '¿Con qué frecuencia te estresa:', texto: 'La sobrecarga de tareas y trabajos escolares que tengo que realizar todos los días.', valor: 0 },
+    { dim: 'Estresores', encabezado: '¿Con qué frecuencia te estresa:', texto: 'La personalidad y el carácter de los/as profesores/as que me imparten clases.', valor: 0 },
+    { dim: 'Estresores', encabezado: '¿Con qué frecuencia te estresa:', texto: 'La forma de evaluación de mis profesores/as (a través de ensayos, trabajos de investigación, búsquedas en Internet, etc.)', valor: 0 },
+    { dim: 'Estresores', encabezado: '¿Con qué frecuencia te estresa:', texto: 'El nivel de exigencia de mis profesores/as', valor: 0 },
+    { dim: 'Estresores', encabezado: '¿Con qué frecuencia te estresa:', texto: 'El tipo de trabajo que me piden los profesores (consulta de temas, fichas de trabajo, ensayos, mapas conceptuales, etc.)', valor: 0 },
+    { dim: 'Estresores', encabezado: '¿Con qué frecuencia te estresa:', texto: 'Que me toquen profesores/as muy teóricos/as.', valor: 0 },
+    { dim: 'Estresores', encabezado: '¿Con qué frecuencia te estresa:', texto: 'Mi participación en clase (responder a preguntas, hacer comentarios, etc.)', valor: 0 },
+    { dim: 'Estresores', encabezado: '¿Con qué frecuencia te estresa:', texto: 'Tener tiempo limitado para hacer el trabajo que me encargan los/as profesores/as.', valor: 0 },
+    { dim: 'Estresores', encabezado: '¿Con qué frecuencia te estresa:', texto: 'La realización de un examen.', valor: 0 },
+    { dim: 'Estresores', encabezado: '¿Con qué frecuencia te estresa:', texto: 'Exposición de un tema ante los compañeros de mi grupo.', valor: 0 },
+    { dim: 'Estresores', encabezado: '¿Con qué frecuencia te estresa:', texto: 'La poca claridad que tengo sobre lo que quieren los/as profesores/as.', valor: 0 },
+    { dim: 'Estresores', encabezado: '¿Con qué frecuencia te estresa:', texto: 'Que mis profesores/as estén mal preparados/as.', valor: 0 },
+    { dim: 'Estresores', encabezado: '¿Con qué frecuencia te estresa:', texto: 'Asistir a clases aburridas o monótonas.', valor: 0 },
+    { dim: 'Estresores', encabezado: '¿Con qué frecuencia te estresa:', texto: 'No entender los temas que se abordan en la clase.', valor: 0 },
+    
+    // DIMENSIÓN SÍNTOMAS
+    { dim: 'Síntomas', encabezado: '¿Con qué frecuencia se te presentan las siguientes reacciones:', texto: 'Trastornos en el sueño (insomnio o pesadillas).', valor: 0 },
+    { dim: 'Síntomas', encabezado: '¿Con qué frecuencia se te presentan las siguientes reacciones:', texto: 'Fatiga crónica (cansancio permanente).', valor: 0 },
+    { dim: 'Síntomas', encabezado: '¿Con qué frecuencia se te presentan las siguientes reacciones:', texto: 'Dolores de cabeza o migraña.', valor: 0 },
+    { dim: 'Síntomas', encabezado: '¿Con qué frecuencia se te presentan las siguientes reacciones:', texto: 'Problemas de digestión, dolor abdominal o diarrea.', valor: 0 },
+    { dim: 'Síntomas', encabezado: '¿Con qué frecuencia se te presentan las siguientes reacciones:', texto: 'Rascarse, morderse las uñas, frotarse, etc.', valor: 0 },
+    { dim: 'Síntomas', encabezado: '¿Con qué frecuencia se te presentan las siguientes reacciones:', texto: 'Somnolencia o mayor necesidad de dormir.', valor: 0 },
+    { dim: 'Síntomas', encabezado: '¿Con qué frecuencia se te presentan las siguientes reacciones:', texto: 'Inquietud (incapacidad de relajarse y estar tranquilo).', valor: 0 },
+    { dim: 'Síntomas', encabezado: '¿Con qué frecuencia se te presentan las siguientes reacciones:', texto: 'Sentimientos de depresión y tristeza (decaído).', valor: 0 },
+    { dim: 'Síntomas', encabezado: '¿Con qué frecuencia se te presentan las siguientes reacciones:', texto: 'Ansiedad, angustia o desesperación.', valor: 0 },
+    { dim: 'Síntomas', encabezado: '¿Con qué frecuencia se te presentan las siguientes reacciones:', texto: 'Problemas de concentración.', valor: 0 },
+    { dim: 'Síntomas', encabezado: '¿Con qué frecuencia se te presentan las siguientes reacciones:', texto: 'Sentimiento de agresividad o aumento de irritabilidad.', valor: 0 },
+    { dim: 'Síntomas', encabezado: '¿Con qué frecuencia se te presentan las siguientes reacciones:', texto: 'Conflictos o tendencia a polemizar o discutir.', valor: 0 },
+    { dim: 'Síntomas', encabezado: '¿Con qué frecuencia se te presentan las siguientes reacciones:', texto: 'Aislamiento de los demás.', valor: 0 },
+    { dim: 'Síntomas', encabezado: '¿Con qué frecuencia se te presentan las siguientes reacciones:', texto: 'Desgano para realizar las labores escolares.', valor: 0 },
+    { dim: 'Síntomas', encabezado: '¿Con qué frecuencia se te presentan las siguientes reacciones:', texto: 'Aumento o reducción del consumo de alimentos.', valor: 0 },
+
+    // DIMENSIÓN AFRONTAMIENTO
+    { dim: 'Afrontamiento', encabezado: '¿Con qué frecuencia para enfrentar tu estrés te orientas a:', texto: 'Habilidad asertiva (defender nuestras preferencias, ideas o sentimientos sin dañar a otros).', valor: 0 },
+    { dim: 'Afrontamiento', encabezado: '¿Con qué frecuencia para enfrentar tu estrés te orientas a:', texto: 'Escuchar música o distraerme viendo televisión.', valor: 0 },
+    { dim: 'Afrontamiento', encabezado: '¿Con qué frecuencia para enfrentar tu estrés te orientas a:', texto: 'Concentrarse en resolver la situación que me preocupa.', valor: 0 },
+    { dim: 'Afrontamiento', encabezado: '¿Con qué frecuencia para enfrentar tu estrés te orientas a:', texto: 'Elogiar mi forma de actuar para enfrentar la situación que me preocupa (echarme porras).', valor: 0 },
+    { dim: 'Afrontamiento', encabezado: '¿Con qué frecuencia para enfrentar tu estrés te orientas a:', texto: 'La religiosidad (hacer oraciones o asistir a misa).', valor: 0 },
+    { dim: 'Afrontamiento', encabezado: '¿Con qué frecuencia para enfrentar tu estrés te orientas a:', texto: 'Búsqueda de información sobre la situación que me preocupa.', valor: 0 },
+    { dim: 'Afrontamiento', encabezado: '¿Con qué frecuencia para enfrentar tu estrés te orientas a:', texto: 'Solicitar el apoyo de mi familia o de mis amigos.', valor: 0 },
+    { dim: 'Afrontamiento', encabezado: '¿Con qué frecuencia para enfrentar tu estrés te orientas a:', texto: 'Ventilación y confidencias (verbalización o plática de la situación que preocupa).', valor: 0 },
+    { dim: 'Afrontamiento', encabezado: '¿Con qué frecuencia para enfrentar tu estrés te orientas a:', texto: 'Establecer soluciones concretas para resolver la situación que me preocupa.', valor: 0 },
+    { dim: 'Afrontamiento', encabezado: '¿Con qué frecuencia para enfrentar tu estrés te orientas a:', texto: 'Analizar lo positivo y negativo de las soluciones pensadas para solucionar la situación que me preocupa.', valor: 0 },
+    { dim: 'Afrontamiento', encabezado: '¿Con qué frecuencia para enfrentar tu estrés te orientas a:', texto: 'Mantener el control sobre mis emociones para que no me afecte lo que me estresa.', valor: 0 },
+    { dim: 'Afrontamiento', encabezado: '¿Con qué frecuencia para enfrentar tu estrés te orientas a:', texto: 'Recordar situaciones similares ocurridas anteriormente y pensar en cómo las solucione.', valor: 0 },
+    { dim: 'Afrontamiento', encabezado: '¿Con qué frecuencia para enfrentar tu estrés te orientas a:', texto: 'Salir a caminar o hacer algún deporte.', valor: 0 },
+    { dim: 'Afrontamiento', encabezado: '¿Con qué frecuencia para enfrentar tu estrés te orientas a:', texto: 'Elaboración de un plan para enfrentar lo que me estresa y ejecución de sus tareas.', valor: 0 },
+    { dim: 'Afrontamiento', encabezado: '¿Con qué frecuencia para enfrentar tu estrés te orientas a:', texto: 'Fijarse o tratar de obtener lo positivo de la situación que preocupa.', valor: 0 }
   ];
 
   validarFiltroSisco(respuesta: boolean) {
-    if (!respuesta) this.volverAlMenu();
-    else this.siscoFiltroPasado = true;
+    if (!respuesta) {
+      this.testSeleccionado = null;
+      this.volverAlMenu();
+    } else {
+      this.siscoFiltroPasado = true;
+      this.indiceSisco = -1; // Usaremos -1 para mostrar la pregunta de nivel 1-5
+    }
   }
 
   seleccionarOpcionSisco(valor: number) {
+    this.capturarYAnalizar();
     this.preguntasSisco[this.indiceSisco].valor = valor;
     if (this.indiceSisco < this.preguntasSisco.length - 1) {
       setTimeout(() => this.indiceSisco++, 300);
@@ -207,7 +321,24 @@ export class StressQuestionnaireComponent implements AfterViewInit{
     this.mostrarResultadosFinales = true;
   }
 
-  resetearTodoSisco() { this.volverAlMenu(); }
+  mostrarPantallaResultados(datos: any) {
+    this.resultadosSisco = datos;
+    this.mostrarResultadosFinales = true;
+    
+    // Opcional: Desplazar al inicio para ver el título del análisis
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  resetearTodoSisco() {
+    this.testSeleccionado = null; // Volver al menú de tarjetas
+    this.mostrarResultadosFinales = false;
+    this.siscoFiltroPasado = false;
+    this.indiceSisco = 0;
+    this.resultadosSisco = null;
+    
+    // Limpiamos las respuestas de las preguntas para un nuevo test
+    this.preguntasSisco.forEach(p => p.valor = 0);
+  }
 
   // CAPTURA DE IMAGEN EN CADA PREGUNTA PARA OBTENER RESULTADO
 

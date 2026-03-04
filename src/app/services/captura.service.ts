@@ -21,9 +21,7 @@ export class CapturaService {
   getImagen(): string | null {
     return this.imagenB64;
   }
-
-
-
+  
   async redimensionarImagen(base64Str: string, ancho: number = 48, alto: number = 48): Promise<string> {
     return new Promise((resolve) => {
       const img = new Image();

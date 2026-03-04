@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, ElementRef, ViewChild, AfterViewInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatSelectModule } from '@angular/material/select';
 import { MatButtonModule } from '@angular/material/button';
@@ -7,6 +7,7 @@ import { FormsModule } from '@angular/forms';
 import { AuthService } from '../services/auth';
 import { NavbarComponent } from '../navbar/navbar';
 import { RouterOutlet } from '@angular/router';
+import { CapturaService } from '../services/captura.service';
 
 interface CuestionarioInfo {
   id: number;
@@ -37,7 +38,24 @@ interface CuestionarioInfo {
     ])
   ]
 })
-export class StressQuestionnaireComponent {
+export class StressQuestionnaireComponent implements AfterViewInit{
+
+  @ViewChild('video') videoElement!: ElementRef<HTMLVideoElement>;
+  @ViewChild('canvas') canvasElement!: ElementRef<HTMLCanvasElement>;
+  public consentimientoAceptado: boolean = false;
+
+  constructor(private capturaService: CapturaService) {
+    const previo = localStorage.getItem('consentimiento_ia');
+    if (previo === 'true') {
+      this.consentimientoAceptado = false;
+    }
+  }
+
+  aceptarConsentimiento() {
+    this.consentimientoAceptado = true;
+    localStorage.setItem('consentimiento_ia', 'true');
+  }
+
   private authService = inject(AuthService);
 
   // --- CONFIGURACIÓN INICIAL ---
@@ -190,4 +208,77 @@ export class StressQuestionnaireComponent {
   }
 
   resetearTodoSisco() { this.volverAlMenu(); }
+
+  // CAPTURA DE IMAGEN EN CADA PREGUNTA PARA OBTENER RESULTADO
+
+  async ngAfterViewInit() {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+      this.videoElement.nativeElement.srcObject = stream;
+      console.log("📷 Cámara iniciada en el cuestionario");
+    } catch (err) {
+      console.error("Error al acceder a la cámara:", err);
+    }
+  }
+
+  // Función auxiliar para identificar la pregunta según el test
+  obtenerIndiceActual(): number {
+    if (this.testSeleccionado === 'miller') return this.preguntaActual;
+    if (this.testSeleccionado === 'ceau') return this.indiceCEAU;
+    if (this.testSeleccionado === 'sisco') return this.indiceSisco;
+    return -1;
+  }
+
+  resultadoEstres: any = null;
+  mensajeEstres: string = '';
+  porcentajeEstres: string = '';
+  cargandoEstres: boolean = false;
+  public historialAnalisisFacialCNN: any[] = [];
+  public historialAnalisisFacialFaceMesh: any[] = [];
+
+  async capturarYAnalizar() {
+    const video = this.videoElement.nativeElement;
+    const canvas = this.canvasElement.nativeElement;
+    const context = canvas.getContext('2d');
+
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    context?.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+    const imagenBase64 = canvas.toDataURL('image/jpeg').split(',')[1];
+
+    try {
+      this.cargandoEstres = true;
+      const res = await this.capturaService.analizarEmocionCNN(imagenBase64);
+      console.log("Resultado del análisis facial:", res.emocion, res.confianza);
+      this.resultadoEstres = res;
+      this.mensajeEstres = `${res.emocion} (${(res.confianza * 100).toFixed(1)}%)`;
+      this.porcentajeEstres = (res.confianza * 100).toFixed(1);
+      
+      const datoParaHistorial = {
+        test: this.testSeleccionado,
+        preguntaIndex: this.obtenerIndiceActual(),
+        emocion: res.emocion,
+        confianza: res.confianza,
+        fecha: new Date().toISOString()
+      };
+      this.historialAnalisisFacialCNN.push(datoParaHistorial);
+      console.log("Historial actualizado:", this.historialAnalisisFacialCNN);
+
+    } catch (error) {
+      console.error("Error en análisis facial:", error);
+    } finally {
+      this.cargandoEstres = false;
+    }
+  }
+
+  analizarEstresVisual() {
+    const deteccionesAltas = this.historialAnalisisFacialCNN.filter(d => 
+      d.test === 'miller' && (d.emocion === 'Stress' || d.emocion === 'Anxiety')
+    );
+
+    console.log(`Durante el test de Miller, se detectó estrés visual ${deteccionesAltas.length} veces.`);
+  }
+
+
 }

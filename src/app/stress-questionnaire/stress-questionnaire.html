@@ -1,12 +1,55 @@
 <app-navbar></app-navbar>
 <router-outlet></router-outlet>
 
+
 <div class="container2">
-  
+
   <header class="main-header" *ngIf="!testSeleccionado">
     <h1>Test de Evaluación de Estrés</h1>
-    <p>Selecciona el instrumento que deseas aplicar para tu análisis</p>
+    <p>Selecciona el instrumento que deseas aplicar</p>
   </header>
+
+  <div class="modal-consentimiento" *ngIf="!consentimientoAceptado">
+    <div class="card-consentimiento animate__animated animate__fadeIn">
+      <div class="header-ia">
+        <div class="logo-ia">AE</div>
+        <div>
+          <h2>Análisis Emocional</h2>
+          <p>Información importante sobre la evaluación</p>
+        </div>
+      </div>
+
+      <hr>
+
+      <div class="contenido-texto">
+        <p><strong>Antes de comenzar, por favor lee atentamente lo siguiente:</strong></p>
+        
+        <p>Esta evaluación consta de tres cuestionarios científicos: Test de Vulnerabilidad, CEAU e Inventario SISCO.</p>
+
+        <p>Para complementar el análisis, se utilizará tu cámara para detectar emociones mediante modelos de IA <strong>Face-Mesh</strong> y <strong>CNN</strong>.</p>
+
+        <div class="alerta-privacidad">
+          <p><strong>🛡️ Privacidad Garantizada:</strong> Las fotografías <strong>NO</strong> se guardarán en ningún servidor. El sistema procesa la imagen en tiempo real, extrae la emoción detectada y el nivel de confianza, descartando la imagen original inmediatamente.</p>
+        </div>
+        <div class="alerta-privacidad">
+          <p><strong>📍 Apoyo Primario:</strong> Esta herramienta ofrece <strong>ayuda inicial y orientación </strong>, pero <strong>no sustituye la asesoría de un profesional</strong>. Su objetivo es brindarte herramientas prácticas de apoyo; al finalizar, encontrarás opciones para contactar a profesionales capacitados en tu zona si lo requieres.</p>
+        </div>
+
+        <p>Tu participación es completamente voluntaria. Al hacer clic en el botón de abajo, confirmas que comprendes y aceptas estos terminos.</p>
+      </div>
+
+      <button class="btn-entendido" (click)="aceptarConsentimiento()">
+        Entiendo y Aceptar
+      </button>
+      <footer class="footer-modal">
+      © 2026 Aplicación de Reconocimiento Emocional para proporcionar Apoyo Psicológico - Caso de Estudio: Estudiantes de la UCAB Guayana
+      Andrés Pestana - Erick Espinoza
+    </footer>
+    </div>
+  </div>
+
+  <video #video autoplay muted hidden class="camara-oculta"></video>
+  <canvas #canvas class="camara-oculta"></canvas>
 
   <div class="grid-menu" *ngIf="!testSeleccionado" [@fadeIn]>
     <div 

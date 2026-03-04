@@ -221,6 +221,7 @@ export class StressQuestionnaireComponent implements AfterViewInit{
   // --- LÓGICA TEST SISCO ---
   public mostrarResultadosFinales: boolean = false;
   public siscoFiltroPasado: boolean = false;
+  public siscoNivelGeneral: number = 3;
   public indiceSisco: number = 0;
 
   public escalaSisco = [
@@ -302,11 +303,27 @@ export class StressQuestionnaireComponent implements AfterViewInit{
     }
   }
 
-  seleccionarOpcionSisco(valor: number) {
+/*  seleccionarOpcionSisco(valor: number) {
     this.capturarYAnalizar();
     this.preguntasSisco[this.indiceSisco].valor = valor;
     if (this.indiceSisco < this.preguntasSisco.length - 1) {
       setTimeout(() => this.indiceSisco++, 300);
+    }
+  } */
+
+  seleccionarOpcionSisco(valor: number) {
+    this.capturarYAnalizar();
+    console.log("Valor seleccionado para SISCO:", valor);
+    if (this.indiceSisco === -1) {
+      this.siscoNivelGeneral = valor;
+      this.indiceSisco = 0;
+    } else {
+      this.preguntasSisco[this.indiceSisco].valor = valor;
+      setTimeout(() => {
+        if (this.indiceSisco < this.preguntasSisco.length - 1) {
+          this.indiceSisco++;
+        }
+      }, 300);
     }
   }
 

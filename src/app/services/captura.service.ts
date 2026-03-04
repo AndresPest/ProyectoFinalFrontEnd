@@ -7,8 +7,8 @@ import { lastValueFrom } from 'rxjs';
 })
 export class CapturaService {
 
-  private urlBackendCNN = 'https://crojas3-detectoremociones.hf.space/api/emocion';
-  private urlBackendFaceMesh = 'https://crojas3-detectoremociones.hf.space/api/emocion';
+  private urlBackendCNN = 'https://crojas3-detectoremociones.hf.space/api/emocion-cnn';
+  private urlBackendFaceMesh = 'https://crojas3-detectoremociones.hf.space/api/emocion-facemesh';
 
   constructor(private http: HttpClient) {}
 

@@ -155,6 +155,16 @@
           </div>
         </div>
 
+        <div class="pregunta-card-single" *ngIf="siscoFiltroPasado && indiceSisco === -1">
+          <h2 class="pregunta-numero">Nivel General</h2>
+          <p class="pregunta-texto-grande">Señala tu nivel de estrés del 1 al 5 (donde 1 es poco y 5 es mucho):</p>
+          <div class="opciones-horizontal-puntos">
+            <button *ngFor="let n of [1,2,3,4,5]" class="btn-punto" (click)="seleccionarOpcionSisco(n)">
+              {{ n }}
+            </button>
+          </div>
+        </div>
+
         <div *ngIf="siscoFiltroPasado && !mostrarResultadosFinales">
             <div class="progress-container">
                 <div class="progress-bar" [style.width.%]="(indiceSisco+1)/preguntasSisco.length*100"></div>
@@ -162,15 +172,15 @@
 
             <div class="pregunta-card-single" [@fadeInTrigger]="indiceSisco">
                 <header class="header-fijo-sisco">
-                    <span class="dim-badge">{{ preguntasSisco[indiceSisco].dim }}</span>
-                    <p class="enunciado-contexto">{{ preguntasSisco[indiceSisco].encabezado }}</p>
+                    <span class="dim-badge">{{ preguntasSisco[indiceSisco]?.dim }}</span>
+                    <p class="enunciado-contexto">{{ preguntasSisco[indiceSisco]?.encabezado }}</p>
                 </header>
-                <p class="pregunta-texto-grande">{{ preguntasSisco[indiceSisco].texto }}</p>
+                <p class="pregunta-texto-grande">{{ preguntasSisco[indiceSisco]?.texto }}</p>
 
                 <div class="opciones-verticales">
                     <button *ngFor="let opt of escalaSisco; let i = index" 
                             class="btn-opcion-grande"
-                            [class.active]="preguntasSisco[indiceSisco].valor === i"
+                            [class.active]="preguntasSisco[indiceSisco]?.valor === i"
                             (click)="seleccionarOpcionSisco(i)">
                         {{ opt }}
                     </button>

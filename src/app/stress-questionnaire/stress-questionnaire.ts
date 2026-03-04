@@ -121,6 +121,7 @@ export class StressQuestionnaireComponent implements AfterViewInit{
   ];
 
   seleccionarOpcionTestVulnerabilidad(p: any, valor: number) {
+    this.capturarYAnalizar();
     p.valor = valor;
     setTimeout(() => {
       if (this.preguntaActual < this.preguntasTestVulnerabilidad.length - 1) this.preguntaActual++;
@@ -191,6 +192,7 @@ export class StressQuestionnaireComponent implements AfterViewInit{
   ];
 
   seleccionarOpcionCEAU(p: any, valor: number) {
+    this.capturarYAnalizar();
     p.valor = valor;
     setTimeout(() => {
       if (this.indiceCEAU < this.preguntasCEAU.length - 1) this.indiceCEAU++;
@@ -313,7 +315,6 @@ export class StressQuestionnaireComponent implements AfterViewInit{
 
   seleccionarOpcionSisco(valor: number) {
     this.capturarYAnalizar();
-    console.log("Valor seleccionado para SISCO:", valor);
     if (this.indiceSisco === -1) {
       this.siscoNivelGeneral = valor;
       this.indiceSisco = 0;
@@ -397,21 +398,43 @@ export class StressQuestionnaireComponent implements AfterViewInit{
 
     try {
       this.cargandoEstres = true;
-      const res = await this.capturaService.analizarEmocionCNN(imagenBase64);
-      console.log("Resultado del análisis facial:", res.emocion, res.confianza);
-      this.resultadoEstres = res;
-      this.mensajeEstres = `${res.emocion} (${(res.confianza * 100).toFixed(1)}%)`;
-      this.porcentajeEstres = (res.confianza * 100).toFixed(1);
+
+      //LOGICA DE ANALISIS CON CNN
+
+      const resCNN = await this.capturaService.analizarEmocionCNN(imagenBase64);
+      console.log("Resultado CNN:", resCNN.emocion, resCNN.confianza);
+      this.resultadoEstres = resCNN;
+      this.mensajeEstres = `${resCNN.emocion} (${(resCNN.confianza * 100).toFixed(1)}%)`;
+      this.porcentajeEstres = (resCNN.confianza * 100).toFixed(1);
       
-      const datoParaHistorial = {
+      const datoParaHistorialCNN = {
         test: this.testSeleccionado,
         preguntaIndex: this.obtenerIndiceActual(),
-        emocion: res.emocion,
-        confianza: res.confianza,
+        emocion: resCNN.emocion,
+        confianza: resCNN.confianza,
         fecha: new Date().toISOString()
       };
-      this.historialAnalisisFacialCNN.push(datoParaHistorial);
-      console.log("Historial actualizado:", this.historialAnalisisFacialCNN);
+      this.historialAnalisisFacialCNN.push(datoParaHistorialCNN);
+      console.log("Historial actualizado (CNN):", this.historialAnalisisFacialCNN);
+
+      // LOGICA DE ANALISIS CON FACEMESH
+
+      const resFaceMesh = await this.capturaService.analizarEmocionFaceMesh(imagenBase64);
+      console.log("Resultado FaceMesh:", resFaceMesh.emocion, resFaceMesh.confianza);
+      this.resultadoEstres = resFaceMesh;
+      this.mensajeEstres = `${resFaceMesh.emocion} (${(resFaceMesh.confianza * 100).toFixed(1)}%)`;
+      this.porcentajeEstres = (resFaceMesh.confianza * 100).toFixed(1);
+
+      const datoParaHistorialFaceMesh = {
+        test: this.testSeleccionado,
+        preguntaIndex: this.obtenerIndiceActual(),
+        emocion: resFaceMesh.emocion,
+        confianza: resFaceMesh.confianza,
+        fecha: new Date().toISOString()
+      };
+
+      this.historialAnalisisFacialFaceMesh.push(datoParaHistorialFaceMesh);
+      console.log("Historial actualizado (FaceMesh):", this.historialAnalisisFacialFaceMesh);
 
     } catch (error) {
       console.error("Error en análisis facial:", error);

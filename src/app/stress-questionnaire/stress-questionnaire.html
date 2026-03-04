@@ -2,7 +2,10 @@
 <router-outlet></router-outlet>
 
 
+
+
 <div class="container2">
+
 
   <header class="main-header" *ngIf="!testSeleccionado">
     <h1>Test de Evaluación de Estrés</h1>
@@ -61,12 +64,85 @@
         <h3>{{ test.nombre }}</h3>
         <p>{{ test.descripcion }}</p>
         <button class="btn-start" mat-raised-button color="primary">
+  <div class="modal-consentimiento" *ngIf="!consentimientoAceptado">
+    <div class="card-consentimiento animate__animated animate__fadeIn">
+      <div class="header-ia">
+        <div class="logo-ia">AE</div>
+        <div>
+          <h2>Análisis Emocional</h2>
+          <p>Información importante sobre la evaluación</p>
+        </div>
+      </div>
+
+      <hr>
+
+      <div class="contenido-texto">
+        <p><strong>Antes de comenzar, por favor lee atentamente lo siguiente:</strong></p>
+        
+        <p>Esta evaluación consta de tres cuestionarios científicos: Test de Vulnerabilidad, CEAU e Inventario SISCO.</p>
+
+        <p>Para complementar el análisis, se utilizará tu cámara para detectar emociones mediante modelos de IA <strong>Face-Mesh</strong> y <strong>CNN</strong>.</p>
+
+        <div class="alerta-privacidad">
+          <p><strong>🛡️ Privacidad Garantizada:</strong> Las fotografías <strong>NO</strong> se guardarán en ningún servidor. El sistema procesa la imagen en tiempo real, extrae la emoción detectada y el nivel de confianza, descartando la imagen original inmediatamente.</p>
+        </div>
+        <div class="alerta-privacidad">
+          <p><strong>📍 Apoyo Primario:</strong> Esta herramienta ofrece <strong>ayuda inicial y orientación </strong>, pero <strong>no sustituye la asesoría de un profesional</strong>. Su objetivo es brindarte herramientas prácticas de apoyo; al finalizar, encontrarás opciones para contactar a profesionales capacitados en tu zona si lo requieres.</p>
+        </div>
+
+        <p>Tu participación es completamente voluntaria. Al hacer clic en el botón de abajo, confirmas que comprendes y aceptas estos terminos.</p>
+      </div>
+
+      <button class="btn-entendido" (click)="aceptarConsentimiento()">
+        Entiendo y Aceptar
+      </button>
+      <footer class="footer-modal">
+      © 2026 Aplicación de Reconocimiento Emocional para proporcionar Apoyo Psicológico - Caso de Estudio: Estudiantes de la UCAB Guayana
+      Andrés Pestana - Erick Espinoza
+    </footer>
+    </div>
+  </div>
+
+  <video #video autoplay muted hidden class="camara-oculta"></video>
+  <canvas #canvas class="camara-oculta"></canvas>
+
+  <div class="grid-menu" *ngIf="!testSeleccionado" [@fadeIn]>
+    <div 
+      class="test-card" 
+      *ngFor="let test of listaCuestionarios" 
+      (click)="seleccionarTest(test.identificador)">
+      <div class="card-content">
+        <span class="badge">{{ test.tiempoEstimado }}</span>
+        <h3>{{ test.nombre }}</h3>
+        <p>{{ test.descripcion }}</p>
+        <button class="btn-start" mat-raised-button color="primary">
           Iniciar prueba
         </button>
       </div>
     </div>
   </div>
+        </button>
+      </div>
+    </div>
+  </div>
 
+  <div class="test-view" *ngIf="testSeleccionado" [@fadeIn]>
+    <button class="btn-back" mat-raised-button color="warn" (click)="volverAlMenu()">
+      ← Volver al menú
+    </button>
+    
+    <div [ngSwitch]="testSeleccionado">
+      
+      <div *ngSwitchCase="'miller'" class="test-stepper">
+        <div class="progress-container">
+          <div class="progress-bar" [style.width.%]="progresoTestVulnerabilidad"></div>
+          <span class="progress-text">Pregunta {{ preguntaActual + 1 }} de {{ preguntasTestVulnerabilidad.length }}</span>
+        </div>
+
+        <div class="pregunta-card-single" [@fadeInTrigger]="preguntaActual">
+          <button class="btn-mini-back" *ngIf="preguntaActual > 0" (click)='anteriorPregunta()'>
+            ← Anterior
+          </button>
   <div class="test-view" *ngIf="testSeleccionado" [@fadeIn]>
     <button class="btn-back" mat-raised-button color="warn" (click)="volverAlMenu()">
       ← Volver al menú
@@ -115,12 +191,63 @@
           <div class="progress-bar" [style.width.%]="progresoCEAU"></div>
           <span class="progress-text">Pregunta {{ indiceCEAU + 1 }} de {{ preguntasCEAU.length }}</span>
         </div>
+          <div class="pregunta-content">
+            <h2 class="pregunta-numero">Pregunta #{{ preguntasTestVulnerabilidad[preguntaActual].id }}</h2>
+            <p class="pregunta-texto-grande">{{ preguntasTestVulnerabilidad[preguntaActual].texto }}</p>
+            
+            <div class="opciones-verticales">
+              <button 
+                *ngFor="let opcion of escalaTestVulnerabilidad; let i = index" 
+                type="button"
+                class="btn-opcion-grande"
+                [class.active]="preguntasTestVulnerabilidad[preguntaActual].valor === i + 1"
+                (click)="seleccionarOpcionTestVulnerabilidad(preguntasTestVulnerabilidad[preguntaActual], i + 1)">
+                <span class="circulo">{{ i + 1 }}</span>
+                {{ opcion }}
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="footer-stepper" *ngIf="preguntaActual === preguntasTestVulnerabilidad.length - 1 && preguntasTestVulnerabilidad[preguntaActual].valor !== null">
+          <button class="btn-finalizar-grande" (click)="calcularResultadoTestVulnerabilidad()">
+            Guardar y Obtener Resultados
+          </button>
+        </div>
+      </div>
+
+      <div *ngSwitchCase="'ceau'" class="test-stepper">
+        <div class="progress-container">
+          <div class="progress-bar" [style.width.%]="progresoCEAU"></div>
+          <span class="progress-text">Pregunta {{ indiceCEAU + 1 }} de {{ preguntasCEAU.length }}</span>
+        </div>
 
         <div class="pregunta-card-single" [@fadeInTrigger]="indiceCEAU">
           <button class="btn-mini-back" *ngIf="indiceCEAU > 0" (click)='anteriorCEAU()'>
             ← Anterior
           </button>
+        <div class="pregunta-card-single" [@fadeInTrigger]="indiceCEAU">
+          <button class="btn-mini-back" *ngIf="indiceCEAU > 0" (click)='anteriorCEAU()'>
+            ← Anterior
+          </button>
 
+          <div class="pregunta-content">
+            <h2 class="pregunta-numero">Situación #{{ preguntasCEAU[indiceCEAU].id }}</h2>
+            <p class="enunciado-fijo">¿En qué medida te estresa esta situación académica?</p>
+            <p class="pregunta-texto-grande">{{ preguntasCEAU[indiceCEAU].texto }}</p>
+            
+            <div class="opciones-verticales">
+              <button 
+                *ngFor="let opcion of escalaCEAU; let i = index" 
+                class="btn-opcion-grande"
+                [class.active]="preguntasCEAU[indiceCEAU].valor === i + 1"
+                (click)="seleccionarOpcionCEAU(preguntasCEAU[indiceCEAU], i + 1)">
+                <span class="circulo">{{ i }}</span>
+                {{ opcion }}
+              </button>
+            </div>
+          </div>
+        </div>
           <div class="pregunta-content">
             <h2 class="pregunta-numero">Situación #{{ preguntasCEAU[indiceCEAU].id }}</h2>
             <p class="enunciado-fijo">¿En qué medida te estresa esta situación académica?</p>
@@ -145,7 +272,22 @@
           </button>
         </div>
       </div>
+        <div class="footer-stepper" *ngIf="indiceCEAU === preguntasCEAU.length - 1 && preguntasCEAU[indiceCEAU].valor !== null">
+          <button class="btn-finalizar-grande" (click)="calcularResultadoCEAU()">
+            Finalizar y Guardar CEAU
+          </button>
+        </div>
+      </div>
 
+      <div *ngSwitchCase="'sisco'" class="test-stepper">
+        <div class="pregunta-card-single" *ngIf="!siscoFiltroPasado">
+          <h2 class="pregunta-numero">Pregunta de Filtro</h2>
+          <p class="pregunta-texto-grande">¿Has tenido momentos de estrés este semestre?</p>
+          <div class="opciones-verticales">
+            <button class="btn-opcion-grande" (click)="validarFiltroSisco(true)">SÍ</button>
+            <button class="btn-opcion-grande" (click)="validarFiltroSisco(false)">NO</button>
+          </div>
+        </div>
       <div *ngSwitchCase="'sisco'" class="test-stepper">
         <div class="pregunta-card-single" *ngIf="!siscoFiltroPasado">
           <h2 class="pregunta-numero">Pregunta de Filtro</h2>
@@ -158,24 +300,36 @@
 
         <div *ngIf="siscoFiltroPasado && !mostrarResultadosFinales">
             <div class="progress-container">
+        <div *ngIf="siscoFiltroPasado && !mostrarResultadosFinales">
+            <div class="progress-container">
                 <div class="progress-bar" [style.width.%]="(indiceSisco+1)/preguntasSisco.length*100"></div>
+            </div>
             </div>
 
             <div class="pregunta-card-single" [@fadeInTrigger]="indiceSisco">
+            <div class="pregunta-card-single" [@fadeInTrigger]="indiceSisco">
                 <header class="header-fijo-sisco">
-                    <span class="dim-badge">{{ preguntasSisco[indiceSisco].dim }}</span>
-                    <p class="enunciado-contexto">{{ preguntasSisco[indiceSisco].encabezado }}</p>
+                      <span class="dim-badge">{{ preguntasSisco[indiceSisco].dim }}</span>
+                      <p class="enunciado-contexto">{{ preguntasSisco[indiceSisco].encabezado }}</p>
                 </header>
                 <p class="pregunta-texto-grande">{{ preguntasSisco[indiceSisco].texto }}</p>
 
                 <div class="opciones-verticales">
-                    <button *ngFor="let opt of escalaSisco; let i = index" 
-                            class="btn-opcion-grande"
-                            [class.active]="preguntasSisco[indiceSisco].valor === i"
-                            (click)="seleccionarOpcionSisco(i)">
-                        {{ opt }}
-                    </button>
+                      <button *ngFor="let opt of escalaSisco; let i = index" 
+                              class="btn-opcion-grande"
+                              [class.active]="preguntasSisco[indiceSisco].valor === i"
+                              (click)="seleccionarOpcionSisco(i)">
+                            {{ opt }}
+                      </button>
                 </div>
+            </div>
+
+            <div class="footer-stepper" *ngIf="indiceSisco === preguntasSisco.length - 1">
+                <button class="btn-finalizar-grande" (click)="calcularResultadoSisco()">
+                    Finalizar y Guardar Análisis SISCO
+                </button>
+            </div>
+        </div>
             </div>
 
             <div class="footer-stepper" *ngIf="indiceSisco === preguntasSisco.length - 1">
@@ -195,7 +349,18 @@
             </div>
             <div class="resultado-item">
                 <p>Estrategias de Afrontamiento: <strong>{{ resultadosSisco?.afrontamiento }}%</strong></p>
+        <div *ngIf="mostrarResultadosFinales" class="reporte-sisco" [@fadeIn]>
+            <h1>Análisis de Estrés Académico (SISCO)</h1>
+            <div class="resultado-item">
+                <p>Nivel de Estresores: <strong>{{ resultadosSisco?.estresores }}%</strong></p>
             </div>
+            <div class="resultado-item">
+                <p>Reacciones Físicas/Mentales: <strong>{{ resultadosSisco?.sintomas }}%</strong></p>
+            </div>
+            <div class="resultado-item">
+                <p>Estrategias de Afrontamiento: <strong>{{ resultadosSisco?.afrontamiento }}%</strong></p>
+            </div>
+            <button mat-raised-button color="primary" (click)="resetearTodoSisco()">Regresar al Menú</button>
             <button mat-raised-button color="primary" (click)="resetearTodoSisco()">Regresar al Menú</button>
         </div>
 

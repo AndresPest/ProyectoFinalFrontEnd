@@ -1,4 +1,5 @@
 import { Routes } from '@angular/router';
+import { Home } from './home/home';
 import { LoginComponent } from './login/login';
 import { StressQuestionnaireComponent } from './stress-questionnaire/stress-questionnaire';
 import { FaceMeshComponent } from './face-mesh/face-mesh';
@@ -11,7 +12,8 @@ import { authGuard } from './auth-guard';
 
 
 export const routes: Routes = [
-    { path: '', redirectTo: 'login', pathMatch: 'full' },
+    { path: '', redirectTo: 'home', pathMatch: 'full' },
+    { path: 'home', component: Home },
     { path: 'login', component: LoginComponent },
     { path: 'registro', component: RegisterComponent },
     { path: 'cuestionario', component: StressQuestionnaireComponent },

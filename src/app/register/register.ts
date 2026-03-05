@@ -7,6 +7,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { Router, RouterOutlet } from '@angular/router'; 
 import { NavbarComponent } from '../navbar/navbar'; 
 import { AuthService } from '../services/auth';
+import { Navigation } from '../services/navigation';
 
 @Component({
   selector: 'app-register',
@@ -24,6 +25,9 @@ import { AuthService } from '../services/auth';
   ],
 })
 export class RegisterComponent {
+
+  constructor(private navService: Navigation) {}
+
   private fb = inject(FormBuilder);
   private authService = inject(AuthService);
   private router = inject(Router);
@@ -43,5 +47,9 @@ export class RegisterComponent {
     } catch (error: any) {
       alert('Error: ' + error.message);
     }
+  }
+
+  irA(ruta: string) {
+    this.navService.irA(ruta);
   }
 }

@@ -1,7 +1,7 @@
 <app-navbar></app-navbar>
 <router-outlet></router-outlet>
 
-<div class="register-wrapper">
+<!-- <div class="register-wrapper">
   <form [formGroup]="form" (ngSubmit)="register()">
     <h2 class="form-title">Registro</h2>
 
@@ -24,4 +24,48 @@
       Registrarse
     </button>
   </form>
+</div> -->
+
+<div class="auth-container">
+  <div class="auth-card">
+    <div class="auth-header">
+      <img src="assets/logoUCAB.png" alt="UCAB" class="auth-logo">
+      <h2>Crea tu cuenta</h2>
+      <p>Empieza el analisis de tu estado emocional</p>
+    </div>
+
+    <form class="auth-form" [formGroup]="form" (ngSubmit)="register()">
+      <div class="input-group">
+        <label>Nombre completo</label>
+        <div class="input-wrapper">
+          <i class="ph ph-user"></i>
+          <input type="text" placeholder="Ej. Erick Espinoza" formControlName="displayName" required/>
+        </div>
+      </div>
+
+      <div class="input-group">
+        <label>Correo electrónico</label>
+        <div class="input-wrapper">
+          <i class="ph ph-envelope"></i>
+          <input type="email" placeholder="usuario@est.ucab.edu.ve" formControlName="email" required/>
+        </div>
+      </div>
+
+      <div class="input-group">
+        <label>Contraseña</label>
+        <div class="input-wrapper">
+          <i class="ph ph-lock"></i>
+          <input type="password" placeholder="••••••••" formControlName="password" required/>
+        </div>
+      </div>
+
+      <button type="submit" class="btn-submit" [disabled]="form.invalid">
+        Registrarse
+      </button>
+
+      <p class="auth-footer">
+        ¿Ya tienes cuenta? <span (click)="irA('login')">Inicia sesión</span>
+      </p>
+    </form>
+  </div>
 </div>

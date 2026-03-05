@@ -1,43 +1,131 @@
-.navbar-superior {
-  background-color: #1e3a8a;
-  color: white;
-  padding: 1rem 2rem;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+$primary: #1e3a8a;
+$text-dark: #1f2937;
+$text-muted: #6b7280;
+$glass-bg: rgba(255, 255, 255, 0.8);
+$ucab-blue: #003366;
 
-  h1 {
-    font-size: 1.4rem;
-    font-weight: 600;
-  }
+.modern-nav {
+  position: fixed;
+  top: 0;
+  width: 100%;
+  z-index: 1000;
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
 
-  .navbar-contenido {
-    display: contents;  
-  }
-
-  .navbar-botones {
+  .nav-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 1rem 2rem;
     display: flex;
-    gap: 1.5rem;
+    justify-content: space-between;
+    align-items: center;
+  }
+}
 
-    .nav-btn {
-      background: none;
-      border: none;
-      color: white;
-      font-weight: 500;
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      cursor: pointer;
-      transition: opacity 0.3s ease;
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  transition: transform 0.2s ease;
 
-      &:hover {
-        opacity: 0.8;
-      }
+  &:hover {
+    transform: scale(1.02);
+  }
 
-      svg {
-        fill: white;
-      }
+  .brand-logo {
+    height: 30px;
+    width: auto;
+    // Si el logo es blanco, puedes usar filters para cambiarle el color a azul institucional o a tu color primario
+    filter: drop-shadow(0 0 0 $ucab-blue) brightness(0) saturate(100%) invert(15%) sepia(95%) saturate(1915%) hue-rotate(195deg) brightness(96%) contrast(101%); 
+  }
+
+  .logo-text {
+    font-weight: 700;
+    font-size: 1.2rem;
+    color: $text-dark;
+    
+    span { 
+      color: $primary; // "Sense" en el color violeta moderno
     }
   }
+}
+
+.nav-menu {
+  display: flex;
+  list-style: none;
+  gap: 1.5rem;
+
+  a {
+    text-decoration: none;
+    color: #6b7280;
+    font-size: 0.95rem;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.2s ease;
+
+    i { font-size: 1.1rem; } // Iconos más sutiles
+
+    &:hover, &.active {
+      color: #6366f1;
+    }
+  }
+}
+
+.nav-auth {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+
+  .link-login {
+    text-decoration: none;
+    color: #1f2937;
+    font-weight: 600;
+    font-size: 0.9rem;
+  }
+
+  .btn-register {
+    background: $primary;
+    color: white;
+    padding: 0.6rem 1.2rem;
+    border-radius: 10px;
+    border: none;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.2s;
+
+    &:hover {
+      transform: scale(1.05);
+      background: #10204b;
+    }
+  }
+}
+
+.nav-btn {
+  background: transparent;
+  border: none;
+  padding: 0.6rem 1rem;
+  border-radius: 10px;
+  color: #6b7280;
+  font-weight: 550;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.2s ease;
+
+  &:hover, &.active {
+    color: #6366f1;
+  }
+  
+  font-size: 0.95rem;
+  transition: all 0.2s ease;
+}
+
+.nav-spacer {
+  height: 8%;
+  width: 100%;
 }

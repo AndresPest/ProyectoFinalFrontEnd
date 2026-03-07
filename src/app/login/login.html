@@ -1,25 +1,6 @@
 <app-navbar></app-navbar>
 <router-outlet></router-outlet>
 
-<!-- <div class="login-container">
-  <h2>Iniciar sesión</h2>
-
-  <mat-form-field appearance="fill">
-    <mat-label>Usuario</mat-label>
-    <input matInput [(ngModel)]="usuario" />
-  </mat-form-field>
-
-  <mat-form-field appearance="fill">
-    <mat-label>Contraseña</mat-label>
-    <input matInput [(ngModel)]="password" type="password" />
-  </mat-form-field>
-
-  <button mat-raised-button color="primary" (click)="iniciarSesion()">Entrar</button>
-</div> -->
-
-
-
-
 <div class="auth-container">
   <div class="auth-card">
     <div class="auth-header">
@@ -28,12 +9,13 @@
       <p>Ingresa a tu cuenta para continuar</p>
     </div>
 
-    <form class="auth-form" (ngSubmit)="iniciarSesion()">
+    <form class="auth-form" [formGroup]="form" (ngSubmit)="iniciarSesion()">
+      
       <div class="input-group">
-        <label>Correo o Usuario</label>
+        <label>Correo electrónico</label>
         <div class="input-wrapper">
           <i class="ph ph-user-circle"></i>
-          <input type="text" placeholder="usuario@est.ucab.edu.ve" [(ngModel)]="usuario" name="usuario"/>
+          <input type="email" placeholder="usuario@est.ucab.edu.ve" formControlName="usuario"/>
         </div>
       </div>
 
@@ -41,14 +23,20 @@
         <label>Contraseña</label>
         <div class="input-wrapper">
           <i class="ph ph-key"></i>
-          <input type="password" placeholder="••••••••" [(ngModel)]="password" name="password"/>
+          <input type="password" placeholder="••••••••" formControlName="password"/>
         </div>
         <div class="forgot-pass">
           <span (click)="irA('login')">¿Olvidaste tu contraseña?</span>
         </div>
       </div>
 
-      <button type="submit" class="btn-submit" [disabled]="form.invalid">Entrar</button>
+      <p *ngIf="errorMessage()" style="color: red; font-size: 0.8rem; text-align: center; margin-bottom: 10px;">
+        {{ errorMessage() }}
+      </p>
+
+      <button type="submit" class="btn-submit" [disabled]="form.invalid || cargando()">
+        {{ cargando() ? 'Cargando...' : 'Entrar' }}
+      </button>
 
       <p class="auth-footer">
         ¿Aún no tienes cuenta? <span (click)="irA('registro')">Regístrate aquí</span>

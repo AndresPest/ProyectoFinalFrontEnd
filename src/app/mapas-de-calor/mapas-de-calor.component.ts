@@ -41,7 +41,7 @@ export class MapasDeCalorComponent {
   // 👇 aquí inyectas el servicio
   constructor(private http: HttpClient, public capturaService: CapturaService) {}
 
-  obtenerActivaciones() {
+ /* obtenerActivaciones() {
     const imagenB64 = this.capturaService.getImagen(); // ahora sí existe
     if (!imagenB64) {
       console.warn('⚠️ No hay captura disponible');
@@ -56,5 +56,5 @@ export class MapasDeCalorComponent {
     error: err => console.error('Error al obtener activaciones', err)
   });
 
-  }
+  }*/
 }

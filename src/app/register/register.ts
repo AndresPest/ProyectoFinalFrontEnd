@@ -32,20 +32,45 @@ export class RegisterComponent {
   private authService = inject(AuthService);
   private router = inject(Router);
 
+  // Variable para controlar el estado de carga y evitar el error de "email-already-in-use"
+  cargando = false;
+
+  // Formulario actualizado con todos los campos requeridos por el AuthService
   form: FormGroup = this.fb.group({
-    displayName: ['', [Validators.required]],
+    nombre: ['', [Validators.required]],
+    apellido: ['', [Validators.required]],
+    carrera: ['', [Validators.required]],
+    semestre: ['', [Validators.required]],
     email: ['', [Validators.required, Validators.email]],
     password: ['', [Validators.required, Validators.minLength(6)]]
   });
 
   async register() {
-    if (this.form.invalid) return;
-    const { email, password, displayName } = this.form.value;
+    // Si el formulario es inválido o ya hay una petición en curso, no hacer nada
+    if (this.form.invalid || this.cargando) return;
+
+    this.cargando = true;
+    const { email, password, nombre, apellido, carrera, semestre } = this.form.value;
+
     try {
-      await this.authService.register(email, password, displayName);
+      // Enviamos el objeto 'datos' tal como lo espera el AuthService.register
+      await this.authService.register(email, password, { 
+        nombre, 
+        apellido, 
+        carrera, 
+        semestre 
+      });
+      
       this.router.navigate(['/login']);
     } catch (error: any) {
-      alert('Error: ' + error.message);
+      this.cargando = false; // Liberamos el botón si hay un error para poder reintentar
+      
+      // Manejo específico para el error que viste en consola
+      if (error.code === 'auth/email-already-in-use') {
+        alert('Este correo electrónico ya está registrado.');
+      } else {
+        alert('Error en el proceso de registro: ' + error.message);
+      }
     }
   }
 

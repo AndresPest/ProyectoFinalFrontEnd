@@ -135,3 +135,14 @@ $white: #ffffff;
   .hero { flex-direction: column; text-align: center; padding: 2rem 5%; }
   .hero-text h1 { font-size: 2.5rem; }
 }
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

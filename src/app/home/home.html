@@ -1,7 +1,7 @@
 <app-navbar></app-navbar>
 <router-outlet></router-outlet>
 
-<div class="landing-wrapper">
+<div class="landing-wrapper" [@fadeIn]>
   <nav class="nav">
 
   </nav>
@@ -11,7 +11,7 @@
       <h1>Entiende tu <span class="highlight">estrés</span>, <br> mejora tu <span class="highlight">equilibrio.</span></h1>
       <p>Utiliza inteligencia artificial para analizar tu estado emocional y conoce estrategias personalizadas para gestionar tu bienestar día a día.</p>
       <div class="hero-btns">
-        <button class="btn-primary" (click)="irA('registro')">Empezar gratis</button>
+        <button class="btn-primary" (click)="irA('login')">Empezar ahora</button>
       </div>
     </div>
     <div class="hero-visual">

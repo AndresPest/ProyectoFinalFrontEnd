@@ -1,17 +1,12 @@
 @use "sass:color";
 
-
-
-
-
-
 $text-dark: #111827;
 $text-muted: #6b7280;
 $primary: #1e3a8a;
 $bg-gradient: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
 
 .auth-container {
-  min-height: calc(100vh - 85px); // Ajuste por la Navbar fixed
+  min-height: calc(100vh - 85px);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -25,7 +20,7 @@ $bg-gradient: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
   padding: 3rem;
   border-radius: 24px;
   width: 100%;
-  max-width: 420px;
+  max-width: 450px;
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
   border: 1px solid rgba(255, 255, 255, 0.4);
 
@@ -34,9 +29,8 @@ $bg-gradient: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
     margin-bottom: 2rem;
 
     .auth-logo {
-      height: 40px;
-      margin-bottom: 1.2rem;
-      // Filtro para el azul UCAB
+      height: 45px;
+      margin-bottom: 1rem;
       filter: brightness(0) saturate(100%) invert(13%) sepia(30%) saturate(5000%) hue-rotate(190deg);
     }
 
@@ -128,5 +122,16 @@ $bg-gradient: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
     font-weight: 600;
     cursor: pointer;
     &:hover { text-decoration: underline; }
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }

@@ -2,7 +2,7 @@ $primary: #1e3a8a;
 $bg-gradient: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
 
 .auth-container {
-  min-height: calc(100vh - 85px); // Para que no choque con la navbar
+  min-height: calc(100vh - 85px);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -30,8 +30,8 @@ $bg-gradient: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
       filter: brightness(0) saturate(100%) invert(13%) sepia(30%) saturate(5000%) hue-rotate(190deg);
     }
 
-    h2 { font-size: 1.8rem; color: #1f2937; margin-bottom: 0.5rem; }
-    p { color: #6b7280; font-size: 0.9rem; }
+    h2 { font-size: 1.7rem; color: #111827; margin-bottom: 0.4rem; }
+    p { color: #6b7280; font-size: 0.9rem; line-height: 1.4; }
   }
 }
 
@@ -106,5 +106,16 @@ $bg-gradient: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
     font-weight: 600;
     cursor: pointer;
     &:hover { text-decoration: underline; }
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }

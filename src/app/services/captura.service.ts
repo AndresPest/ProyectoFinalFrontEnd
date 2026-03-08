@@ -6,23 +6,12 @@ import { lastValueFrom } from 'rxjs';
   providedIn: 'root'
 })
 export class CapturaService {
-
   private urlBackendCNN = 'https://crojas3-detectoremociones.hf.space/api/emocion-cnn';
   private urlBackendFaceMesh = 'https://crojas3-detectoremociones.hf.space/api/emocion-facemesh';
 
   constructor(private http: HttpClient) {}
 
-  private imagenB64: string | null = null;
-
-  setImagen(imagen: string) {
-    this.imagenB64 = imagen;
-  }
-
-  getImagen(): string | null {
-    return this.imagenB64;
-  }
-  
-  async redimensionarImagen(base64Str: string, ancho: number = 48, alto: number = 48): Promise<string> {
+  async redimensionarImagen(base64Str: string, ancho: number, alto: number): Promise<string> {
     return new Promise((resolve) => {
       const img = new Image();
       img.src = 'data:image/jpeg;base64,' + base64Str;
@@ -38,12 +27,16 @@ export class CapturaService {
   }
 
   async analizarEmocionCNN(imagenB64: string) {
-    const imagenReducida = await this.redimensionarImagen(imagenB64);
+    const imagenReducida = await this.redimensionarImagen(imagenB64, 48, 48);
     return lastValueFrom(this.http.post<any>(this.urlBackendCNN, { imagen: imagenReducida }));
   }
 
-  async analizarEmocionFaceMesh(imagenB64: string) {
-    const imagenReducida = await this.redimensionarImagen(imagenB64);
-    return lastValueFrom(this.http.post<any>(this.urlBackendFaceMesh, { imagen: imagenReducida }));
+  async analizarEmocionFaceMesh(datos: { imagen: string, puntos: any[] }) {
+    // Redimensionamos la imagen a 224 para FaceMesh
+    const imagenProcesada = await this.redimensionarImagen(datos.imagen, 224, 224);
+    return lastValueFrom(this.http.post<any>(this.urlBackendFaceMesh, { 
+      imagen: imagenProcesada, 
+      puntos: datos.puntos 
+    }));
   }
 }

@@ -1,7 +1,6 @@
 import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
-import { trigger, transition, style, animate } from '@angular/animations';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
@@ -15,21 +14,15 @@ import { Navigation } from '../services/navigation';
   standalone: true,
   templateUrl: './register.html',
   styleUrls: ['./register.scss'],
-  imports: [CommonModule, ReactiveFormsModule, MatFormFieldModule, MatInputModule, MatButtonModule,NavbarComponent, RouterOutlet],
-  animations: [
-    trigger('fadeIn', [
-      transition(':enter', [
-        style({ opacity: 0, transform: 'translateY(10px)' }),
-        animate('300ms ease-out', style({ opacity: 1, transform: 'translateY(0)' }))
-      ])
-    ]),
-    trigger('fadeInTrigger', [
-      transition('* => *', [
-        style({ opacity: 0, transform: 'translateY(10px)' }),
-        animate('300ms ease-out', style({ opacity: 1, transform: 'translateY(0)' }))
-      ])
-    ])
-  ]
+  imports: [
+    CommonModule, 
+    ReactiveFormsModule, 
+    MatFormFieldModule, 
+    MatInputModule, 
+    MatButtonModule,
+    NavbarComponent, 
+    RouterOutlet    
+  ],
 })
 export class RegisterComponent {
 
@@ -39,20 +32,45 @@ export class RegisterComponent {
   private authService = inject(AuthService);
   private router = inject(Router);
 
+  // Variable para controlar el estado de carga y evitar el error de "email-already-in-use"
+  cargando = false;
+
+  // Formulario actualizado con todos los campos requeridos por el AuthService
   form: FormGroup = this.fb.group({
-    displayName: ['', [Validators.required]],
+    nombre: ['', [Validators.required]],
+    apellido: ['', [Validators.required]],
+    carrera: ['', [Validators.required]],
+    semestre: ['', [Validators.required]],
     email: ['', [Validators.required, Validators.email]],
     password: ['', [Validators.required, Validators.minLength(6)]]
   });
 
   async register() {
-    if (this.form.invalid) return;
-    const { email, password, displayName } = this.form.value;
+    // Si el formulario es inválido o ya hay una petición en curso, no hacer nada
+    if (this.form.invalid || this.cargando) return;
+
+    this.cargando = true;
+    const { email, password, nombre, apellido, carrera, semestre } = this.form.value;
+
     try {
-      await this.authService.register(email, password, displayName);
+      // Enviamos el objeto 'datos' tal como lo espera el AuthService.register
+      await this.authService.register(email, password, { 
+        nombre, 
+        apellido, 
+        carrera, 
+        semestre 
+      });
+      
       this.router.navigate(['/login']);
     } catch (error: any) {
-      alert('Error: ' + error.message);
+      this.cargando = false; // Liberamos el botón si hay un error para poder reintentar
+      
+      // Manejo específico para el error que viste en consola
+      if (error.code === 'auth/email-already-in-use') {
+        alert('Este correo electrónico ya está registrado.');
+      } else {
+        alert('Error en el proceso de registro: ' + error.message);
+      }
     }
   }
 

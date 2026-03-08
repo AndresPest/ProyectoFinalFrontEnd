@@ -17,11 +17,18 @@ import {
 } from '@angular/fire/firestore';
 import { Observable } from 'rxjs';
 
+// Interfaz para asegurar que los datos del perfil siempre lleguen completos
+export interface DatosUsuario {
+  nombre: string;
+  apellido: string;
+  carrera: string;
+  semestre: string;
+}
+
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
-  // Inyección de dependencias de Firebase (Angular 17+)
   private auth = inject(Auth);
   private firestore = inject(Firestore);
 
@@ -37,26 +44,24 @@ export class AuthService {
 
   /**
    * REGISTRO: Crea la cuenta en Auth y el perfil en Firestore
-   * @param email Correo electrónico
-   * @param pass Contraseña (mínimo 6 caracteres)
-   * @param datos Objeto con Nombre, Apellido, Carrera y Semestre
    */
-  async register(email: string, pass: string, datos: { nombre: string, apellido: string, carrera: string, semestre: string }) {
+  async register(email: string, pass: string, datos: DatosUsuario) {
     try {
       // 1. Crear el usuario en Firebase Authentication
       const credential = await createUserWithEmailAndPassword(this.auth, email, pass);
+      const uid = credential.user.uid;
       
       // 2. Crear el documento del usuario en la colección 'Usuario'
-      // Usamos el UID de Auth como ID del documento para que estén vinculados
-      const userDocRef = doc(this.firestore, `Usuario/${credential.user.uid}`);
+      const userDocRef = doc(this.firestore, `Usuario/${uid}`);
       
+      // El uso de ?? '' evita el error "Unsupported field value: undefined"
       await setDoc(userDocRef, {
-        uid: credential.user.uid,
+        uid: uid,
         Correo: email,
-        Nombre: datos.nombre,
-        Apellido: datos.apellido,
-        Carrera: datos.carrera,
-        Semestre: datos.semestre,
+        Nombre: datos.nombre ?? '',
+        Apellido: datos.apellido ?? '',
+        Carrera: datos.carrera ?? '',
+        Semestre: datos.semestre ?? '',
         fecha_registro: serverTimestamp()
       });
 
@@ -102,7 +107,7 @@ export class AuthService {
 
   /**
    * GUARDAR RESULTADOS DE RECONOCIMIENTO FACIAL (CNN y FaceMesh)
-   * Aquí es donde diferenciamos los dos modelos para tu tesis
+   * Importante para la comparación de modelos en tu tesis
    */
   async guardarResultadoFacial(uid: string, data: { modelo: string, emocion: string, confianza: number }) {
     try {

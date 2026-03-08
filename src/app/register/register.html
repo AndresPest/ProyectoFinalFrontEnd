@@ -1,45 +1,47 @@
 <app-navbar></app-navbar>
 <router-outlet></router-outlet>
 
-<!-- <div class="register-wrapper">
-  <form [formGroup]="form" (ngSubmit)="register()">
-    <h2 class="form-title">Registro</h2>
-
-    <mat-form-field appearance="fill">
-      <mat-label>Nombre completo</mat-label>
-      <input matInput formControlName="displayName" required />
-    </mat-form-field>
-
-    <mat-form-field appearance="fill">
-      <mat-label>Correo electrónico</mat-label>
-      <input matInput type="email" formControlName="email" required />
-    </mat-form-field>
-
-    <mat-form-field appearance="fill">
-      <mat-label>Contraseña</mat-label>
-      <input matInput type="password" formControlName="password" required />
-    </mat-form-field>
-
-    <button mat-raised-button color="primary" type="submit" class="register-button" [disabled]="form.invalid">
-      Registrarse
-    </button>
-  </form>
-</div> -->
-
-<div class="auth-container" [@fadeIn]>
+<div class="auth-container">
   <div class="auth-card">
     <div class="auth-header">
       <img src="assets/logoUCAB.png" alt="UCAB" class="auth-logo">
       <h2>Crea tu cuenta</h2>
-      <p>Empieza el analisis de tu estado emocional</p>
+      <p>Completa tu perfil para el análisis emocional</p>
     </div>
 
     <form class="auth-form" [formGroup]="form" (ngSubmit)="register()">
+      
+      <div class="input-row" style="display: flex; gap: 15px;">
+        <div class="input-group" style="flex: 1;">
+          <label>Nombre</label>
+          <div class="input-wrapper">
+            <i class="ph ph-user"></i>
+            <input type="text" placeholder="Ej. Andres" formControlName="nombre" required/>
+          </div>
+        </div>
+
+        <div class="input-group" style="flex: 1;">
+          <label>Apellido</label>
+          <div class="input-wrapper">
+            <i class="ph ph-user"></i>
+            <input type="text" placeholder="Ej. Pestana" formControlName="apellido" required/>
+          </div>
+        </div>
+      </div>
+
       <div class="input-group">
-        <label>Nombre completo</label>
+        <label>Carrera</label>
         <div class="input-wrapper">
-          <i class="ph ph-user"></i>
-          <input type="text" placeholder="Ej. Erick Espinoza" formControlName="displayName" required/>
+          <i class="ph ph-graduation-cap"></i>
+          <input type="text" placeholder="Ej. Ingeniería Informática" formControlName="carrera" required/>
+        </div>
+      </div>
+
+      <div class="input-group">
+        <label>Semestre</label>
+        <div class="input-wrapper">
+          <i class="ph ph-number-circle-seven"></i>
+          <input type="text" placeholder="Ej. 10mo" formControlName="semestre" required/>
         </div>
       </div>
 
@@ -59,12 +61,13 @@
         </div>
       </div>
 
-      <button type="submit" class="btn-submit" [disabled]="form.invalid">
-        Registrarse
+      <button type="submit" class="btn-submit" [disabled]="form.invalid || cargando">
+        <span *ngIf="!cargando">Registrarse</span>
+        <span *ngIf="cargando">Procesando...</span>
       </button>
 
       <p class="auth-footer">
-        ¿Ya tienes cuenta? <span (click)="irA('login')">Inicia sesión</span>
+        ¿Ya tienes cuenta? <span (click)="irA('login')" style="cursor: pointer; font-weight: bold;">Inicia sesión</span>
       </p>
     </form>
   </div>

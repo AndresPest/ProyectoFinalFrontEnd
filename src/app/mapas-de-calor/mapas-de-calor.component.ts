@@ -36,7 +36,7 @@ import { HttpClient } from '@angular/common/http';
 })
 
 export class MapasDeCalorComponent {
-  activaciones: any = {};
+  /*activaciones: any = {};
 
   // 👇 aquí inyectas el servicio
   constructor(private http: HttpClient, public capturaService: CapturaService) {}
@@ -56,5 +56,5 @@ export class MapasDeCalorComponent {
     error: err => console.error('Error al obtener activaciones', err)
   });
 
-  }
+  }*/
 }

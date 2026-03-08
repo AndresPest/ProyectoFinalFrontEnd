@@ -313,21 +313,6 @@ export class StressQuestionnaireComponent implements AfterViewInit{
     }
   } */
 
-  seleccionarOpcionSisco(valor: number) {
-    this.capturarYAnalizar();
-    if (this.indiceSisco === -1) {
-      this.siscoNivelGeneral = valor;
-      this.indiceSisco = 0;
-    } else {
-      this.preguntasSisco[this.indiceSisco].valor = valor;
-      setTimeout(() => {
-        if (this.indiceSisco < this.preguntasSisco.length - 1) {
-          this.indiceSisco++;
-        }
-      }, 300);
-    }
-  }
-
   async calcularResultadoSisco() {
     const user = this.authService.currentUser;
     this.resultadosSisco = { estresores: 70, sintomas: 50, afrontamiento: 80 }; // Cálculo simplificado
@@ -385,63 +370,6 @@ export class StressQuestionnaireComponent implements AfterViewInit{
   public historialAnalisisFacialCNN: any[] = [];
   public historialAnalisisFacialFaceMesh: any[] = [];
 
-  async capturarYAnalizar() {
-    const video = this.videoElement.nativeElement;
-    const canvas = this.canvasElement.nativeElement;
-    const context = canvas.getContext('2d');
-
-    canvas.width = video.videoWidth;
-    canvas.height = video.videoHeight;
-    context?.drawImage(video, 0, 0, canvas.width, canvas.height);
-
-    const imagenBase64 = canvas.toDataURL('image/jpeg').split(',')[1];
-
-    try {
-      this.cargandoEstres = true;
-
-      //LOGICA DE ANALISIS CON CNN
-
-      const resCNN = await this.capturaService.analizarEmocionCNN(imagenBase64);
-      console.log("Resultado CNN:", resCNN.emocion, resCNN.confianza);
-      this.resultadoEstres = resCNN;
-      this.mensajeEstres = `${resCNN.emocion} (${(resCNN.confianza * 100).toFixed(1)}%)`;
-      this.porcentajeEstres = (resCNN.confianza * 100).toFixed(1);
-      
-      const datoParaHistorialCNN = {
-        test: this.testSeleccionado,
-        preguntaIndex: this.obtenerIndiceActual(),
-        emocion: resCNN.emocion,
-        confianza: resCNN.confianza,
-        fecha: new Date().toISOString()
-      };
-      this.historialAnalisisFacialCNN.push(datoParaHistorialCNN);
-      console.log("Historial actualizado (CNN):", this.historialAnalisisFacialCNN);
-
-      // LOGICA DE ANALISIS CON FACEMESH
-
-      const resFaceMesh = await this.capturaService.analizarEmocionFaceMesh(imagenBase64);
-      console.log("Resultado FaceMesh:", resFaceMesh.emocion, resFaceMesh.confianza);
-      this.resultadoEstres = resFaceMesh;
-      this.mensajeEstres = `${resFaceMesh.emocion} (${(resFaceMesh.confianza * 100).toFixed(1)}%)`;
-      this.porcentajeEstres = (resFaceMesh.confianza * 100).toFixed(1);
-
-      const datoParaHistorialFaceMesh = {
-        test: this.testSeleccionado,
-        preguntaIndex: this.obtenerIndiceActual(),
-        emocion: resFaceMesh.emocion,
-        confianza: resFaceMesh.confianza,
-        fecha: new Date().toISOString()
-      };
-
-      this.historialAnalisisFacialFaceMesh.push(datoParaHistorialFaceMesh);
-      console.log("Historial actualizado (FaceMesh):", this.historialAnalisisFacialFaceMesh);
-
-    } catch (error) {
-      console.error("Error en análisis facial:", error);
-    } finally {
-      this.cargandoEstres = false;
-    }
-  }
 
   analizarEstresVisual() {
     const deteccionesAltas = this.historialAnalisisFacialCNN.filter(d => 
@@ -450,6 +378,67 @@ export class StressQuestionnaireComponent implements AfterViewInit{
 
     console.log(`Durante el test de Miller, se detectó estrés visual ${deteccionesAltas.length} veces.`);
   }
+
+  // Dentro de tu clase StressQuestionnaireComponent
+
+async capturarYAnalizar() {
+  const video = this.videoElement.nativeElement;
+  const canvas = this.canvasElement.nativeElement;
+  const context = canvas.getContext('2d');
+
+  canvas.width = video.videoWidth;
+  canvas.height = video.videoHeight;
+  context?.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+  const imagenBase64 = canvas.toDataURL('image/jpeg').split(',')[1];
+
+  try {
+    this.cargandoEstres = true;
+
+    // Ejecución de ambos modelos
+    const resCNN = await this.capturaService.analizarEmocionCNN(imagenBase64);
+    
+    // Para FaceMesh enviamos el objeto con puntos (aunque sea vacío) para evitar el 400
+    const resFaceMesh = await this.capturaService.analizarEmocionFaceMesh({
+      imagen: imagenBase64,
+      puntos: [] 
+    });
+
+    console.log("CNN:", resCNN.emocion);
+    console.log("FaceMesh:", resFaceMesh.emocion);
+
+    // Actualizamos historiales para la tesis
+    this.historialAnalisisFacialCNN.push({ ...resCNN, fecha: new Date() });
+    this.historialAnalisisFacialFaceMesh.push({ ...resFaceMesh, fecha: new Date() });
+
+  } catch (error) {
+    console.error("Error en el análisis:", error);
+  } finally {
+    this.cargandoEstres = false;
+  }
+}
+
+seleccionarOpcionSisco(valor: number) {
+  this.capturarYAnalizar();
+
+  if (this.indiceSisco === -1) {
+    this.siscoNivelGeneral = valor;
+    this.indiceSisco = 0;
+  } else {
+    // CORRECCIÓN LÍNEA ROJA: Validación de existencia
+    const preguntaActual = this.preguntasSisco[this.indiceSisco];
+    if (preguntaActual) {
+      preguntaActual.valor = valor;
+      setTimeout(() => {
+        if (this.indiceSisco < this.preguntasSisco.length - 1) {
+          this.indiceSisco++;
+        } else {
+          this.calcularResultadoSisco();
+        }
+      }, 350);
+    }
+  }
+}
 
 
 }

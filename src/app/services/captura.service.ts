@@ -32,7 +32,6 @@ export class CapturaService {
   }
 
   async analizarEmocionFaceMesh(datos: { imagen: string, puntos: any[] }) {
-    // Redimensionamos la imagen a 224 para FaceMesh
     const imagenProcesada = await this.redimensionarImagen(datos.imagen, 224, 224);
     return lastValueFrom(this.http.post<any>(this.urlBackendFaceMesh, { 
       imagen: imagenProcesada, 

@@ -301,7 +301,7 @@ export class StressQuestionnaireComponent implements AfterViewInit{
       this.volverAlMenu();
     } else {
       this.siscoFiltroPasado = true;
-      this.indiceSisco = -1; // Usaremos -1 para mostrar la pregunta de nivel 1-5
+      this.indiceSisco = -1;
     }
   }
 
@@ -379,8 +379,6 @@ export class StressQuestionnaireComponent implements AfterViewInit{
     console.log(`Durante el test de Miller, se detectó estrés visual ${deteccionesAltas.length} veces.`);
   }
 
-  // Dentro de tu clase StressQuestionnaireComponent
-
 async capturarYAnalizar() {
   const video = this.videoElement.nativeElement;
   const canvas = this.canvasElement.nativeElement;
@@ -395,10 +393,8 @@ async capturarYAnalizar() {
   try {
     this.cargandoEstres = true;
 
-    // Ejecución de ambos modelos
     const resCNN = await this.capturaService.analizarEmocionCNN(imagenBase64);
     
-    // Para FaceMesh enviamos el objeto con puntos (aunque sea vacío) para evitar el 400
     const resFaceMesh = await this.capturaService.analizarEmocionFaceMesh({
       imagen: imagenBase64,
       puntos: [] 
@@ -407,7 +403,6 @@ async capturarYAnalizar() {
     console.log("CNN:", resCNN.emocion);
     console.log("FaceMesh:", resFaceMesh.emocion);
 
-    // Actualizamos historiales para la tesis
     this.historialAnalisisFacialCNN.push({ ...resCNN, fecha: new Date() });
     this.historialAnalisisFacialFaceMesh.push({ ...resFaceMesh, fecha: new Date() });
 
@@ -425,7 +420,6 @@ seleccionarOpcionSisco(valor: number) {
     this.siscoNivelGeneral = valor;
     this.indiceSisco = 0;
   } else {
-    // CORRECCIÓN LÍNEA ROJA: Validación de existencia
     const preguntaActual = this.preguntasSisco[this.indiceSisco];
     if (preguntaActual) {
       preguntaActual.valor = valor;

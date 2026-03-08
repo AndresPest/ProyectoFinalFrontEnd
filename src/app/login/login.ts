@@ -1,9 +1,10 @@
 import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ReactiveFormsModule, Validators, FormGroup, FormBuilder } from '@angular/forms'; // Cambiado FormsModule por ReactiveFormsModule
+import { ReactiveFormsModule, Validators, FormGroup, FormBuilder } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
+import { trigger, transition, style, animate } from '@angular/animations';
 import { Router, RouterOutlet } from '@angular/router';
 import { AuthService } from '../services/auth';
 import { NavbarComponent } from '../navbar/navbar';
@@ -13,16 +14,23 @@ import { Navigation } from '../services/navigation';
   selector: 'app-login',
   standalone: true,
   imports: [
-    CommonModule, 
-    ReactiveFormsModule, // Asegúrate de tener este
-    MatFormFieldModule, 
-    MatInputModule, 
-    MatButtonModule, 
-    NavbarComponent, 
-    RouterOutlet
-  ],
+    CommonModule, ReactiveFormsModule, MatFormFieldModule, MatInputModule, MatButtonModule, NavbarComponent, RouterOutlet],
   templateUrl: './login.html',
-  styleUrls: ['./login.scss']
+  styleUrls: ['./login.scss'],
+  animations: [
+    trigger('fadeIn', [
+      transition(':enter', [
+        style({ opacity: 0, transform: 'translateY(10px)' }),
+        animate('300ms ease-out', style({ opacity: 1, transform: 'translateY(0)' }))
+      ])
+    ]),
+    trigger('fadeInTrigger', [
+      transition('* => *', [
+        style({ opacity: 0, transform: 'translateY(10px)' }),
+        animate('300ms ease-out', style({ opacity: 1, transform: 'translateY(0)' }))
+      ])
+    ])
+  ]
 })
 export class LoginComponent {
 
@@ -33,11 +41,11 @@ export class LoginComponent {
   private router = inject(Router);
 
   errorMessage = signal<string | null>(null);
-  cargando = signal<boolean>(false); // Añadido para feedback visual
+  cargando = signal<boolean>(false);
 
   // Definición del formulario reactivo
   form: FormGroup = this.fb.group({
-    usuario: ['', [Validators.required, Validators.email]], // Se asume que el usuario es el email
+    usuario: ['', [Validators.required, Validators.email]],
     password: ['', [Validators.required, Validators.minLength(6)]]
   });
 
@@ -47,14 +55,12 @@ export class LoginComponent {
     this.errorMessage.set(null);
     this.cargando.set(true);
 
-    // Extraemos los valores directamente del formulario reactivo
     const { usuario, password } = this.form.value;
 
     try {
       const res = await this.authService.login(usuario, password);
       console.log('Login exitoso con Firebase:', res.user.uid);
       
-      // Redirección exitosa
       this.router.navigate(['/resultados']);
       
     } catch (err: any) {

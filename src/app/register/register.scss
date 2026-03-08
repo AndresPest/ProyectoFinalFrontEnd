@@ -12,13 +12,13 @@ $bg-gradient: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
 
 .auth-card {
   background: rgba(255, 255, 255, 0.9);
-  backdrop-filter: blur(10px);
+  backdrop-filter: blur(12px);
   padding: 3rem;
   border-radius: 24px;
   width: 100%;
   max-width: 450px;
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.4);
 
   .auth-header {
     text-align: center;
@@ -36,7 +36,7 @@ $bg-gradient: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
 }
 
 .input-group {
-  margin-bottom: 1rem;
+  margin-bottom: 1.2rem;
 
   label {
     display: block;

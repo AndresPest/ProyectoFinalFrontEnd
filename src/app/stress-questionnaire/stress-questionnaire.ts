@@ -81,8 +81,7 @@ export class StressQuestionnaireComponent implements AfterViewInit{
   resetearVariables() {
     this.preguntaActual = 0;
     this.indiceCEAU = 0;
-    this.indiceSisco = 0;
-    this.siscoFiltroPasado = false;
+    this.indiceSisco = -1;
     this.mostrarResultadosFinales = false;
   }
 
@@ -239,7 +238,6 @@ export class StressQuestionnaireComponent implements AfterViewInit{
 
   // --- LÓGICA TEST SISCO ---
   public mostrarResultadosFinales: boolean = false;
-  public siscoFiltroPasado: boolean = false;
   public siscoNivelGeneral: number = 3;
   public indiceSisco: number = 0;
 
@@ -312,27 +310,9 @@ export class StressQuestionnaireComponent implements AfterViewInit{
     { dim: 'Afrontamiento', encabezado: '¿Con qué frecuencia para enfrentar tu estrés te orientas a:', texto: 'Fijarse o tratar de obtener lo positivo de la situación que preocupa.', valor: 0 }
   ];
 
-  validarFiltroSisco(respuesta: boolean) {
-    if (!respuesta) {
-      this.testSeleccionado = null;
-      this.volverAlMenu();
-    } else {
-      this.siscoFiltroPasado = true;
-      this.indiceSisco = -1;
-    }
-  }
-
-  /*seleccionarOpcionSisco(valor: number) {
-    this.capturarYAnalizar();
-    this.preguntasSisco[this.indiceSisco].valor = valor;
-    if (this.indiceSisco < this.preguntasSisco.length - 1) {
-      setTimeout(() => this.indiceSisco++, 300);
-    }
-  }*/
-
   async calcularResultadoSisco() {
     const user = this.authService.currentUser;
-    this.resultadosSisco = { estresores: 70, sintomas: 50, afrontamiento: 80 }; // Cálculo simplificado
+    this.resultadosSisco = { estresores: 70, sintomas: 50, afrontamiento: 80 };
     if (user) {
       await this.authService.guardarResultadoCuestionario(user.uid, {
         identificador: 'SISCO', puntaje: 70, tiempo: 600
@@ -345,18 +325,15 @@ export class StressQuestionnaireComponent implements AfterViewInit{
     this.resultadosSisco = datos;
     this.mostrarResultadosFinales = true;
     
-    // Opcional: Desplazar al inicio para ver el título del análisis
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
   resetearTodoSisco() {
-    this.testSeleccionado = null; // Volver al menú de tarjetas
+    this.testSeleccionado = null;
     this.mostrarResultadosFinales = false;
-    this.siscoFiltroPasado = false;
-    this.indiceSisco = 0;
+    this.indiceSisco = -1;
     this.resultadosSisco = null;
     
-    // Limpiamos las respuestas de las preguntas para un nuevo test
     this.preguntasSisco.forEach(p => p.valor = 0);
   }
 

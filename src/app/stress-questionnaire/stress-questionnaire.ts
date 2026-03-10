@@ -97,27 +97,36 @@ export class StressQuestionnaireComponent implements AfterViewInit{
     'Siempre'
   ];
 
+  /*
+  Categorias para las preguntas Miller y Smith
+  1. Salud y Hábitos: Salud física y hábitos de vida
+  2. Bienestar y Autocuidado: Bienestar emocional y autocuidado
+  3. Red de Apoyo: Red de apoyo social y familiar
+  4. Comunicación y Relaciones: Comunicación y relaciones interpersonales
+  5. Estabilidad y Gestión: Estabilidad y gestión externa
+  */
+
   public preguntasTestVulnerabilidad = [
-    { id: 1, texto: "Hago por lo menos una comida caliente y balanceada al día.", valor: 0 },
-    { id: 2, texto: "Por lo menos cuatro noches a la semana duermo de 7 a 8 horas.", valor: 0 },
-    { id: 3, texto: "Doy y recibo afecto regularmente.", valor: 0 },
-    { id: 4, texto: "En 50 millas a la redonda poseo, por lo menos, un familiar en el que puedo confiar.", valor: 0 },
-    { id: 5, texto: "Por lo menos dos veces a la semana hago ejercicios hasta sudar.", valor: 0 },
-    { id: 6, texto: "Fumo menos de media cajetilla de cigarrillos al día.", valor: 0 },
-    { id: 7, texto: "Tomo menos de 5 tragos (de bebida alcohólica) a la semana.", valor: 0 },
-    { id: 8, texto: "Tengo el peso apropiado para mi estatura.", valor: 0 },
-    { id: 9, texto: "Mis ingresos satisfacen mis gastos fundamentales.", valor: 0 },
-    { id: 10, texto: "Mis creencias me hacen mas fuerte.", valor: 0 },
-    { id: 11, texto: "Asisto regularmente a actividades sociales o del club.", valor: 0 },
-    { id: 12, texto: "Tengo una red de amigos y conocidos.", valor: 0 },
-    { id: 13, texto: "Tengo uno o más amigos a quienes puedo confiarle mis problemas personales.", valor: 0 },
-    { id: 14, texto: "Tengo buena salud (vista, oido, dentadura, etc.).", valor: 0 },
-    { id: 15, texto: "Soy capaz de hablar abiertamente sobre mis sentimientos cuando me siento irritado o preocupado.", valor: 0 },
-    { id: 16, texto: "Converso regularmente sobre problemas domesticos con las personas que conviven conmigo.", valor: 0 },
-    { id: 17, texto: "Por lo menos una vez a la semana hago algo para divertirme.", valor: 0 },
-    { id: 18, texto: "Soy capaz de organizar racionalmente mi tiempo.", valor: 0 },
-    { id: 19, texto: "Tomo menos de tres tazas de café (o de té o refresco de cola) al día.", valor: 0 },
-    { id: 20, texto: "Durante el día me dedico a mi mismo un rato de tranquilidad.", valor: 0 }
+    { dim: 'Salud y Hábitos', id: 1, texto: "Hago por lo menos una comida caliente y balanceada al día.", valor: 0 },
+    { dim: 'Salud y Hábitos', id: 2, texto: "Por lo menos cuatro noches a la semana duermo de 7 a 8 horas.", valor: 0 },
+    { dim: 'Bienestar y Autocuidado', id: 3, texto: "Doy y recibo afecto regularmente.", valor: 0 },
+    { dim: 'Red de Apoyo', id: 4, texto: "En 50 millas a la redonda tengo, por lo menos, un familiar en el que puedo confiar.", valor: 0 },
+    { dim: 'Salud y Hábitos', id: 5, texto: "Por lo menos dos veces a la semana hago ejercicios hasta sudar.", valor: 0 },
+    { dim: 'Salud y Hábitos', id: 6, texto: "Fumo menos de media cajetilla de cigarrillos al día.", valor: 0 },
+    { dim: 'Salud y Hábitos', id: 7, texto: "Tomo menos de 5 tragos (de bebida alcohólica) a la semana.", valor: 0 },
+    { dim: 'Salud y Hábitos', id: 8, texto: "Tengo el peso apropiado para mi estatura.", valor: 0 },
+    { dim: 'Estabilidad y Gestión', id: 9, texto: "Mis ingresos satisfacen mis gastos fundamentales.", valor: 0 },
+    { dim: 'Bienestar y Autocuidado', id: 10, texto: "Mis creencias me hacen mas fuerte.", valor: 0 },
+    { dim: 'Red de Apoyo', id: 11, texto: "Asisto regularmente a actividades sociales o del club.", valor: 0 },
+    { dim: 'Red de Apoyo', id: 12, texto: "Tengo una red de amigos y conocidos.", valor: 0 },
+    { dim: 'Red de Apoyo', id: 13, texto: "Tengo uno o más amigos a quienes puedo confiarle mis problemas personales.", valor: 0 },
+    { dim: 'Salud y Hábitos', id: 14, texto: "Tengo buena salud (vista, oido, dentadura, etc.).", valor: 0 },
+    { dim: 'Comunicación y Relaciones', id: 15, texto: "Soy capaz de hablar abiertamente sobre mis sentimientos cuando me siento irritado o preocupado.", valor: 0 },
+    { dim: 'Comunicación y Relaciones', id: 16, texto: "Converso regularmente sobre problemas domesticos con las personas que conviven conmigo.", valor: 0 },
+    { dim: 'Bienestar y Autocuidado', id: 17, texto: "Por lo menos una vez a la semana hago algo para divertirme.", valor: 0 },
+    { dim: 'Estabilidad y Gestión', id: 18, texto: "Soy capaz de organizar racionalmente mi tiempo.", valor: 0 },
+    { dim: 'Salud y Hábitos', id: 19, texto: "Tomo menos de tres tazas de café (o de té o refresco de cola) al día.", valor: 0 },
+    { dim: 'Bienestar y Autocuidado', id: 20, texto: "Durante el día me dedico a mi mismo un rato de tranquilidad.", valor: 0 }
   ];
 
   seleccionarOpcionTestVulnerabilidad(p: any, valor: number) {
@@ -166,29 +175,37 @@ export class StressQuestionnaireComponent implements AfterViewInit{
     'Bastante estrés', 
     'Mucho estrés'
   ];
+
+  /*
+  Categorias para las preguntas CEAU
+  1. Evaluación y Desempeño: Evaluación y desempeño público
+  2. Carga y Gestión: Carga de trabajo y gestión del tiempo
+  3. Entorno: Entorno social e institucional
+  4. Expectativas y Futuro: Expectativas y futuro profesional
+  */
   
   public preguntasCEAU = [
-    { id: 1, texto: "Realización de exámenes.", valor: 0 },
-    { id: 2, texto: "Exposición de trabajo en clase.", valor: 0 },
-    { id: 3, texto: "Intervención en el aula (responder o realizar preguntas, debates).", valor: 0 },
-    { id: 4, texto: "Tratar con el profesor en su oficina (tutorías, consultas).", valor: 0 },
-    { id: 5, texto: "Sobrecarga académica (excesivo número de créditos, trabajos).", valor: 0 },
-    { id: 6, texto: "Masificación en las aulas.", valor: 0 },
-    { id: 7, texto: "Falta de tiempo para cumplir con las actividades académicas.", valor: 0 },
-    { id: 8, texto: "Competitividad entre compañeros.", valor: 0 },
-    { id: 9, texto: "Realización de trabajos obligatorios para aprobar asignaturas.", valor: 0 },
-    { id: 10, texto: "La tarea de estudio.", valor: 0 },
-    { id: 11, texto: "Trabajar en grupo.", valor: 0 },
-    { id: 12, texto: "Problemas o conflictos con los profesores.", valor: 0 },
-    { id: 13, texto: "Problemas o conflictos con los compañeros.", valor: 0 },
-    { id: 14, texto: "Poder asistir a todas las clases.", valor: 0 },
-    { id: 15, texto: "Exceso de responsabilidad por cumplir obligaciones académicas.", valor: 0 },
-    { id: 16, texto: "Obtener notas elevadas en distintas asignaturas.", valor: 0 },
-    { id: 17, texto: "Perspectivas profesionales futuras.", valor: 0 },
-    { id: 18, texto: "Elección de materias durante la carrera.", valor: 0 },
-    { id: 19, texto: "Mantener o conseguir una beca para estudiar.", valor: 0 },
-    { id: 20, texto: "Acabar la carrera en los plazos estipulados.", valor: 0 },
-    { id: 21, texto: "Presión familiar por obtener resultados adecuados.", valor: 0 }
+    { dim: 'Evaluación y Desempeño', id: 1, texto: "Realización de exámenes.", valor: 0 },
+    { dim: 'Evaluación y Desempeño', id: 2, texto: "Exposición de trabajo en clase.", valor: 0 },
+    { dim: 'Evaluación y Desempeño', id: 3, texto: "Intervención en clases (responder o realizar preguntas, debates).", valor: 0 },
+    { dim: 'Entorno', id: 4, texto: "Tratar con el profesor en su oficina (tutorías, consultas).", valor: 0 },
+    { dim: 'Carga y Gestión', id: 5, texto: "Sobrecarga académica (excesivo número de créditos, trabajos).", valor: 0 },
+    { dim: 'Entorno', id: 6, texto: "Masificación en las aulas.", valor: 0 },
+    { dim: 'Carga y Gestión', id: 7, texto: "Falta de tiempo para cumplir con las actividades académicas.", valor: 0 },
+    { dim: 'Entorno', id: 8, texto: "Competitividad entre compañeros.", valor: 0 },
+    { dim: 'Carga y Gestión', id: 9, texto: "Realización de trabajos obligatorios para aprobar asignaturas.", valor: 0 },
+    { dim: 'Carga y Gestión', id: 10, texto: "La tarea de estudio.", valor: 0 },
+    { dim: 'Entorno', id: 11, texto: "Trabajar en grupo.", valor: 0 },
+    { dim: 'Entorno', id: 12, texto: "Problemas o conflictos con los profesores.", valor: 0 },
+    { dim: 'Entorno', id: 13, texto: "Problemas o conflictos con los compañeros.", valor: 0 },
+    { dim: 'Carga y Gestión', id: 14, texto: "Poder asistir a todas las clases.", valor: 0 },
+    { dim: 'Carga y Gestión', id: 15, texto: "Exceso de responsabilidad por cumplir obligaciones académicas.", valor: 0 },
+    { dim: 'Evaluación y Desempeño', id: 16, texto: "Obtener notas elevadas en distintas asignaturas.", valor: 0 },
+    { dim: 'Expectativas y Futuro', id: 17, texto: "Perspectivas profesionales futuras.", valor: 0 },
+    { dim: 'Expectativas y Futuro', id: 18, texto: "Elección de materias durante la carrera.", valor: 0 },
+    { dim: 'Expectativas y Futuro', id: 19, texto: "Mantener o conseguir una beca para estudiar.", valor: 0 },
+    { dim: 'Expectativas y Futuro', id: 20, texto: "Acabar la carrera en los plazos estipulados.", valor: 0 },
+    { dim: 'Expectativas y Futuro', id: 21, texto: "Presión familiar por obtener resultados adecuados.", valor: 0 }
   ];
 
   seleccionarOpcionCEAU(p: any, valor: number) {
@@ -245,8 +262,8 @@ export class StressQuestionnaireComponent implements AfterViewInit{
   public preguntasSisco = [
     // DIMENSIÓN ESTRESORES
     { dim: 'Estresores', encabezado: '¿Con qué frecuencia te estresa:', texto: 'La competencia con mis compañeros del grupo', valor: 0 },
-    { dim: 'Estresores', encabezado: '¿Con qué frecuencia te estresa:', texto: 'La sobrecarga de tareas y trabajos escolares que tengo que realizar todos los días.', valor: 0 },
-    { dim: 'Estresores', encabezado: '¿Con qué frecuencia te estresa:', texto: 'La personalidad y el carácter de los/as profesores/as que me imparten clases.', valor: 0 },
+    { dim: 'Estresores', encabezado: '¿Con qué frecuencia te estresa:', texto: 'La sobrecarga de tareas y trabajos académicos que tengo que realizar todos los días.', valor: 0 },
+    { dim: 'Estresores', encabezado: '¿Con qué frecuencia te estresa:', texto: 'La personalidad y el carácter de los profesores que me imparten clases.', valor: 0 },
     { dim: 'Estresores', encabezado: '¿Con qué frecuencia te estresa:', texto: 'La forma de evaluación de mis profesores/as (a través de ensayos, trabajos de investigación, búsquedas en Internet, etc.)', valor: 0 },
     { dim: 'Estresores', encabezado: '¿Con qué frecuencia te estresa:', texto: 'El nivel de exigencia de mis profesores/as', valor: 0 },
     { dim: 'Estresores', encabezado: '¿Con qué frecuencia te estresa:', texto: 'El tipo de trabajo que me piden los profesores (consulta de temas, fichas de trabajo, ensayos, mapas conceptuales, etc.)', valor: 0 },
@@ -274,7 +291,7 @@ export class StressQuestionnaireComponent implements AfterViewInit{
     { dim: 'Síntomas', encabezado: '¿Con qué frecuencia se te presentan las siguientes reacciones:', texto: 'Sentimiento de agresividad o aumento de irritabilidad.', valor: 0 },
     { dim: 'Síntomas', encabezado: '¿Con qué frecuencia se te presentan las siguientes reacciones:', texto: 'Conflictos o tendencia a polemizar o discutir.', valor: 0 },
     { dim: 'Síntomas', encabezado: '¿Con qué frecuencia se te presentan las siguientes reacciones:', texto: 'Aislamiento de los demás.', valor: 0 },
-    { dim: 'Síntomas', encabezado: '¿Con qué frecuencia se te presentan las siguientes reacciones:', texto: 'Desgano para realizar las labores escolares.', valor: 0 },
+    { dim: 'Síntomas', encabezado: '¿Con qué frecuencia se te presentan las siguientes reacciones:', texto: 'Desgano para realizar las labores académicos.', valor: 0 },
     { dim: 'Síntomas', encabezado: '¿Con qué frecuencia se te presentan las siguientes reacciones:', texto: 'Aumento o reducción del consumo de alimentos.', valor: 0 },
 
     // DIMENSIÓN AFRONTAMIENTO
@@ -305,13 +322,13 @@ export class StressQuestionnaireComponent implements AfterViewInit{
     }
   }
 
-/*  seleccionarOpcionSisco(valor: number) {
+  /*seleccionarOpcionSisco(valor: number) {
     this.capturarYAnalizar();
     this.preguntasSisco[this.indiceSisco].valor = valor;
     if (this.indiceSisco < this.preguntasSisco.length - 1) {
       setTimeout(() => this.indiceSisco++, 300);
     }
-  } */
+  }*/
 
   async calcularResultadoSisco() {
     const user = this.authService.currentUser;

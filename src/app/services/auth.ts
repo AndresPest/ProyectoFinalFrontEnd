@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { Auth, authState, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, User } from '@angular/fire/auth';
-import { Firestore, doc, setDoc, collection, addDoc, serverTimestamp } from '@angular/fire/firestore';
+import { Firestore, doc, setDoc, collection, addDoc, serverTimestamp, getDoc } from '@angular/fire/firestore';
 import { Observable } from 'rxjs';
 
 export interface DatosUsuario {
@@ -23,13 +23,17 @@ export class AuthService {
     return this.auth.currentUser;
   }
 
+  async getDatosUsuario(uid: string) {
+    const userDocRef = doc(this.firestore, `Usuario/${uid}`);
+    const docSnap = await getDoc(userDocRef);
+    return docSnap.exists() ? docSnap.data() : null;
+  }
+
   async register(email: string, pass: string, datos: DatosUsuario) {
     try {
-      ////// Creamos el usuario en Firebase Authentication
       const credential = await createUserWithEmailAndPassword(this.auth, email, pass);
       const uid = credential.user.uid;
       
-      ////// Creamos el documento del usuario en la colección 'Usuario'
       const userDocRef = doc(this.firestore, `Usuario/${uid}`);
       
       await setDoc(userDocRef, {

@@ -1,0 +1,83 @@
+<app-navbar></app-navbar>
+<router-outlet></router-outlet>
+
+<div class="profile-container" [@fadeIn]>
+  <div class="profile-card animate__animated animate__fadeIn">
+    
+    <div class="profile-header">
+      <div class="avatar-circle">
+        <span>
+          {{ profileForm.get('nombre')?.value?.charAt(0) }}{{ profileForm.get('apellido')?.value?.charAt(0) }}
+        </span>
+      </div>
+      <h2>Configuración de Perfil</h2>
+      <p class="header-subtitle">Gestiona tu información</p>
+    </div>
+
+    <form [formGroup]="profileForm" (ngSubmit)="guardarPerfil()" class="profile-form">
+      
+      <div class="section-group">
+        <h3 class="section-title"><i class="ph ph-graduation-cap"></i> Información General </h3>
+        
+        <div class="form-grid">
+          <mat-form-field appearance="outline">
+            <mat-label>Nombre</mat-label>
+            <input matInput formControlName="nombre" placeholder="Ej. Erick">
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Apellido</mat-label>
+            <input matInput formControlName="apellido" placeholder="Ej. Espinoza">
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Carrera</mat-label>
+            <input matInput formControlName="carrera" placeholder=" Ej. Ingeniería Informática">
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Semestre</mat-label>
+            <mat-select formControlName="semestre">
+              <mat-option *ngFor="let s of semestres" [value]="s">{{s}}° Semestre</mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Correo Institucional</mat-label>
+          <input matInput formControlName="correo" placeholder="usuario@est.ucab.edu.ve">
+          <mat-icon matSuffix>email</mat-icon>
+        </mat-form-field>
+      </div>
+
+      <hr class="divider">
+      
+      <div class="section-group">
+        <h3 class="section-title"><i class="ph ph-shield-check"></i> Seguridad</h3>
+        <p class="section-subtitle">Solo completa estos campos si deseas cambiar tu contraseña actual.</p>
+        
+        <div class="form-grid">
+          <mat-form-field appearance="outline">
+            <mat-label>Contraseña Actual</mat-label>
+            <input matInput [type]="hideOld ? 'password' : 'text'" formControlName="passwordActual">
+            <button type="button" mat-icon-button matSuffix (click)="hideOld = !hideOld" tabIndex="-1">
+              <mat-icon>{{hideOld ? 'visibility_off' : 'visibility'}}</mat-icon>
+            </button>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Nueva Contraseña</mat-label>
+            <input matInput [type]="hideNew ? 'password' : 'text'" formControlName="passwordNueva">
+            <button type="button" mat-icon-button matSuffix (click)="hideNew = !hideNew" tabIndex="-1">
+              <mat-icon>{{hideNew ? 'visibility_off' : 'visibility'}}</mat-icon>
+            </button>
+          </mat-form-field>
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <button mat-flat-button class="btn-save" [disabled]="profileForm.invalid">Guardar Cambios</button>
+      </div>
+    </form>
+  </div>
+</div>

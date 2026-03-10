@@ -6,6 +6,7 @@ import { FaceMeshComponent } from './face-mesh/face-mesh';
 import { FaceMesh1Component } from './facemesh/facemesh';
 import { ResultadosComponent } from './resultados/resultados';
 import { RegisterComponent } from './register/register';
+import { ProfileComponent } from './profile/profile';
 import { MapasDeCalorComponent } from './mapas-de-calor/mapas-de-calor.component';
 import { AudioReconocimiento } from './audio-reconocimiento/audio-reconocimiento';
 import { authGuard } from './auth-guard';
@@ -16,6 +17,7 @@ export const routes: Routes = [
     { path: 'home', component: Home },
     { path: 'login', component: LoginComponent },
     { path: 'registro', component: RegisterComponent },
+    { path: 'perfil', component: ProfileComponent },
     { path: 'cuestionario', component: StressQuestionnaireComponent },
     { path: 'reconocimiento-de-voz', component: AudioReconocimiento },
     { path: 'face-mesh', component: FaceMeshComponent },

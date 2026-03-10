@@ -3,18 +3,23 @@
     <div class="brand" (click)="irA('')">
       <img src="assets/logoUCAB.png" alt="UCAB Logo" class="brand-logo"><span></span>
     </div>
-
+@if (authService.user$ | async; as user) {
     <div class="nav-menu">
       <button class="nav-btn" (click)="irA('cuestionario')">Cuestionario </button>
       <button class="nav-btn" (click)="irA('facemesh')">Face Mesh </button>
       <button class="nav-btn" (click)="irA('face-mesh')">Reconocimiento </button>
       <button class="nav-btn" (click)="irA('resultados')">Resultados </button>
     </div>
-
-    <div class="nav-auth">
+    <div class="nav-auth" #noAuth>
+      <button class="nav-btn" (click)="irA('perfil')">Mi Perfil</button>
+      <button class="btn-register" (click)="logout()">Cerrar Sesión</button>
+    </div>
+} @else {
+    <div class="nav-auth" #noAuth>
       <button class="nav-btn" (click)="irA('login')">Login</button>
       <button class="btn-register" (click)="irA('registro')">Registro</button>
     </div>
+  }
   </div>
 </nav>
 

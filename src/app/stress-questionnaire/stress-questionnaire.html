@@ -91,7 +91,13 @@
 
               <div class="pregunta-content">
                 <h2 class="pregunta-numero">Pregunta #{{ preguntasTestVulnerabilidad[preguntaActual].id }}</h2>
-                <p class="pregunta-texto-grande">{{ preguntasTestVulnerabilidad[preguntaActual].texto }}</p>
+                <p class="pregunta-texto-grande">
+                  {{ preguntasTestVulnerabilidad[preguntaActual].texto }}
+                  
+                  @if (preguntasTestVulnerabilidad[preguntaActual].ayuda) {
+                    <button class="btn-info-help" [title]="preguntasTestVulnerabilidad[preguntaActual].ayuda">?</button>
+                  }
+                </p>
                 
                 <div class="opciones-verticales">
                   @for (opcion of escalaTestVulnerabilidad; track $index) {
@@ -131,9 +137,15 @@
               }
 
               <div class="pregunta-content">
-                <h2 class="pregunta-numero">Situación #{{ preguntasCEAU[indiceCEAU].id }}</h2>
+                <h2 class="pregunta-numero">Pregunta #{{ preguntasCEAU[indiceCEAU].id }}</h2>
                 <p class="enunciado-fijo">¿En qué medida te estresa esta situación académica?</p>
-                <p class="pregunta-texto-grande">{{ preguntasCEAU[indiceCEAU].texto }}</p>
+                <p class="pregunta-texto-grande">
+                  {{ preguntasCEAU[indiceCEAU].texto }}
+                  
+                  @if (preguntasCEAU[indiceCEAU].ayuda) {
+                    <button class="btn-info-help" [title]="preguntasCEAU[indiceCEAU].ayuda">?</button>
+                  }
+                </p>
                 
                 <div class="opciones-verticales">
                   @for (opcion of escalaCEAU; track $index) {
@@ -180,11 +192,19 @@
               </div>
 
               <div class="pregunta-card-single" [@fadeInTrigger]="indiceSisco">
+                @if (indiceSisco >= 0) {
+                  <button class="btn-mini-back" (click)='anteriorSISCO()'>← Anterior</button>
+                }
                 <header class="header-fijo-sisco">
                   <span class="dim-badge">{{ preguntasSisco[indiceSisco]?.dim }}</span>
                   <p class="enunciado-contexto">{{ preguntasSisco[indiceSisco]?.encabezado }}</p>
                 </header>
-                <p class="pregunta-texto-grande">{{ preguntasSisco[indiceSisco]?.texto }}</p>
+                <p class="pregunta-texto-grande">
+                  {{ preguntasSisco[indiceSisco]?.texto }}
+                  @if (preguntasSisco[indiceSisco]?.ayuda) {
+                    <button class="btn-info-help" [title]="preguntasSisco[indiceSisco].ayuda">?</button>
+                  }
+                </p>
 
                 <div class="opciones-verticales">
                   @for (opt of escalaSisco; track $index) {
@@ -224,7 +244,133 @@
             }
           </div>
         }
+        @case ('bbs') {
+          <div class="test-stepper">
+            <div class="progress-container">
+              <div class="progress-bar" [style.width.%]="(indiceBBS + 1) / preguntasBBS.length * 100"></div>
+              <span class="progress-text">Pregunta {{ indiceBBS + 1 }} de {{ preguntasBBS.length }}</span>
+            </div>
+
+            <div class="pregunta-card-single" [@fadeInTrigger]="indiceBBS">
+              @if (indiceBBS > 0) {
+                <button class="btn-mini-back" (click)='anteriorBBS()'>← Anterior</button>
+              }
+
+              <div class="pregunta-content">
+                <h2 class="pregunta-numero">Pregunta #{{ preguntasBBS[indiceBBS].id }}</h2>
+                <p class="pregunta-texto-grande">
+                  {{ preguntasBBS[indiceBBS].texto }}
+
+                  @if (preguntasBBS[indiceBBS].ayuda) {
+                    <button class="btn-info-help" [title]="preguntasBBS[indiceBBS].ayuda">?</button>
+                  }
+                </p>
+                
+                <div class="opciones-verticales">
+                  @for (opcion of escalaBBS; track $index) {
+                    <button 
+                      class="btn-opcion-grande"
+                      [class.active]="preguntasBBS[indiceBBS].valor === $index + 1"
+                      (click)="seleccionarOpcionBBS(preguntasBBS[indiceBBS], $index + 1)">
+                      <span class="circulo">{{ $index }}</span>
+                      {{ opcion }}
+                    </button>
+                  }
+                </div>
+              </div>
+            </div>
+
+            @if (indiceBBS === preguntasBBS.length - 1 && preguntasBBS[indiceBBS].valor !== null) {
+              <div class="footer-stepper">
+                <button class="btn-finalizar-grande" (click)="calcularResultadoBBS()">
+                  Finalizar y Guardar BBS
+                </button>
+              </div>
+            }
+          </div>
+        }
+        @case ('eea') {
+          <div class="test-stepper">
+            <div class="progress-container">
+              <div class="progress-bar" [style.width.%]="(indiceEEA + 1) / preguntasEEA.length * 100"></div>
+              <span class="progress-text">Pregunta {{ indiceEEA + 1 }} de {{ preguntasEEA.length }}</span>
+            </div>
+
+            <div class="pregunta-card-single" [@fadeInTrigger]="indiceEEA">
+              @if (indiceEEA > 0) {
+                <button class="btn-mini-back" (click)='anteriorEEA()'>← Anterior</button>
+              }
+
+              <div class="pregunta-content">
+                <header class="header-fijo-sisco">
+                  <h2 class="pregunta-numero">Pregunta #{{ preguntasEEA[indiceEEA].id }}</h2>
+                  <p class="enunciado-contexto">{{ preguntasEEA[indiceEEA]?.encabezado }}</p>
+                </header>
+                <p class="pregunta-texto-grande">
+                  {{ preguntasEEA[indiceEEA].texto }}
+                  @if (preguntasEEA[indiceEEA].ayuda) {
+                    <button class="btn-info-help" [title]="preguntasEEA[indiceEEA].ayuda">?</button>
+                  }
+                </p>
+                
+                <div class="opciones-verticales">
+                  @for (opcion of escalaEEA; track $index) {
+                    <button 
+                      class="btn-opcion-grande"
+                      [class.active]="preguntasEEA[indiceEEA].valor === $index + 1"
+                      (click)="seleccionarOpcionEEA(preguntasEEA[indiceEEA], $index + 1)">
+                      <span class="circulo">{{ $index }}</span>
+                      {{ opcion }}
+                    </button>
+                  }
+                </div>
+              </div>
+            </div>
+
+            @if (indiceEEA === preguntasEEA.length - 1 && preguntasEEA[indiceEEA].valor !== null) {
+              <div class="footer-stepper">
+                <button class="btn-finalizar-grande" (click)="calcularResultadoEEA()">
+                  Finalizar y Guardar EEA
+                </button>
+              </div>
+            }
+          </div>
+        }
       }
     </div>
   }
+</div>
+
+<div style="background: #eee; padding: 10px; margin-bottom: 20px; border-radius: 8px;">
+  <strong>Monitor de Categorías</strong>
+  <ul>
+    <strong>Miller Smith:</strong>
+    @for (cat of registroCategMillerSmith | keyvalue; track cat.key) {
+      <li>{{ cat.key }}: {{ cat.value }} pts</li>
+    }
+  </ul>
+  <ul>
+    <strong>CEAU:</strong>
+    @for (cat of registroCEAU | keyvalue; track cat.key) {
+      <li>{{ cat.key }}: {{ cat.value }} pts</li>
+    }
+  </ul>
+  <ul>
+    <strong>SISCO:</strong>
+    @for (cat of registroSISCO | keyvalue; track cat.key) {
+      <li>{{ cat.key }}: {{ cat.value }} pts</li>
+    }
+  </ul>
+  <ul>
+    <strong>BBS:</strong>
+    @for (cat of registroBBS | keyvalue; track cat.key) {
+      <li>{{ cat.key }}: {{ cat.value }} pts</li>
+    }
+  </ul>
+  <ul>
+    <strong>EEA:</strong>
+    @for (cat of registroEEA | keyvalue; track cat.key) {
+      <li>{{ cat.key }}: {{ cat.value }} pts</li>
+    }
+  </ul>
 </div>

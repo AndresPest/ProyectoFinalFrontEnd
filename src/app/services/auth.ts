@@ -63,7 +63,14 @@ export class AuthService {
 
    //////// GUARDAR RESULTADOS DE CUESTIONARIOS (SISCO, Miller, CEAU)
 
-  async guardarResultadoCuestionario(uid: string, data: { identificador: string, puntaje: number, tiempo: number }) {
+  async guardarResultadoCuestionario(uid: string, data: { 
+      identificador: string, 
+      puntaje: number, 
+      tiempo: number,
+      categorias?: any, // La '?' lo hace opcional
+      fecha?: string
+    }){
+      
     try {
       const colRef = collection(this.firestore, 'Resultados_Cuestionario');
       return await addDoc(colRef, {

@@ -1,69 +1,3 @@
-.questionnaire-container {
-  background-color: #f8fafc;
-  color: #0f172a;
-  padding: 2rem;
-  border-radius: 12px;
-  max-width: 600px;
-  margin: 0rem auto;
-  font-family: 'Segoe UI', sans-serif;
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-  animation: fadeIn 0.4s ease-out;
-
-  section {
-    margin: auto;
-  }
-
-  h2 {
-    font-size: 2rem;
-    font-weight: 600;
-    color: #1e3a8a;
-    text-align: center;
-    margin-top: 2rem;
-    margin-bottom: 1rem;
-  }
-
-  .pregunta {
-    font-size: 1.2rem;
-    font-weight: 500;
-    color: #0f172a;
-    text-align: center;
-    margin-bottom: 1rem;
-  }
-
-.selector {
-  width: 100%;
-
-  .mat-form-field-outline {
-    border-color: #e2e8f0;
-    border-radius: 8px;
-  }
-
-  .mat-form-field-wrapper {
-    background-color: rgba(255, 255, 255, 0.6);
-    border-radius: 8px;
-  }
-
-  .mat-form-field-label {
-    color: #475569;
-  }
-
-  .mat-select-value {
-    color: #0f172a;
-  }
-
-  .mat-select-placeholder {
-    color: #64748b;
-  }
-
-  .mat-form-field-underline {
-    display: none;
-  }
-}
-
-}
-
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -281,6 +215,35 @@
   width: 640px;
   height: 480px;
   visibility: hidden;
+}
+
+.pregunta-header-flex {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.btn-info-help {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: 1.5px solid #1976d2;
+  background: transparent;
+  color: #1e3a8a;
+  font-size: 14px;
+  font-weight: bold;
+  cursor: help;
+  transition: all 0.2s;
+  vertical-align: middle;
+}
+
+.btn-info-help:hover {
+  background: #1e3a8a;
+  color: white;
+  transform: scale(1.1);
 }
 
 .modal-consentimiento {

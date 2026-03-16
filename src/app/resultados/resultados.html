@@ -1,57 +1,68 @@
 <app-navbar></app-navbar>
 <router-outlet></router-outlet>
+<app-navbar></app-navbar>
 
 <div class="results-container" [@fadeIn]>
-  <header class="results-header">
-    <h1>Panel de Resultados</h1>
-    <p>Análisis detallado de tu estado emocional</p>
-  </header>
+  <div class="results-header">
+    <div class="icon-circle">
+      <i class="ph ph-chart-line-up"></i>
+    </div>
+    <h2>Mis Evaluaciones</h2>
+    <p class="header-subtitle">Historial de resultados y seguimiento de bienestar</p>
+  </div>
 
-  <div class="results-grid">
-    <div class="result-card facial-analysis">
-      <div class="card-icon">📷</div>
+  <div *ngIf="loading" class="loading-state">
+    <mat-spinner diameter="40"></mat-spinner>
+    <p>Consultando base de datos...</p>
+  </div>
+
+  <div *ngIf="!loading && listaResultados.length > 0" class="results-grid">
+    <div *ngFor="let res of listaResultados" class="result-card">
+      
+      <div class="card-top">
+        <span class="test-type">{{ res.identificador_cuestionario }}</span>
+        <span class="date-tag">
+          <i class="ph ph-calendar-blank"></i>
+          {{ res.timestamp?.toDate() | date:'dd/MM/yyyy, h:mm a' }}
+        </span>
+      </div>
+
       <div class="card-content">
-        <h3>Reconocimiento Facial</h3>
-        <div class="status-badge">Análisis Completado</div>
-        <div class="main-result">
-          <span class="label">Emoción dominante:</span>
-          <span class="value">😊 Feliz</span>
+        <div class="score-section">
+          <div class="score-circle">
+            <span class="main-number">{{ res.puntaje_final }}</span>
+            <span class="label">Puntos</span>
+          </div>
+          <div class="time-info">
+            <i class="ph ph-timer"></i>
+            <span>{{ res.tiempo_respuesta }} seg.</span>
+          </div>
         </div>
-        <p class="description">Se detectaron niveles bajos de estrés.</p>
-        <button class="btn-action" (click)="irA('reporteAnalisis')">Reporte detallado</button>
-      </div>
-    </div>
 
-    <div class="result-card survey-analysis">
-      <div class="card-icon">📊</div>
-      <div class="card-content">
-        <h3>Resultados del Cuestionario</h3>
-        <div class="status-badge">Cuestionario completado</div>
-        <ul class="result-list">
-          <li>
-            <i class="ph ph-warning-circle"></i>
-            <span>Vulnerabilidad al estrés - </span>
-          </li>
-          <li>
-            <i class="ph ph-check-circle"></i>
-            <span>Test de CEAU - </span>
-          </li>
-          <li>
-            <i class="ph ph-check-circle"></i>
-            <span>Test de SISCO - </span>
-          </li>
-        </ul>
-        <button class="btn-action" (click)="irA('reporteCuestionario')">Reporte detallado</button>
-      </div>
-    </div>
 
-    <div class="result-card recommendation">
-      <div class="card-icon">✨</div>
-      <div class="card-content">
-        <h3>Sugerencias y herramientas</h3>
-        <p>Tu nivel de estrés actual es moderado. En este apartado encontrarás herramientas que te puedan ayudar.</p>
-        <button class="btn-action" (click)="irA('herramientas')">Ver herramientas</button>
+
+      <div *ngFor="let cat of getCategorias(res.categorias)" class="category-item">
+        <span class="cat-name">{{ cat }}</span>
+        
+        <div *ngIf="isObject(res.categorias[cat]); else simpleValue" class="cat-details">
+          <span class="detail-tag">{{ res.categorias[cat].intensidad }}</span>
+          <span class="detail-points">{{ res.categorias[cat].puntos }} pts</span>
+          <span class="detail-points">{{ res.categorias[cat].promedio }} %</span>
+        </div>
+
+        <ng-template #simpleValue>
+          <span class="cat-value">{{ res.categorias[cat] }}</span>
+        </ng-template>
       </div>
+
     </div>
+  </div>
+
+  <div *ngIf="!loading && listaResultados.length === 0" class="empty-state">
+    <mat-icon>assessment</mat-icon>
+    <p>Aún no tienes resultados registrados.</p>
+    <button mat-flat-button color="primary" routerLink="/cuestionario">
+      Realizar primer cuestionario
+    </button>
   </div>
 </div>

@@ -1,4 +1,3 @@
-import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { trigger, transition, style, animate } from '@angular/animations';
 import { NavbarComponent } from '../navbar/navbar';
@@ -7,33 +6,67 @@ import { AuthService } from '../services/auth';
 import { Navigation } from '../services/navigation';
 
 
+// Importa los módulos de Material que usaremos en el HTML
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatIconModule } from '@angular/material/icon';
+import { MatButtonModule } from '@angular/material/button';
+
+import { Component, OnInit, inject,NgZone } from '@angular/core';
+// Firebase
+import { Firestore, collection, query, where, orderBy, getDocs } from '@angular/fire/firestore';
+import { Auth } from '@angular/fire/auth';
+
 @Component({
   selector: 'app-resultados',
   standalone: true,
-  imports: [CommonModule, NavbarComponent, RouterOutlet],
+  imports: [CommonModule, NavbarComponent,RouterOutlet,MatProgressSpinnerModule, MatIconModule, MatButtonModule],
   templateUrl: './resultados.html',
   styleUrls: ['./resultados.scss'],
   animations: [
     trigger('fadeIn', [
       transition(':enter', [
         style({ opacity: 0, transform: 'translateY(10px)' }),
-        animate('300ms ease-out', style({ opacity: 1, transform: 'translateY(0)' }))
-      ])
-    ]),
-    trigger('fadeInTrigger', [
-      transition('* => *', [
-        style({ opacity: 0, transform: 'translateY(10px)' }),
-        animate('300ms ease-out', style({ opacity: 1, transform: 'translateY(0)' }))
+        animate('400ms ease-out', style({ opacity: 1, transform: 'translateY(0)' }))
       ])
     ])
   ]
 })
-export class ResultadosComponent {
+export class ResultadosComponent implements OnInit {
+  private auth = inject(AuthService);
+  private zone = inject(NgZone);
 
+  listaResultados: any[] = [];
+  loading = true;
 
-  constructor(private navService: Navigation) {}
-
-  irA(ruta: string) {
-    this.navService.irA(ruta);
+  ngOnInit() {
+    this.cargarDatos();
   }
+
+async cargarDatos() {
+    this.loading = true;
+    try {
+      const datos = await this.auth.getResultadosCuestionarios();
+      
+      // Ejecutamos esto dentro de la zona de Angular para forzar el renderizado
+      this.zone.run(() => {
+        this.listaResultados = datos;
+        this.loading = false;
+        console.log("Vista actualizada con éxito");
+      });
+
+    } catch (error) {
+      console.error("Error al cargar:", error);
+      this.zone.run(() => this.loading = false);
+    }
+  }
+  
+  // No olvides esta función para las categorías
+  getCategorias(obj: any): string[] {
+    return obj ? Object.keys(obj) : [];
+  }
+
+  // Añade esto debajo de getCategorias
+isObject(val: any): boolean {
+  return val !== null && typeof val === 'object';
+}
 }

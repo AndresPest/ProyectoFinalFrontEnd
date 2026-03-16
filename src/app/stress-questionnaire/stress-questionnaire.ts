@@ -85,7 +85,7 @@ export class StressQuestionnaireComponent implements AfterViewInit{
     this.indiceCEAU = 0;
     this.indiceSisco = -1;
     this.indiceBBS = 0;
-    this.indiceEEA = -1;
+    this.indiceEEA = 0;
     this.mostrarResultadosFinales = false;
   }
 
@@ -194,10 +194,6 @@ export class StressQuestionnaireComponent implements AfterViewInit{
   const puntajeFinal = sumaTotal - 20;
 
   const detalleCategorias = { ...this.registroCategMillerSmith };
-  for (const cat in this.registroCategMillerSmith) {
-    const nPreguntas = this.preguntasTestVulnerabilidad.filter(p => p.dim === cat).length;
-    detalleCategorias[cat] = Number((this.registroCategMillerSmith[cat] / nPreguntas).toFixed(2));
-  }
 
   const user = this.authService.currentUser;
   
@@ -354,15 +350,7 @@ export class StressQuestionnaireComponent implements AfterViewInit{
   async calcularResultadoCEAU() {
   const sumaTotal = this.preguntasCEAU.reduce((acc, p) => acc + (Number(p.valor) || 0), 0);
   
-  const detalleCategorias: any = {};
-  
-  for (const cat in this.registroCEAU) {
-    const nPreguntas = this.preguntasCEAU.filter(p => p.dim === cat).length;
-    
-    if (nPreguntas > 0) {
-      detalleCategorias[cat] = Number((this.registroCEAU[cat] / nPreguntas).toFixed(2));
-    }
-  }
+  const detalleCategorias: any = { ...this.registroCEAU };
 
   const datosParaGuardar: any = {
     identificador: 'CEAU',
@@ -1051,7 +1039,7 @@ async calcularResultadoBBS() {
   public resultadosECEA: any = {};
 
 async calcularResultadoEEA() {
-  const diagnosticoCategorias: any = {};
+  const diagnosticoCategorias: any = {...this.registroEEA};
   let sumaPromedios = 0;
   let conteoDimensiones = 0;
 

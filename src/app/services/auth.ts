@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { Auth, authState, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, User } from '@angular/fire/auth';
-import { Firestore, doc, setDoc, collection, addDoc, serverTimestamp, getDoc } from '@angular/fire/firestore';
-import { Observable } from 'rxjs';
+import { Firestore, doc, setDoc, collection, addDoc, serverTimestamp, getDoc, query, where, getDocs, orderBy } from '@angular/fire/firestore';
+import { Observable, firstValueFrom } from 'rxjs';
 
 export interface DatosUsuario {
   nombre: string;
@@ -78,6 +78,7 @@ export class AuthService {
         identificador_cuestionario: data.identificador,
         puntaje_final: data.puntaje,
         tiempo_respuesta: data.tiempo,
+        categorias: data.categorias,
         timestamp: serverTimestamp()
       });
     } catch (error) {
@@ -101,4 +102,32 @@ export class AuthService {
       throw error;
     }
   }
+
+  async getResultadosCuestionarios() {
+  // 1. Esperamos a que Firebase nos diga quién es el usuario (resolviendo el problema de la recarga)
+  const user = await firstValueFrom(authState(this.auth));
+  
+  if (!user) {
+    console.warn("No se encontró usuario tras esperar authState");
+    return [];
+  }
+
+  try {
+    const colRef = collection(this.firestore, 'Resultados_Cuestionario');
+    const q = query(
+      colRef,
+      where('usuario_uid', '==', user.uid),
+      orderBy('timestamp', 'desc')
+    );
+
+    const querySnapshot = await getDocs(q);
+    return querySnapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data()
+    }));
+  } catch (error) {
+    console.error("Error en getResultadosCuestionarios:", error);
+    return [];
+  }
+}
 }

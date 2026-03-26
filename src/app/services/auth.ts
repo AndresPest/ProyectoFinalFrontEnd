@@ -65,25 +65,115 @@ export class AuthService {
 
   async guardarResultadoCuestionario(uid: string, data: { 
       identificador: string, 
-      puntaje: number, 
+      puntaje: number,
+      nivel: string,
+      categorias?: any,
+      // Para Miller y Smith
+      categoriaVulnerableLv1?: any,
+      categoriaVulnerableLv2?: any,
+      categoriaVulnerableLv3?: any,
+      // Para CEAU y SISCO
+      categoriasResaltantes?: any,
+      categoriasAtencion?: any,
+
       tiempo: number,
-      categorias?: any, // La '?' lo hace opcional
-      fecha?: string
+      fecha: string
     }){
-      
-    try {
-      const colRef = collection(this.firestore, 'Resultados_Cuestionario');
-      return await addDoc(colRef, {
-        usuario_uid: uid,
-        identificador_cuestionario: data.identificador,
-        puntaje_final: data.puntaje,
-        tiempo_respuesta: data.tiempo,
-        categorias: data.categorias,
-        timestamp: serverTimestamp()
-      });
-    } catch (error) {
-      console.error("Error al guardar cuestionario:", error);
-      throw error;
+    
+    if (data.identificador === "Test de Vulnerabilidad al Estrés"){
+      try {
+        const colRef = collection(this.firestore, 'Resultados_Cuestionario');
+        return await addDoc(colRef, {
+          usuario_uid: uid,
+          identificador_cuestionario: data.identificador,
+          puntaje_final: data.puntaje,
+          nivel_estres: data.nivel,
+          tiempo_respuesta: data.tiempo,
+          categorias: data.categorias,
+          categoriaVulnerableLv1: data.categoriaVulnerableLv1,
+          categoriaVulnerableLv2: data.categoriaVulnerableLv2,
+          categoriaVulnerableLv3: data.categoriaVulnerableLv3,
+          timestamp: serverTimestamp()
+        });
+      } catch (error) {
+        console.error("Error al guardar cuestionario:", error);
+        throw error;
+      }
+    }else if (data.identificador === "Cuestionario de Estrés Académico en la Universidad"){
+      try {
+        const colRef = collection(this.firestore, 'Resultados_Cuestionario');
+        return await addDoc(colRef, {
+          usuario_uid: uid,
+          identificador_cuestionario: data.identificador,
+          puntaje_final: data.puntaje,
+          nivel_estres: data.nivel,
+          tiempo_respuesta: data.tiempo,
+          categorias: data.categorias,
+          categoriasResaltantes: data.categoriasResaltantes,
+          categoriasAtencion: data.categoriasAtencion,
+          timestamp: serverTimestamp()
+        });
+      } catch (error) {
+        console.error("Error al guardar cuestionario:", error);
+        throw error;
+      }
+    }else if (data.identificador === "SISCO - Inventario Sistémico Cognoscitivista para el estudio del estrés académico"){
+      try {
+        const colRef = collection(this.firestore, 'Resultados_Cuestionario');
+        return await addDoc(colRef, {
+          usuario_uid: uid,
+          identificador_cuestionario: data.identificador,
+          puntaje_final: data.puntaje,
+          nivel_estres: data.nivel,
+          tiempo_respuesta: data.tiempo,
+          categorias: data.categorias,
+          categoriasResaltantes: data.categoriasResaltantes,
+          categoriasAtencion: data.categoriasAtencion,
+          timestamp: serverTimestamp()
+        });
+      } catch (error) {
+        console.error("Error al guardar cuestionario:", error);
+        throw error;
+      }
+    }else if (data.identificador === "Inventario Sobre Vulnerabilidad al Estrés (Beech, Burns y Sheffield, 1982)"){
+      try {
+        const colRef = collection(this.firestore, 'Resultados_Cuestionario');
+        return await addDoc(colRef, {
+          usuario_uid: uid,
+          identificador_cuestionario: data.identificador,
+          puntaje_final: data.puntaje,
+          nivel_estres: data.nivel,
+          tiempo_respuesta: data.tiempo,
+          categorias: data.categorias,
+          categoriasResaltantes: data.categoriasResaltantes,
+          categoriasAtencion: data.categoriasAtencion,
+          timestamp: serverTimestamp()
+        });
+      } catch (error) {
+        console.error("Error al guardar cuestionario:", error);
+        throw error;
+      }
+    }else if (data.identificador === "Inventario de Síntomas de Estrés. Segunda versión - Arturo Barraza Macías"){
+      try {
+        const colRef = collection(this.firestore, 'Resultados_Cuestionario');
+        return await addDoc(colRef, {
+          usuario_uid: uid,
+          identificador_cuestionario: data.identificador,
+          puntaje_final: data.puntaje,
+          nivel_estres: data.nivel,
+          tiempo_respuesta: data.tiempo,
+          categorias: data.categorias,
+          categoriasResaltantes: data.categoriasResaltantes,
+          categoriasAtencion: data.categoriasAtencion,
+          timestamp: serverTimestamp()
+        });
+      } catch (error) {
+        console.error("Error al guardar cuestionario:", error);
+        throw error;
+      }
+    }
+    else {
+      throw new Error(`Identificador de cuestionario no reconocido: ${data.identificador}`);
     }
   }
 

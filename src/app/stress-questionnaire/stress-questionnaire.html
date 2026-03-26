@@ -153,7 +153,7 @@
                       class="btn-opcion-grande"
                       [class.active]="preguntasCEAU[indiceCEAU].valor === $index + 1"
                       (click)="seleccionarOpcionCEAU(preguntasCEAU[indiceCEAU], $index + 1)">
-                      <span class="circulo">{{ $index }}</span>
+                      <span class="circulo">{{ $index + 1 }}</span>
                       {{ opcion }}
                     </button>
                   }
@@ -272,7 +272,7 @@
                       class="btn-opcion-grande"
                       [class.active]="preguntasBBS[indiceBBS].valor === $index + 1"
                       (click)="seleccionarOpcionBBS(preguntasBBS[indiceBBS], $index + 1)">
-                      <span class="circulo">{{ $index }}</span>
+                      <span class="circulo">{{ $index + 1}}</span>
                       {{ opcion }}
                     </button>
                   }
@@ -289,37 +289,37 @@
             }
           </div>
         }
-        @case ('eea') {
+        @case ('ISE') {
           <div class="test-stepper">
             <div class="progress-container">
-              <div class="progress-bar" [style.width.%]="(indiceEEA + 1) / preguntasEEA.length * 100"></div>
-              <span class="progress-text">Pregunta {{ indiceEEA + 1 }} de {{ preguntasEEA.length }}</span>
+              <div class="progress-bar" [style.width.%]="(indiceISE + 1) / preguntasISE.length * 100"></div>
+              <span class="progress-text">Pregunta {{ indiceISE + 1 }} de {{ preguntasISE.length }}</span>
             </div>
 
-            <div class="pregunta-card-single" [@fadeInTrigger]="indiceEEA">
-              @if (indiceEEA > 0) {
-                <button class="btn-mini-back" (click)='anteriorEEA()'>← Anterior</button>
+            <div class="pregunta-card-single" [@fadeInTrigger]="indiceISE">
+              @if (indiceISE > 0) {
+                <button class="btn-mini-back" (click)='anteriorISE()'>← Anterior</button>
               }
 
               <div class="pregunta-content">
                 <header class="header-fijo-sisco">
-                  <h2 class="pregunta-numero">Pregunta #{{ preguntasEEA[indiceEEA].id }}</h2>
-                  <p class="enunciado-contexto">{{ preguntasEEA[indiceEEA]?.encabezado }}</p>
+                  <h2 class="pregunta-numero">Pregunta #{{ preguntasISE[indiceISE].id }}</h2>
+                  <p class="enunciado-contexto">{{ preguntasISE[indiceISE]?.encabezado }}</p>
                 </header>
                 <p class="pregunta-texto-grande">
-                  {{ preguntasEEA[indiceEEA].texto }}
-                  @if (preguntasEEA[indiceEEA].ayuda) {
-                    <button class="btn-info-help" [title]="preguntasEEA[indiceEEA].ayuda">?</button>
+                  {{ preguntasISE[indiceISE].texto }}
+                  @if (preguntasISE[indiceISE].ayuda) {
+                    <button class="btn-info-help" [title]="preguntasISE[indiceISE].ayuda">?</button>
                   }
                 </p>
                 
                 <div class="opciones-verticales">
-                  @for (opcion of escalaEEA; track $index) {
+                  @for (opcion of escalaISE; track $index) {
                     <button 
                       class="btn-opcion-grande"
-                      [class.active]="preguntasEEA[indiceEEA].valor === $index + 1"
-                      (click)="seleccionarOpcionEEA(preguntasEEA[indiceEEA], $index + 1)">
-                      <span class="circulo">{{ $index }}</span>
+                      [class.active]="preguntasISE[indiceISE].valor === $index + 1"
+                      (click)="seleccionarOpcionISE(preguntasISE[indiceISE], $index + 1)">
+                      <span class="circulo">{{ $index + 1 }}</span>
                       {{ opcion }}
                     </button>
                   }
@@ -327,10 +327,10 @@
               </div>
             </div>
 
-            @if (indiceEEA === preguntasEEA.length - 1 && preguntasEEA[indiceEEA].valor !== null) {
+            @if (indiceISE === preguntasISE.length - 1 && preguntasISE[indiceISE].valor !== null) {
               <div class="footer-stepper">
-                <button class="btn-finalizar-grande" (click)="calcularResultadoEEA()">
-                  Finalizar y Guardar EEA
+                <button class="btn-finalizar-grande" (click)="calcularResultadoISE()">
+                  Finalizar y Guardar ISE
                 </button>
               </div>
             }
@@ -368,8 +368,8 @@
     }
   </ul>
   <ul>
-    <strong>EEA:</strong>
-    @for (cat of registroEEA | keyvalue; track cat.key) {
+    <strong>ISE:</strong>
+    @for (cat of registroISE | keyvalue; track cat.key) {
       <li>{{ cat.key }}: {{ cat.value }} pts</li>
     }
   </ul>

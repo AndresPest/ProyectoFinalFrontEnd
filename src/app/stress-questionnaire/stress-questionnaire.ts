@@ -8,6 +8,7 @@ import { AuthService } from '../services/auth';
 import { NavbarComponent } from '../navbar/navbar';
 import { RouterOutlet } from '@angular/router';
 import { CapturaService } from '../services/captura.service';
+import { HttpClient } from '@angular/common/http';
 
 interface CuestionarioInfo {
   id: number;
@@ -44,7 +45,7 @@ export class StressQuestionnaireComponent implements AfterViewInit{
   @ViewChild('canvas') canvasElement!: ElementRef<HTMLCanvasElement>;
   public consentimientoAceptado: boolean = false;
 
-  constructor(private capturaService: CapturaService) {
+  constructor(private http: HttpClient, private capturaService: CapturaService) {
     const previo = localStorage.getItem('consentimiento_ia');
     if (previo === 'true') {
       this.consentimientoAceptado = false;
@@ -67,7 +68,7 @@ export class StressQuestionnaireComponent implements AfterViewInit{
     { id: 2, nombre: 'Cuestionario de Estrés Académico (CEAU)', identificador: 'ceau', descripcion: 'Identifica estresores en el entorno universitario.', tiempoEstimado: '10 min - 15 min' },
     { id: 3, nombre: 'Inventario SISCO', identificador: 'sisco', descripcion: 'Mide estresores, síntomas y afrontamiento.', tiempoEstimado: '10 min - 15 min' },
     { id: 4, nombre: 'Inventario sobre vulnerabilidad al estrés.', identificador: 'bbs', descripcion: 'Evalúa cuál es la predisposición del individuo a verse influenciado por los síntomas de estrés', tiempoEstimado: '10 min - 15 min' },
-    { id: 5, nombre: 'Escala de Estresores Académicos', identificador: 'eea', descripcion: 'Valorar el grado en el que el estudiante percibe situaciones o circunstancias del contexto académico', tiempoEstimado: '15 min - 20 min' }
+    { id: 5, nombre: 'Inventario de Síntomas de Estrés. Segunda versión', identificador: 'ISE', descripcion: 'Valorar el grado en el que el estudiante percibe situaciones o circunstancias del contexto académico', tiempoEstimado: '15 min - 20 min' }
   ];
 
   // --- NAVEGACIÓN GENERAL ---
@@ -85,7 +86,7 @@ export class StressQuestionnaireComponent implements AfterViewInit{
     this.indiceCEAU = 0;
     this.indiceSisco = -1;
     this.indiceBBS = 0;
-    this.indiceEEA = 0;
+    this.indiceISE = 0;
     this.mostrarResultadosFinales = false;
   }
 
@@ -101,52 +102,71 @@ export class StressQuestionnaireComponent implements AfterViewInit{
 
   /*
   Categorias para las preguntas Miller y Smith
-  1. Salud y Hábitos: Salud física y hábitos de vida
-  2. Bienestar y Autocuidado: Bienestar emocional y autocuidado
-  3. Red de Apoyo: Red de apoyo social y familiar
-  4. Comunicación y Relaciones: Comunicación y relaciones interpersonales
-  5. Estabilidad y Gestión: Estabilidad y gestión externa
+  1. Salud y Hábitos: Salud física y hábitos de vida (1,2,5,6,7,8,14,19)
+  2. Bienestar y Autocuidado: Bienestar emocional y autocuidado (3,10,17,20)
+  3. Red de Apoyo: Red de apoyo social y familiar (4,11,12,13)
+  4. Comunicación y Relaciones: Comunicación y relaciones interpersonales (15,16)
+  5. Estabilidad y Gestión: Estabilidad y gestión externa (9,18)
   */
 
   public preguntasTestVulnerabilidad = [
     { dim: 'Salud y Hábitos', id: 1, texto: "Hago por lo menos una comida caliente y balanceada al día.",
       ayuda: "Incluyes alimentos de diferentes grupos y si dedicas un tiempo exclusivo para sentarte a comer.", valor: 0 },
+    
     { dim: 'Salud y Hábitos', id: 2, texto: "Por lo menos cuatro noches a la semana duermo de 7 a 8 horas.",
       ayuda: "Evalúa si logras un descanso profundo y continuo la mayoría de las noches para recuperar tu energía.", valor: 0 },
+    
     { dim: 'Bienestar y Autocuidado', id: 3, texto: "Doy y recibo afecto regularmente.",
       ayuda: "Considera si mantienes contacto físico o emocional cálido con personas cercanas (abrazos, palabras de apoyo).", valor: 0 },
+    
     { dim: 'Red de Apoyo', id: 4, texto: "En 50 millas a la redonda tengo, por lo menos, un familiar en el que puedo confiar.",
       ayuda: "Identifica si cuentas con algún pariente cercano que pueda auxiliarte en una emergencia.", valor: 0 },
+    
     { dim: 'Salud y Hábitos', id: 5, texto: "Por lo menos dos veces a la semana hago ejercicios hasta sudar.",
       ayuda: "Realizas actividades físicas para liberar tensión y fortalecer tu cuerpo.", valor: 0 },
+    
     { dim: 'Salud y Hábitos', id: 6, texto: "Fumo menos de media cajetilla de cigarrillos al día.",
       ayuda: "Piensa en cuánto fumas y si sientes que eso te quita energía o te hace cansarte más rápido al respirar.", valor: 0 },
+    
     { dim: 'Salud y Hábitos', id: 7, texto: "Tomo menos de 5 tragos (de bebida alcohólica) a la semana.",
       ayuda: "Considera si mantienes un consumo de alcohol moderado que no interfiera con tu claridad mental o salud.", valor: 0 },
+    
     { dim: 'Salud y Hábitos', id: 8, texto: "Tengo el peso apropiado para mi estatura.",
       ayuda: "Observa si te sientes en un rango de peso saludable que te permita moverte con agilidad y sin fatiga.", valor: 0 },
+    
     { dim: 'Estabilidad y Gestión', id: 9, texto: "Mis ingresos satisfacen mis gastos fundamentales.",
       ayuda: "Tu economía actual te permite cubrir tus necesidades básicas sin vivir en un estado de alerta constante.", valor: 0 },
+    
     { dim: 'Bienestar y Autocuidado', id: 10, texto: "Mis creencias me hacen mas fuerte.",
       ayuda: "Identifica si tus valores personales, espirituales te brindan esperanza y resiliencia.", valor: 0 },
+    
     { dim: 'Red de Apoyo', id: 11, texto: "Asisto regularmente a actividades sociales o del club.",
       ayuda: "Participas en grupos que te hagan sentir parte de una comunidad fuera de tu entorno privado.", valor: 0 },
+    
     { dim: 'Red de Apoyo', id: 12, texto: "Tengo una red de amigos y conocidos.",
       ayuda: "Evalúa la cantidad de personas con las que interactúas forman parte de tu círculo social activo.", valor: 0 },
+    
     { dim: 'Red de Apoyo', id: 13, texto: "Tengo uno o más amigos a quienes puedo confiarle mis problemas personales.",
       ayuda: "Considera si tienes a alguien especial con quien puedas desahogarte y hablar con total honestidad.", valor: 0 },
+    
     { dim: 'Salud y Hábitos', id: 14, texto: "Tengo buena salud (vista, oido, dentadura, etc.).",
       ayuda: "Evalúa tu bienestar físico general y si tus sentidos te permiten desenvolverte sin incomodidades.", valor: 0 },
+    
     { dim: 'Comunicación y Relaciones', id: 15, texto: "Soy capaz de hablar abiertamente sobre mis sentimientos cuando me siento irritado o preocupado.",
       ayuda: "Logras expresar tus emociones difíciles de forma asertiva en lugar de guardártelas.", valor: 0 },
+    
     { dim: 'Comunicación y Relaciones', id: 16, texto: "Converso regularmente sobre problemas domesticos con las personas que conviven conmigo.",
       ayuda: "Conversas con las personas que vives para arreglar los problemas de la casa antes de que se vuelvan más grandes.", valor: 0 },
+    
     { dim: 'Bienestar y Autocuidado', id: 17, texto: "Por lo menos una vez a la semana hago algo para divertirme.",
       ayuda: "Dedicas tiempo exclusivo a actividades que te generen alegría y desconexión total.", valor: 0 },
+    
     { dim: 'Estabilidad y Gestión', id: 18, texto: "Soy capaz de organizar racionalmente mi tiempo.",
       ayuda: "Gestionas bien tus prioridades o sueles sentirte abrumado por las tareas pendientes.", valor: 0 },
+    
     { dim: 'Salud y Hábitos', id: 19, texto: "Tomo menos de tres tazas de café (o de té o refresco de cola) al día.",
       ayuda: "Observa tu nivel de consumo de cafeína y cómo afecta tu ritmo o ansiedad durante el día.", valor: 0 },
+    
     { dim: 'Bienestar y Autocuidado', id: 20, texto: "Durante el día me dedico a mi mismo un rato de tranquilidad.",
       ayuda: "Tienes momentos de silencio o introspección para calmar tu mente.", valor: 0 }
   ];
@@ -190,45 +210,44 @@ export class StressQuestionnaireComponent implements AfterViewInit{
   }
 
   async calcularResultadoTestVulnerabilidad() {
-  const sumaTotal = this.preguntasTestVulnerabilidad.reduce((acc, p) => acc + (Number(p.valor) || 0), 0);
-  const puntajeFinal = sumaTotal - 20;
 
-  const detalleCategorias = { ...this.registroCategMillerSmith };
-
-  const user = this.authService.currentUser;
-  
-  if (user) {
-    try {
-      await this.authService.guardarResultadoCuestionario(user.uid, {
-        identificador: 'Miller',
-        puntaje: puntajeFinal,
-        tiempo: 300,
-        categorias: detalleCategorias,
-        fecha: new Date().toISOString()
-      });
-      alert("Test de Vulnerabilidad guardado con éxito.");
-    } catch (error) {
-      console.error("Error al guardar en Firebase:", error);
-      alert("Hubo un error al guardar los resultados.");
-    }
-  }
-
-  this.volverAlMenu();
-}
-
-  /*async calcularResultadoTestVulnerabilidad() {
-    const sumaTotal = this.preguntasTestVulnerabilidad.reduce((acc, p) => acc + (Number(p.valor) || 0), 0);
     const user = this.authService.currentUser;
-    const puntajeFinal = sumaTotal - 20;
-    let diagnostico = '';
-    if (user) {
-      await this.authService.guardarResultadoCuestionario(user.uid, {
-        identificador: 'Miller', puntaje: sumaTotal - 20, tiempo: 300
+
+    const contarPreguntasPorCategoria = this.preguntasTestVulnerabilidad.reduce((acc, p) => {
+      const categoria = p.dim;
+      acc[categoria] = (acc[categoria] || 0) + 1;
+      return acc;
+    }, {} as { [key: string]: number });
+
+    const resultadosTest = {
+      identificador: 'Miller',
+      sumaTotal: this.preguntasTestVulnerabilidad.reduce((acc, p) => acc + (Number(p.valor) || 0), 0),
+      puntajeFinal: this.preguntasTestVulnerabilidad.reduce((acc, p) => acc + (Number(p.valor) || 0), 0) - 20,
+      categorias: { ...this.registroCategMillerSmith },
+      nPreguntasCategoria: contarPreguntasPorCategoria,
+      tiempo: 300,
+      uid: this.authService.currentUser?.uid
+    };
+
+    if(user){
+      try {
+      const urlBackend = 'http://localhost:7860/api/resultados';
+      this.http.post(urlBackend, resultadosTest).subscribe({
+        next: async (resultadoProcesado: any) => {
+          await this.authService.guardarResultadoCuestionario(user.uid, resultadoProcesado);
+          alert("Resultados analizados y guardados.");
+        },
+        error: (error) => {
+          console.error("Error en el backend:", error);
+          alert("Hubo un error al procesar los datos en el servidor.");
+        }
       });
-      alert("Test de Miller guardado.");
+      } catch (error) {
+      console.error("Error general:", error);
+      }
     }
     this.volverAlMenu();
-  }*/
+  }
 
   // --- LÓGICA TEST CEAU ---
   public indiceCEAU: number = 0;
@@ -243,10 +262,10 @@ export class StressQuestionnaireComponent implements AfterViewInit{
 
   /*
   Categorias para las preguntas CEAU
-  1. Evaluación y Desempeño: Evaluación y desempeño público
-  2. Carga y Gestión: Carga de trabajo y gestión del tiempo
-  3. Entorno: Entorno social e institucional
-  4. Expectativas y Futuro: Expectativas y futuro profesional
+  1. Evaluación y Desempeño: Evaluación y desempeño público (1,2,3,16)
+  2. Carga y Gestión: Carga de trabajo y gestión del tiempo (5,7,9,10,14,15)
+  3. Entorno: Entorno social e institucional (4,6,8,11,12,13)
+  4. Expectativas y Futuro: Expectativas y futuro profesional (17,18,19,20,21)
   */
   
   public preguntasCEAU = [
@@ -348,43 +367,46 @@ export class StressQuestionnaireComponent implements AfterViewInit{
   }
 
   async calcularResultadoCEAU() {
-  const sumaTotal = this.preguntasCEAU.reduce((acc, p) => acc + (Number(p.valor) || 0), 0);
-  
-  const detalleCategorias: any = { ...this.registroCEAU };
 
-  const datosParaGuardar: any = {
-    identificador: 'CEAU',
-    puntaje: sumaTotal,
-    tiempo: 400,
-    categorias: detalleCategorias,
-    fecha: new Date().toISOString()
-  };
-
-  const user = this.authService.currentUser;
-  
-  if (user) {
-    try {
-      await this.authService.guardarResultadoCuestionario(user.uid, datosParaGuardar);
-      alert("Cuestionario CEAU guardado correctamente.");
-    } catch (error) {
-      console.error("Error al guardar CEAU:", error);
-      alert("Error al guardar los resultados.");
-    }
-  }
-  
-  this.volverAlMenu();
-}
-
-  /*async calcularResultadoCEAU() {
-    const suma = this.preguntasCEAU.reduce((acc, p) => acc + (Number(p.valor) || 0), 0);
     const user = this.authService.currentUser;
-    if (user) {
-      await this.authService.guardarResultadoCuestionario(user.uid, {
-        identificador: 'CEAU', puntaje: suma, tiempo: 400
+    const sumaTotal = this.preguntasCEAU.reduce((acc, p) => acc + (Number(p.valor) || 0), 0);
+
+    const detalleCategorias: any = { ...this.registroCEAU };
+
+    const contarPreguntasPorCategoria = this.preguntasCEAU.reduce((acc, p) => {
+      const categoria = p.dim;
+      acc[categoria] = (acc[categoria] || 0) + 1;
+      return acc;
+    }, {} as { [key: string]: number });
+
+    const resultadosTest = {
+      identificador: 'CEAU',
+      puntajeFinal: sumaTotal,
+      categorias: detalleCategorias,
+      nPreguntasCategoria: contarPreguntasPorCategoria,
+      tiempo: 300,
+      uid: this.authService.currentUser?.uid
+    };
+
+    if(user){
+      try {
+      const urlBackend = 'http://localhost:7860/api/resultados';
+      this.http.post(urlBackend, resultadosTest).subscribe({
+        next: async (resultadoProcesado: any) => {
+          await this.authService.guardarResultadoCuestionario(user.uid, resultadoProcesado);
+          alert("Resultados analizados y guardados.");
+        },
+        error: (error) => {
+          console.error("Error en el backend:", error);
+          alert("Hubo un error al procesar los datos en el servidor.");
+        }
       });
+      } catch (error) {
+      console.error("Error general:", error);
+      }
     }
     this.volverAlMenu();
-  }*/
+}
 
   // --- LÓGICA TEST SISCO ---
   public mostrarResultadosFinales: boolean = false;
@@ -409,79 +431,37 @@ export class StressQuestionnaireComponent implements AfterViewInit{
 
   public preguntasSisco = [
     // DIMENSIÓN ESTRESORES
-    { dim: 'Estresores', encabezado: '¿Con qué frecuencia te estresa:', texto: 'La competencia con mis compañeros del grupo',
-      ayuda: "Consideras que sientes tensión al compararte con los demás o si el ambiente de rivalidad te agobia.", valor: 0 },
-    
     { dim: 'Estresores', encabezado: '¿Con qué frecuencia te estresa:', texto: 'La sobrecarga de tareas y trabajos académicos que tengo que realizar todos los días.',
-      ayuda: "Sientes que tienes demasiadas cosas pendientes y que no te da tiempo para terminar todo.", valor: 0 },
+      ayuda: "Sientes que la cantidad de asignaciones supera tu capacidad o el tiempo disponible para terminarlos.", valor: 0 },
     
-    { dim: 'Estresores', encabezado: '¿Con qué frecuencia te estresa:', texto: 'La personalidad y el carácter de los profesores que me imparten clases.',
+    { dim: 'Estresores', encabezado: '¿Con qué frecuencia te estresa:', texto: 'La personalidad y el carácter de los/as profesores/as que me imparten clases.',
       ayuda: "La forma de ser de algún docente te genera incomodidad, miedo o malestar.", valor: 0 },
     
     { dim: 'Estresores', encabezado: '¿Con qué frecuencia te estresa:', texto: 'La forma de evaluación de mis profesores/as (a través de ensayos, trabajos de investigación, búsquedas en Internet, etc.)',
-      ayuda: "Te angustia el método que usan para calificarte.", valor: 0 },
+      ayuda: "Te genera ansiedad la metodología o el tipo de instrumentos que se usan para calificar tu desempeño.", valor: 0 },
     
-    { dim: 'Estresores', encabezado: '¿Con qué frecuencia te estresa:', texto: 'El nivel de exigencia de mis profesores/as',
+    { dim: 'Estresores', encabezado: '¿Con qué frecuencia te estresa:', texto: 'El nivel de exigencia de mis profesores/as.',
       ayuda: "Consideras que los profesores piden demasiado o que sus estándares son muy difíciles de alcanzar.", valor: 0 },
     
     { dim: 'Estresores', encabezado: '¿Con qué frecuencia te estresa:', texto: 'El tipo de trabajo que me piden los profesores (consulta de temas, fichas de trabajo, ensayos, mapas conceptuales, etc.)',
       ayuda: "Sientes estrés o dificultad por el formato de las tareas que debes entregar constantemente.", valor: 0 },
     
-    { dim: 'Estresores', encabezado: '¿Con qué frecuencia te estresa:', texto: 'Que me toquen profesores/as muy teóricos/as.',
-      ayuda: "Te estresa que las clases no sean prácticas o que se basen solo en leer y escuchar teoría.", valor: 0 },
-    
-    { dim: 'Estresores', encabezado: '¿Con qué frecuencia te estresa:', texto: 'Mi participación en clase (responder a preguntas, hacer comentarios, etc.)',
-      ayuda: "Te da nervios o estrés tener que hablar frente a todos o que el profesor te pregunte algo.", valor: 0 },
-    
     { dim: 'Estresores', encabezado: '¿Con qué frecuencia te estresa:', texto: 'Tener tiempo limitado para hacer el trabajo que me encargan los/as profesores/as.',
-      ayuda: "Sientes presión cuando las fechas de entrega son muy ajustadas y estas a contra reloj.", valor: 0 },
-    
-    { dim: 'Estresores', encabezado: '¿Con qué frecuencia te estresa:', texto: 'La realización de un examen.',
-      ayuda: "Los nervios o estrés que sientes justo antes o durante una evaluación.", valor: 0 },
-    
-    { dim: 'Estresores', encabezado: '¿Con qué frecuencia te estresa:', texto: 'Exposición de un tema ante los compañeros de mi grupo.',
-      ayuda: "Te resulta estresante ser el centro de atención al explicar un tema frente a la clase.", valor: 0 },
+      ayuda: "Te estresa sentir que los plazos de entrega son demasiado cortos para la complejidad de la asignación.", valor: 0 },
     
     { dim: 'Estresores', encabezado: '¿Con qué frecuencia te estresa:', texto: 'La poca claridad que tengo sobre lo que quieren los/as profesores/as.',
-      ayuda: "Sientes confusión o frustración cuando no entiendes las instrucciones de una asignación.", valor: 0 },
+      ayuda: "Te causa estrés no entender las instrucciones o sentir que las expectativas del profesor son ambiguas.", valor: 0 },
     
-    { dim: 'Estresores', encabezado: '¿Con qué frecuencia te estresa:', texto: 'Que mis profesores/as estén mal preparados/as.',
-      ayuda: "Te genera inseguridad o enojo sentir que el profesor no domina el tema que explica.", valor: 0 },
-    
-    { dim: 'Estresores', encabezado: '¿Con qué frecuencia te estresa:', texto: 'Asistir a clases aburridas o monótonas.',
-      ayuda: "La falta de dinamismo en clase te hace sentir desesperación o pérdida de tiempo.", valor: 0 },
-    
-    { dim: 'Estresores', encabezado: '¿Con qué frecuencia te estresa:', texto: 'No entender los temas que se abordan en la clase.',
-      ayuda: "Te sientes abrumado cuando no logras seguir el hilo de lo que se explica en clases.", valor: 0 },
-    
-    // DIMENSIÓN SÍNTOMAS
-    { dim: 'Síntomas', encabezado: '¿Con qué frecuencia se te presentan las siguientes reacciones:', texto: 'Trastornos en el sueño (insomnio o pesadillas).',
-      ayuda: "Notas que te cuesta dormir por pensar en la universidad o tienes sueños agitados.", valor: 0 },
-    
+    // DIMENSIÓN SÍNTOMAS    
     { dim: 'Síntomas', encabezado: '¿Con qué frecuencia se te presentan las siguientes reacciones:', texto: 'Fatiga crónica (cansancio permanente).',
       ayuda: "Sientes que, aunque descanses, siempre estás sin fuerzas para empezar el día.", valor: 0 },
-    
-    { dim: 'Síntomas', encabezado: '¿Con qué frecuencia se te presentan las siguientes reacciones:', texto: 'Dolores de cabeza o migraña.',
-      ayuda: "Sientes presión o dolor en la cabeza con frecuencia debido al estudio.", valor: 0 },
-    
-    { dim: 'Síntomas', encabezado: '¿Con qué frecuencia se te presentan las siguientes reacciones:', texto: 'Problemas de digestión, dolor abdominal o diarrea.',
-      ayuda: "Consideras que tu estómago reacciona con dolor o molestias cuando estás bajo mucha presión.", valor: 0 },
-    
-    { dim: 'Síntomas', encabezado: '¿Con qué frecuencia se te presentan las siguientes reacciones:', texto: 'Rascarse, morderse las uñas, frotarse, etc.',
-      ayuda: "Observa si realizas estos movimientos de forma nerviosa o sin darte cuenta cuando estás tenso.", valor: 0 },
-    
-    { dim: 'Síntomas', encabezado: '¿Con qué frecuencia se te presentan las siguientes reacciones:', texto: 'Somnolencia o mayor necesidad de dormir.',
-      ayuda: "Sientes que tu cuerpo te pide dormir a todas horas como una forma de escapar del cansancio mental.", valor: 0 },
-    
-    { dim: 'Síntomas', encabezado: '¿Con qué frecuencia se te presentan las siguientes reacciones:', texto: 'Inquietud (incapacidad de relajarse y estar tranquilo).',
-      ayuda: "Notas que te cuesta mucho quedarte quieto o apagar la mente para descansar de verdad.", valor: 0 },
-    
+
     { dim: 'Síntomas', encabezado: '¿Con qué frecuencia se te presentan las siguientes reacciones:', texto: 'Sentimientos de depresión y tristeza (decaído).',
       ayuda: "Te sientes sin ánimos, con ganas de llorar o con una tristeza que no se va.", valor: 0 },
-    
+
     { dim: 'Síntomas', encabezado: '¿Con qué frecuencia se te presentan las siguientes reacciones:', texto: 'Ansiedad, angustia o desesperación.',
       ayuda: "Sientes un nudo en el pecho, falta de aire o una preocupación excesiva por lo que viene.", valor: 0 },
-    
+
     { dim: 'Síntomas', encabezado: '¿Con qué frecuencia se te presentan las siguientes reacciones:', texto: 'Problemas de concentración.',
       ayuda: "Te distraes con facilidad o te cuesta mucho entender lo que estás leyendo.", valor: 0 },
     
@@ -491,43 +471,16 @@ export class StressQuestionnaireComponent implements AfterViewInit{
     { dim: 'Síntomas', encabezado: '¿Con qué frecuencia se te presentan las siguientes reacciones:', texto: 'Conflictos o tendencia a polemizar o discutir.',
       ayuda: "Consideras que estás buscando peleas o discusiones con otros más de lo normal.", valor: 0 },
     
-    { dim: 'Síntomas', encabezado: '¿Con qué frecuencia se te presentan las siguientes reacciones:', texto: 'Aislamiento de los demás.',
-      ayuda: "Notas que prefieres estar solo y evitas hablar con amigos o familia para no esforzarte socialmente.", valor: 0 },
-    
     { dim: 'Síntomas', encabezado: '¿Con qué frecuencia se te presentan las siguientes reacciones:', texto: 'Desgano para realizar las labores académicas.',
       ayuda: "Sientes que no tienes ninguna motivación para abrir los libros o estudiar.", valor: 0 },
-    
-    { dim: 'Síntomas', encabezado: '¿Con qué frecuencia se te presentan las siguientes reacciones:', texto: 'Aumento o reducción del consumo de alimentos.',
-      ayuda: "Observas que el estrés te quita el hambre o te hace comer mucho más.", valor: 0 },
 
     // DIMENSIÓN AFRONTAMIENTO
-    { dim: 'Afrontamiento', encabezado: '¿Con qué frecuencia para enfrentar tu estrés te orientas a:', texto: 'Habilidad asertiva (defender nuestras preferencias, ideas o sentimientos sin dañar a otros).',
-      ayuda: "Consideras que logras decir 'no' o expresar lo que sientes con respeto para calmar tu estrés.", valor: 0 },
-    
-    { dim: 'Afrontamiento', encabezado: '¿Con qué frecuencia para enfrentar tu estrés te orientas a:', texto: 'Escuchar música o distraerme viendo televisión.',
-      ayuda: "Tienes algun modo de entretenimiento para desconectar tu mente de las preocupaciones académicas.", valor: 0 },
-    
     { dim: 'Afrontamiento', encabezado: '¿Con qué frecuencia para enfrentar tu estrés te orientas a:', texto: 'Concentrarse en resolver la situación que me preocupa.',
       ayuda: "Consideras que te pones manos a la obra para solucionar el problema.", valor: 0 },
-    
-    { dim: 'Afrontamiento', encabezado: '¿Con qué frecuencia para enfrentar tu estrés te orientas a:', texto: 'Elogiar mi forma de actuar para enfrentar la situación que me preocupa (echarme porras).',
-      ayuda: "Te dices palabras positivas a ti mismo para darte ánimos y confianza.", valor: 0 },
-    
-    { dim: 'Afrontamiento', encabezado: '¿Con qué frecuencia para enfrentar tu estrés te orientas a:', texto: 'La religiosidad (hacer oraciones o asistir a misa).',
-      ayuda: "Consideras que buscas paz o guía a través de la fé o la oración.", valor: 0 },
-    
-    { dim: 'Afrontamiento', encabezado: '¿Con qué frecuencia para enfrentar tu estrés te orientas a:', texto: 'Búsqueda de información sobre la situación que me preocupa.',
-      ayuda: "Investigas más sobre el tema que te estresa para sentir que tienes el control.", valor: 0 },
-    
-    { dim: 'Afrontamiento', encabezado: '¿Con qué frecuencia para enfrentar tu estrés te orientas a:', texto: 'Solicitar el apoyo de mi familia o de mis amigos.',
-      ayuda: "Pides ayuda o compañía a tus seres queridos cuando te sientes sobrepasado.", valor: 0 },
-    
-    { dim: 'Afrontamiento', encabezado: '¿Con qué frecuencia para enfrentar tu estrés te orientas a:', texto: 'Ventilación y confidencias (verbalización o plática de la situación que preocupa).',
-      ayuda: "Consideras que te ayuda contarle tus problemas a alguien para sentirte más ligero.", valor: 0 },
-    
+
     { dim: 'Afrontamiento', encabezado: '¿Con qué frecuencia para enfrentar tu estrés te orientas a:', texto: 'Establecer soluciones concretas para resolver la situación que me preocupa.',
       ayuda: "Haces una lista de pasos reales que puedes seguir para que el problema desaparezca.", valor: 0 },
-    
+
     { dim: 'Afrontamiento', encabezado: '¿Con qué frecuencia para enfrentar tu estrés te orientas a:', texto: 'Analizar lo positivo y negativo de las soluciones pensadas para solucionar la situación que me preocupa.',
       ayuda: "Piensas bien los pros y contras antes de decidir cómo actuar frente al estrés.", valor: 0 },
     
@@ -536,10 +489,7 @@ export class StressQuestionnaireComponent implements AfterViewInit{
     
     { dim: 'Afrontamiento', encabezado: '¿Con qué frecuencia para enfrentar tu estrés te orientas a:', texto: 'Recordar situaciones similares ocurridas anteriormente y pensar en cómo las solucioné.',
       ayuda: "Consideras que usas tu experiencia pasada para darte cuenta de que ya has podido antes y podrás ahora.", valor: 0 },
-    
-    { dim: 'Afrontamiento', encabezado: '¿Con qué frecuencia para enfrentar tu estrés te orientas a:', texto: 'Salir a caminar o hacer algún deporte.',
-      ayuda: "Sientes que mover el cuerpo te ayuda a despejar la mente y disminuir el estrés.", valor: 0 },
-    
+
     { dim: 'Afrontamiento', encabezado: '¿Con qué frecuencia para enfrentar tu estrés te orientas a:', texto: 'Elaboración de un plan para enfrentar lo que me estresa y ejecución de sus tareas.',
       ayuda: "Diseñas una estrategia paso a paso y la sigues hasta terminar con lo que te preocupa.", valor: 0 },
     
@@ -548,6 +498,7 @@ export class StressQuestionnaireComponent implements AfterViewInit{
   ];
 
   public registroSISCO: any = {
+    'Nivel General': 0,
     'Estresores': 0,
     'Síntomas': 0,
     'Afrontamiento': 0
@@ -556,6 +507,7 @@ export class StressQuestionnaireComponent implements AfterViewInit{
   seleccionarOpcionSisco(valor: number) {
     if (this.indiceSisco === -1) {
       this.siscoNivelGeneral = valor;
+      this.registroSISCO['Nivel General'] = valor;
       this.indiceSisco = 0;
       return;
     }
@@ -580,51 +532,38 @@ export class StressQuestionnaireComponent implements AfterViewInit{
   public diagnosticoSISCO: any = {};
 
 async calcularResultadoSisco() {
-  const analisisCategorias: any = {};
-  let sumaPuntajesParaTotal = 0;
-
-  for (const dim in this.registroSISCO) {
-    const puntosObtenidos = this.registroSISCO[dim];
-    const totalPreguntas = this.preguntasSisco.filter(p => p.dim === dim).length;
-    
-    const puntosMaximos = totalPreguntas * 5; 
-    const porcentaje = (puntosObtenidos / puntosMaximos) * 100;
-
-    analisisCategorias[dim] = {
-      puntos: puntosObtenidos,
-      porcentaje: Number(porcentaje.toFixed(2)),
-      nivel: porcentaje >= 66 ? 'Alto' : porcentaje >= 33 ? 'Moderado' : 'Leve'
-    };
-    
-    sumaPuntajesParaTotal += porcentaje;
-  }
-
-  const promedioPorcentualTotal = Number((sumaPuntajesParaTotal / 3).toFixed(2));
-
-  const datosParaGuardar: any = {
-    identificador: 'SISCO',
-    puntaje: promedioPorcentualTotal,
-    tiempo: 600, 
-    nivelGeneralFiltro: this.siscoNivelGeneral,
-    categorias: analisisCategorias,
-    fecha: new Date().toISOString()
-  };
 
   const user = this.authService.currentUser;
 
-  if (user) {
+  const detalleCategorias: any = { ...this.registroSISCO };
+  const sumaTotal = this.preguntasSisco.reduce((acc, p) => acc + (Number(p.valor) || 0), 0);
+
+
+  const resultadosTest: any = {
+    identificador: 'SISCO',
+    puntaje: sumaTotal,
+    categorias: detalleCategorias,
+    tiempo: 600,
+    uid: this.authService.currentUser?.uid
+  };
+
+  if(user){
     try {
-      await this.authService.guardarResultadoCuestionario(user.uid, datosParaGuardar);
-      alert("Inventario SISCO guardado con éxito.");
+    const urlBackend = 'http://localhost:7860/api/resultados';
+    this.http.post(urlBackend, resultadosTest).subscribe({
+      next: async (resultadoProcesado: any) => {
+        await this.authService.guardarResultadoCuestionario(user.uid, resultadoProcesado);
+        alert("Resultados analizados y guardados.");
+      },
+      error: (error) => {
+        console.error("Error en el backend:", error);
+        alert("Hubo un error al procesar los datos en el servidor.");
+      }
+    });
     } catch (error) {
-      console.error("Error al guardar SISCO:", error);
-      alert("Error al conectar con la base de datos.");
+    console.error("Error general:", error);
     }
   }
-
-  // 4. Actualizar estado local y navegar
-  this.diagnosticoSISCO = analisisCategorias;
-  this.mostrarResultadosFinales = true;
   this.volverAlMenu();
 }
 
@@ -658,8 +597,8 @@ async calcularResultadoSisco() {
   public indiceBBS: number = 0;
 
   public escalaBBS = [
-    'Sí', 
     'No', 
+    'Sí', 
   ];
 
   /*
@@ -778,319 +717,219 @@ async calcularResultadoSisco() {
   }
 
 async calcularResultadoBBS() {
-  // 1. Calculamos la suma total de puntos de vulnerabilidad
-  // Recordando que en tu lógica: 1 = Sí (saludable), 2 = No (vulnerable)
-  const puntosVulnerabilidadTotales = this.preguntasBBS.reduce((acc, p) => {
-    return acc + (p.valor === 2 ? 1 : 0);
-  }, 0);
 
-  // 2. Preparamos el desglose por categorías
-  // Ya tienes los acumuladores en 'this.registroBBS' gracias a seleccionarOpcionBBS
-  const detalleCategorias = { ...this.registroBBS };
+    const user = this.authService.currentUser;
 
-  // 3. Objeto de datos con casting 'any' para evitar el error de propiedades conocidas
-  const datosParaGuardar: any = {
-    identificador: 'BBS',
-    puntaje: puntosVulnerabilidadTotales, // Total de indicadores de vulnerabilidad detectados
-    tiempo: 400,
-    categorias: detalleCategorias,
-    fecha: new Date().toISOString()
-  };
+    const sumaTotal = this.preguntasBBS.reduce((acc, p) => {
+      return acc + (p.valor === 2 ? 1 : 0);
+    }, 0);
 
-  const user = this.authService.currentUser;
+    const detalleCategorias = { ...this.registroBBS };
 
-  if (user) {
-    try {
-      await this.authService.guardarResultadoCuestionario(user.uid, datosParaGuardar);
-      alert("Inventario de Vulnerabilidad BBS guardado con éxito.");
-    } catch (error) {
-      console.error("Error al guardar BBS:", error);
-      alert("No se pudo guardar el resultado. Revisa tu conexión.");
+    const contarPreguntasPorCategoria = this.preguntasBBS.reduce((acc, p) => {
+      const categoria = p.dim;
+      acc[categoria] = (acc[categoria] || 0) + 1;
+      return acc;
+    }, {} as { [key: string]: number });
+
+    console.log("BBS - Categorias:", contarPreguntasPorCategoria);
+
+    const resultadosTest = {
+      identificador: 'BBS',
+      puntajeFinal: sumaTotal,
+      categorias: detalleCategorias,
+      nPreguntasCategoria: contarPreguntasPorCategoria,
+      tiempo: 400,
+      uid: this.authService.currentUser?.uid
+    };
+
+    if(user){
+      try {
+      const urlBackend = 'http://localhost:7860/api/resultados';
+      this.http.post(urlBackend, resultadosTest).subscribe({
+        next: async (resultadoProcesado: any) => {
+          await this.authService.guardarResultadoCuestionario(user.uid, resultadoProcesado);
+          alert("Resultados analizados y guardados.");
+        },
+        error: (error) => {
+          console.error("Error en el backend:", error);
+          alert("Hubo un error al procesar los datos en el servidor.");
+        }
+      });
+      } catch (error) {
+      console.error("Error general:", error);
+      }
     }
-  }
-
-  this.volverAlMenu();
+    this.volverAlMenu();
 }
 
-  // --- LÓGICA TEST Escala de Estresores Académicos - Cabanach, Souto-Gestal y Franco, (2016) ---
-  public indiceEEA: number = 0;
+  // --- LÓGICA TEST Inventario de Síntomas de Estrés. Segunda versión - Arturo Barraza Macías ---
+  public indiceISE: number = 0;
 
-  public escalaEEA = [
+  public escalaISE = [
     'Nunca', 
-    'Alguna vez', 
-    'Bastantes veces', 
-    'Casi siempre', 
-    'Siempre'
+    'Casi Nunca', 
+    'A veces', 
+    'Casi siempre'
   ];
 
   /*
-  Categorias para las preguntas EEA
-  1. Deficiencia Metodologicas - Deficiencias metodológicas del profesorado
-  2. Sobrecarga - Sobrecarga del estudiante
-  3. Creencias Rendimiento - Creencias sobre el rendimiento académico
-  4. Intervenciones - Intervenciones en público
-  5. Clima Social - Clima social negativo
-  6. Examenes - Exámenes
-  7. Carencia Contenidos - Carencia de valor de los contenidos
-  8. Dificultades Participacion - Dificultades de participación
+  Categorias para las preguntas ISE
+  1. Sintomas físicos: Manifestaciones físicas del estrés académico
+  2. Síntomas Psicológicos: Manifestaciones mentales y emocionales del estrés académico
+  3. Sintomas Comportamentales: Manifestaciones conductuales del estrés académico
   */
   
-  public preguntasEEA = [
-    { dim: 'Intervenciones', id: 1, encabezado: 'Me pongo nervioso o me inquieto...', texto: "Cuando me preguntan en clases.",
-      ayuda: "Sientes presión o bloqueo cuando el profesor se dirige a ti directamente frente a los demás.", valor: 0 },
+  public preguntasISE = [
+    { dim: 'Síntomas Físicos', id: 1, encabezado: 'Siento físicamente que...', texto: "Problemas Digestivos (indigestión, diarrea o estreñimiento).",
+      ayuda: "Sientes molestias estomacales, pesadez o cambios en tu ritmo intestinal debido a la tensión académica.", valor: 0 },
     
-    { dim: 'Intervenciones', id: 2, encabezado: 'Me pongo nervioso o me inquieto...', texto: "Si tengo que participar en clases.",
-      ayuda: "Sientes estrés al levantar la mano o al decidir dar tu opinión en una charla grupal.", valor: 0 },
+    { dim: 'Síntomas Físicos', id: 2, encabezado: 'Siento físicamente que...', texto: "Fatiga o cansancio crónico.",
+      ayuda: "Sientes un agotamiento constante que no desaparece con el sueño, como si no tuvieras energía para estudiar.", valor: 0 },
     
-    { dim: 'Intervenciones', id: 3, encabezado: 'Me pongo nervioso o me inquieto...', texto: "Al salir a la pizarra.",
-      ayuda: "Consideras que te genera mucha tensión física o nervios tener que escribir o resolver algo frente a tus compañeros.", valor: 0 },
+    { dim: 'Síntomas Físicos', id: 3, encabezado: 'Siento físicamente que...', texto: "Hiperventilación (respiración rápida).",
+      ayuda: "Sientes que tu respiración se acelera de forma descontrolada cuando piensas en tus responsabilidades.", valor: 0 },
     
-    { dim: 'Intervenciones', id: 4, encabezado: 'Me pongo nervioso o me inquieto...', texto: "Al hacer una exposición o al hablar en público durante un cierto tiempo.",
-      ayuda: "Evalúas el nivel de estrés que te provoca ser el centro de atención mientras explicas un tema largo.", valor: 0 },
+    { dim: 'Síntomas Físicos', id: 4, encabezado: 'Siento físicamente que...', texto: "Falta de aire o sensación de sofocación.",
+      ayuda: "Experimentas una opresión en el pecho o la sensación de que te falta el aire ante una situación de estrés.", valor: 0 },
     
-    { dim: 'Examenes', id: 5, encabezado: 'Me pongo nervioso o me inquieto...', texto: "Al hablar de los exámenes.",
-      ayuda: "El simple hecho de mencionar las fechas de evaluación ya te genera preocupación o inquietud.", valor: 0 },
+    { dim: 'Síntomas Psicológicos', id: 5, encabezado: 'Noto en mis pensamientos o emociones...', texto: "Disminución de la memoria.",
+      ayuda: "Te cuesta recordar datos que ya sabías o sientes que se te borra la información al intentar estudiar.", valor: 0 },
     
-    { dim: 'Examenes', id: 6, encabezado: 'Me pongo nervioso o me inquieto...', texto: "Cuando tengo exámenes.",
-      ayuda: "Sientes mucha presión el día que debes presentar la prueba o durante la realización de la misma.", valor: 0 },
+    { dim: 'Síntomas Psicológicos', id: 6, encabezado: 'Noto en mis pensamientos o emociones...', texto: "Temor, Miedo o Pánico.",
+      ayuda: "Sientes un miedo intenso o una sensación de peligro inminente ante evaluaciones o entregas.", valor: 0 },
     
-    { dim: 'Examenes', id: 7, encabezado: 'Me pongo nervioso o me inquieto...', texto: "Mientras me preparo para los exámenes.",
+    { dim: 'Síntomas Psicológicos', id: 7, encabezado: 'Noto en mis pensamientos o emociones...', texto: "Inquietud y Nerviosismo.",
       ayuda: "Estudiar para una prueba te genera un estado de alerta o nerviosismo constante.", valor: 0 },
     
-    { dim: 'Examenes', id: 8, encabezado: 'Me pongo nervioso o me inquieto...', texto: "Cuando se acercan las fechas de los exámenes.",
-      ayuda: "Sientes que el estrés aumenta a medida que ves que faltan pocos días para la evaluación.", valor: 0 },
+    { dim: 'Síntomas Psicológicos', id: 8, encabezado: 'Noto en mis pensamientos o emociones...', texto: "Preocupación excesiva.",
+      ayuda: "No puedes dejar de pensar en los posibles problemas académicos, incluso en tu tiempo libre.", valor: 0 },
     
-    { dim: 'Intervenciones', id: 9, encabezado: 'Me pongo nervioso o me inquieto...', texto: "Si tengo que exponer en público una opinión.",
-      ayuda: "Te da miedo ser juzgado por lo que piensas cuando hablas delante de mucha gente.", valor: 0 },
+    { dim: 'Síntomas Psicológicos', id: 9, encabezado: 'Noto en mis pensamientos o emociones...', texto: "Pensamiento catastrófico (todo va a salir mal).",
+      ayuda: "Imaginas siempre el peor escenario posible, como reprobar, sin motivos reales.", valor: 0 },
     
-    { dim: 'Deficiencia Metodologicas', id: 10, encabezado: 'Me pongo nervioso o me inquieto...', texto: "Cuando el profesor da la clase de una manera determinada y luego nos examina de un modo poco coherente con esa forma de dar la clase.",
-      ayuda: "Sientes frustración o inseguridad porque el examen no se parece en nada a lo que vieron en las clases.", valor: 0 },
+    { dim: 'Síntomas Psicológicos', id: 10, encabezado: 'Noto en mis pensamientos o emociones...', texto: "Dificultad para concentrarse.",
+      ayuda: "Te cuesta mantener la atención en una lectura o tarea por más de unos pocos minutos.", valor: 0 },
     
-    { dim: 'Deficiencia Metodologicas', id: 11, encabezado: 'Me pongo nervioso o me inquieto...', texto: "Cuando los profesores no se ponen de acuerdo entre ellos (manifiestan claras discrepancias entre ellos en temas académicos).",
-      ayuda: "Te genera confusión que cada profesor diga cosas distintas sobre un mismo tema.", valor: 0 },
+    { dim: 'Síntomas Psicológicos', id: 11, encabezado: 'Noto en mis pensamientos o emociones...', texto: "Lentitud de pensamiento.",
+      ayuda: "Sientes que procesas la información más despacio de lo habitual o te cuesta reaccionar con rapidez.", valor: 0 },
     
-    { dim: 'Deficiencia Metodologicas', id: 12, encabezado: 'Me pongo nervioso o me inquieto...', texto: "Cuando no me queda claro cómo he de estudiar una materia.",
-      ayuda: "Notas inquietud al no saber por dónde empezar o qué método usar para entender una asignatura difícil.", valor: 0 },
+    { dim: 'Síntomas Psicológicos', id: 12, encabezado: 'Noto en mis pensamientos o emociones...', texto: "Sensación de inseguridad.",
+      ayuda: "Dudas de tus propias capacidades y conocimientos, aunque te hayas preparado correctamente.", valor: 0 },
     
-    { dim: 'Deficiencia Metodologicas', id: 13, encabezado: 'Me pongo nervioso o me inquieto...', texto: "Cuando no tengo claro qué exigen en las distintas materias.",
-      ayuda: "Sientes estrés al no saber exactamente qué es lo que el profesor espera que aprendas o entregues.", valor: 0 },
+    { dim: 'Síntomas Psicológicos', id: 13, encabezado: 'Noto en mis pensamientos o emociones...', texto: "Crisis de angustia o ansiedad.",
+      ayuda: "Episodios intensos de malestar repentino que te hacen sentir desbordado por el estrés.", valor: 0 },
     
-    { dim: 'Deficiencia Metodologicas', id: 14, encabezado: 'Me pongo nervioso o me inquieto...', texto: "Cuando los profesores plantean trabajos, actividades o tareas que no tienen mucho que ver entre sí (que son incongruentes).",
-      ayuda: "Te agobia sentir que las tareas son desorganizadas o que no tienen un objetivo claro.", valor: 0 },
+    { dim: 'Síntomas Psicológicos', id: 14, encabezado: 'Noto en mis pensamientos o emociones...', texto: "Irritabilidad, enojo o furia constante o descontrolada.",
+      ayuda: "Te molestas con facilidad o respondes de forma agresiva ante situaciones pequeñas del entorno estudiantil.", valor: 0 },
     
-    { dim: 'Deficiencia Metodologicas', id: 15, encabezado: 'Me pongo nervioso o me inquieto...', texto: "Cuando el profesor no plantea de forma clara qué es lo que tenemos que hacer.",
-      ayuda: "Sientes estrés cuando las instrucciones de una asignación son vagas o difíciles de entender.", valor: 0 },
+    { dim: 'Síntomas Psicológicos', id: 15, encabezado: 'Noto en mis pensamientos o emociones...', texto: "Pensamiento desorientado.",
+      ayuda: "Sientes confusión o dificultad para organizar tus ideas de manera lógica y coherente.", valor: 0 },
     
-    { dim: 'Deficiencia Metodologicas', id: 16, encabezado: 'Me pongo nervioso o me inquieto...', texto: "Cuando el profesor plantea trabajos, actividades o tareas que son contradictorios entre sí.",
-      ayuda: "Te genera tensión que te pidan cosas que se chocan o se anulan entre ellas.", valor: 0 },
+    { dim: 'Síntomas Psicológicos', id: 16, encabezado: 'Noto en mis pensamientos o emociones...', texto: "Sensación de tener la mente vacía.",
+      ayuda: "Momentos en los que sientes que no puedes generar ningún pensamiento o idea, quedándote en blanco.", valor: 0 },
     
-    { dim: 'Deficiencia Metodologicas', id: 17, encabezado: 'Me pongo nervioso o me inquieto...', texto: "Cuando los distintos profesores esperan de nosotros cosas diferentes.",
-      ayuda: "Sientes presión al intentar cumplir con las expectativas variadas y a veces opuestas de cada docente.", valor: 0 },
+    { dim: 'Síntomas Psicológicos', id: 17, encabezado: 'Noto en mis pensamientos o emociones...', texto: "Bloqueo mental.",
+      ayuda: "Incapacidad repentina para continuar con una tarea intelectual, a pesar de querer hacerlo.", valor: 0 },
     
-    { dim: 'Deficiencia Metodologicas', id: 18, encabezado: 'Me pongo nervioso o me inquieto...', texto: "Cuando el profesor espera de nosotros que sepamos cosas que no nos ha enseñado.",
-      ayuda: "Te causa impotencia o nerviosismo de que te exijan conocimientos que nunca explicaron en clase.", valor: 0 },
+    { dim: 'Síntomas Comportamentales', id: 18, encabezado: 'He notado en mi conducta...', texto: "Deseos de gritar, golpear o insultar.",
+      ayuda: "Sientes impulsos físicos de descargar tu frustración de manera violenta o ruidosa.", valor: 0 },
     
-    { dim: 'Deficiencia Metodologicas', id: 19, encabezado: 'Me pongo nervioso o me inquieto...', texto: "Cuando el profesor da por hecho que tenemos conocimientos que en realidad no tenemos.",
-      ayuda: "Sientes inquietud cuando se avanza muy rápido asumiendo que ya sabes cosas que aún no dominas.", valor: 0 },
+    { dim: 'Síntomas Comportamentales', id: 19, encabezado: 'He notado en mi conducta...', texto: "Cambios de humor constantes.",
+      ayuda: "Pasas de la tristeza a la euforia o al enojo en periodos cortos de tiempo sin causa aparente.", valor: 0 },
     
-    { dim: 'Deficiencia Metodologicas', id: 20, encabezado: 'Me pongo nervioso o me inquieto...', texto: "Cuando el profesor plantea exámenes claramente incongruentes con lo estudiado/enseñado.",
-      ayuda: "Sientes enojo o miedo al ver que en el examen preguntan cosas que no estaban en el programa de estudio.", valor: 0 },
+    { dim: 'Síntomas Comportamentales', id: 20, encabezado: 'He notado en mi conducta...', texto: "Comer en exceso o dejar de hacerlo.",
+      ayuda: "Tu apetito se ve alterado por el estrés: comes por ansiedad o se te cierra el estómago por completo.", valor: 0 },
     
-    { dim: 'Deficiencia Metodologicas', id: 21, encabezado: 'Me pongo nervioso o me inquieto...', texto: "Cuando existe una clara falta de coherencia entre los contenidos de las distintas materias.",
-      ayuda: "Te estresa que las materias parezcan piezas sueltas que no encajan entre sí.", valor: 0 },
+    { dim: 'Síntomas Comportamentales', id: 21, encabezado: 'He notado en mi conducta...', texto: "Tomar bebidas de contenido alcohólico.",
+      ayuda: "Recurres al alcohol con más frecuencia como una vía de escape para aliviar la presión de los estudios.", valor: 0 },
     
-    { dim: 'Carencia Contenidos', id: 22, encabezado: 'Me pongo nervioso o me inquieto...', texto: "Las asignaturas que cursamos tienen poco que ver con mis expectativas.",
-      ayuda: "Sientes desmotivación o estrés al ver que la carrera no es lo que esperabas cuando te inscribiste.", valor: 0 },
+    { dim: 'Síntomas Comportamentales', id: 22, encabezado: 'He notado en mi conducta...', texto: "Fumar con mayor frecuencia.",
+      ayuda: "Aumentas el consumo de tabaco o cigarrillos electrónicos para intentar calmar los nervios.", valor: 0 },
     
-    { dim: 'Carencia Contenidos', id: 23, encabezado: 'Me pongo nervioso o me inquieto...', texto: "Las asignaturas que cursamos tienen escaso interés.",
-      ayuda: "Consideras que te genera pesadez o inquietud tener que dedicar tiempo a temas que no te interesan nada.", valor: 0 },
+    { dim: 'Síntomas Comportamentales', id: 23, encabezado: 'He notado en mi conducta...', texto: "Tendencia a ir de un lado a otro sin razón.",
+      ayuda: "Caminar por la habitación o moverte constantemente porque no puedes quedarte quieto mientras estudias.", valor: 0 },
     
-    { dim: 'Carencia Contenidos', id: 24, encabezado: 'Me pongo nervioso o me inquieto...', texto: "Lo que estoy estudiando tiene una escasa utilidad futura.",
-      ayuda: "Te estresa sentir que estás perdiendo el tiempo en cosas que no usarás en tu vida profesional.", valor: 0 },
+    { dim: 'Síntomas Comportamentales', id: 24, encabezado: 'He notado en mi conducta...', texto: "Retraimiento o aislamiento de los demás.",
+      ayuda: "Evitas el contacto con amigos o compañeros, prefiriendo encerrarte solo debido al agobio.", valor: 0 },
     
-    { dim: 'Carencia Contenidos', id: 25, encabezado: 'Me pongo nervioso o me inquieto...', texto: "Las clases a las que asisto son poco prácticas.",
-      ayuda: "Notas frustración cuando sientes que todo es teoría y nunca ves cómo aplicar lo aprendido.", valor: 0 },
-    
-    { dim: 'Creencias Rendimiento', id: 26, encabezado: 'Me pongo nervioso o me inquieto...', texto: "Por no saber si mi ritmo de aprendizaje es el adecuado.",
-      ayuda: "Sientes dudas o miedo de ir más lento que tus compañeros o de no estar aprendiendo bien.", valor: 0 },
-    
-    { dim: 'Sobrecarga', id: 27, encabezado: 'Me pongo nervioso o me inquieto...', texto: "Por el excesivo número de asignaturas que integran el plan de estudios de mi carrera.",
-      ayuda: "Sientes agobio por la gran cantidad de materias que tienes que llevar al mismo tiempo.", valor: 0 },
-    
-    { dim: 'Creencias Rendimiento', id: 28, encabezado: 'Me pongo nervioso o me inquieto...', texto: "Porque los resultados obtenidos en los exámenes no reflejan, en absoluto, mi trabajo anterior de preparación ni el esfuerzo desarrollado.",
-      ayuda: "Consideras la impotencia de esforzarte mucho y aun así no ver buenos resultados en tus notas.", valor: 0 },
-    
-    { dim: 'Sobrecarga', id: 29, encabezado: 'Me pongo nervioso o me inquieto...', texto: "Por las demandas excesivas y variadas que se me hacen.",
-      ayuda: "Sientes que te exigen demasiado en muchas asignaturas y no sabes cómo cumplir con todo.", valor: 0 },
-    
-    { dim: 'Creencias Rendimiento', id: 30, encabezado: 'Me pongo nervioso o me inquieto...', texto: "Porque rindo claramente por debajo de mis conocimientos.",
-      ayuda: "Sientes frustración cuando sabes que conoces el tema, pero a la hora de la verdad no logras demostrarlo.", valor: 0 },
-    
-    { dim: 'Sobrecarga', id: 31, encabezado: 'Me pongo nervioso o me inquieto...', texto: "Por el escaso tiempo de que dispongo para estudiar adecuadamente las distintas materias.",
-      ayuda: "Notas angustia cuando sientes que los días no tienen suficientes horas para cubrir todo el contenido de las asignaturas.", valor: 0 },
-    
-    { dim: 'Sobrecarga', id: 32, encabezado: 'Me pongo nervioso o me inquieto...', texto: "Por el cumplimiento de los plazos o fechas determinadas de las tareas encomendadas.",
-      ayuda: "Te genera mucha tensión ver que las fechas límite de entrega se acercan rápido.", valor: 0 },
-    
-    { dim: 'Sobrecarga', id: 33, encabezado: 'Me pongo nervioso o me inquieto...', texto: "Por la excesiva cantidad de información que se me proporciona en clase, sin que se indique claramente lo fundamental.",
-      ayuda: "Sientes confusión cuando te dan muchísimos contenido y no sabes qué es lo más importante para estudiar.", valor: 0 },
-    
-    { dim: 'Sobrecarga', id: 34, encabezado: 'Me pongo nervioso o me inquieto...', texto: "Por el excesivo tiempo que debo dedicarle a la realización de las actividades académicas.",
-      ayuda: "Notas cansancio o inquietud porque la universidad consume casi todo tu tiempo personal.", valor: 0 },
-    
-    { dim: 'Creencias Rendimiento', id: 35, encabezado: 'Me pongo nervioso o me inquieto...', texto: "Porque no creo que pueda hacer frente a las exigencias de la carrera que estudio.",
-      ayuda: "Consideras que tienes miedo de no ser capaz de terminar la carrera o de fallar en el camino.", valor: 0 },
-    
-    { dim: 'Sobrecarga', id: 36, encabezado: 'Me pongo nervioso o me inquieto...', texto: "Porque no dispongo de tiempo para dedicarme a las materias todo lo necesario.",
-      ayuda: "Sientes que tus estudios requieren más tiempo del que realmente puedes darles.", valor: 0 },
-    
-    { dim: 'Creencias Rendimiento', id: 37, encabezado: 'Me pongo nervioso o me inquieto...', texto: "Porque no creo que pueda lograr los objetivos propuestos.",
-      ayuda: "Te genera inseguridad dudar de tus propias metas académicas.", valor: 0 },
-    
-    { dim: 'Sobrecarga', id: 38, encabezado: 'Me pongo nervioso o me inquieto...', texto: "Por la excesiva carga de trabajo que debo atender.",
-      ayuda: "Sientes que la cantidad de asignaciones es una montaña que no dejas de escalar.", valor: 0 },
-    
-    { dim: 'Sobrecarga', id: 39, encabezado: 'Me pongo nervioso o me inquieto...', texto: "Por el excesivo número de horas de clase diarias que tengo.",
-      ayuda: "Consideras que te agota mentalmente pasar demasiadas horas sentado asistiendo a clases.", valor: 0 },
-    
-    { dim: 'Sobrecarga', id: 40, encabezado: 'Me pongo nervioso o me inquieto...', texto: "Por el ritmo de trabajo o estudio que se nos exige.",
-      ayuda: "Sientes que el nivel de rapidez que exige la facultad es muy difícil de seguir sin estresarte.", valor: 0 },
-    
-    { dim: 'Creencias Rendimiento', id: 41, encabezado: 'Me pongo nervioso o me inquieto...', texto: "Porque desconozco si mi progreso académico es adecuado.",
-      ayuda: "Notas estrés al no tener retroalimentación de si estás avanzando bien o si estás fallando.", valor: 0 },
-    
-    { dim: 'Creencias Rendimiento', id: 42, encabezado: 'Me pongo nervioso o me inquieto...', texto: "Porque no sé cómo hacer bien las cosas.",
-      ayuda: "Consideras que te genera dudas o nervios el sentirte perdido sobre cómo realizar correctamente tus asignaciones.", valor: 0 },
-    
-    { dim: 'Creencias Rendimiento', id: 43, encabezado: 'Me pongo nervioso o me inquieto...', texto: "Porque no sé qué hacer para que se reconozca mi esfuerzo y mi trabajo.",
-      ayuda: "Sientes frustración cuando notas que tu dedicación no es valorada por los profesores.", valor: 0 },
-    
-    { dim: 'Creencias Rendimiento', id: 44, encabezado: 'Me pongo nervioso o me inquieto...', texto: "Porque no tengo claro cómo conseguir que se valore mi dominio de las materias.",
-      ayuda: "Piensas que te estresa no poder demostrar lo mucho que sabes sobre un tema.", valor: 0 },
-    
-    { dim: 'Dificultades Participacion', id: 45, encabezado: 'Me pongo nervioso o me inquieto...', texto: "Porque no tengo posibilidad alguna o muy escasa de dar mi opinión sobre la metodología de enseñanza de las materias del plan de estudios.",
-      ayuda: "Sientes impotencia al sentir que no puedes cambiar la forma en que te enseñan, aunque no te funcione.", valor: 0 },
-    
-    { dim: 'Creencias Rendimiento', id: 46, encabezado: 'Me pongo nervioso o me inquieto...', texto: "Porque no sé qué hacer para que se reconozca mi valía personal.",
-      ayuda: "Consideras que te genera tristeza o inquietud que tu valor como persona parezca depender solo de tus notas.", valor: 0 },
-    
-    { dim: 'Dificultades Participacion', id: 47, encabezado: 'Me pongo nervioso o me inquieto...', texto: "Porque las posibilidades de opinar sobre el procedimiento de evaluación de las asignaturas del plan de estudios son muy escasas o nulas.",
-      ayuda: "Notas malestar al sentir que no tienes voz ni voto sobre cómo te califican.", valor: 0 },
-    
-    { dim: 'Dificultades Participacion', id: 48, encabezado: 'Me pongo nervioso o me inquieto...', texto: "Porque no está en mi mano plantear los trabajos, tareas o actividades como me gustaría.",
-      ayuda: "Sientes frustración por no tener libertad creativa para sugerir otros tipos de evaluaciones.", valor: 0 },
-    
-    { dim: 'Clima Social', id: 49, encabezado: 'Me pongo nervioso o me inquieto...', texto: "Por los conflictos en las relaciones con otras personas (profesores, compañeros).",
-      ayuda: "Evalúa qué tanto te afectan las peleas o tensión con la personas de la universidad.", valor: 0 },
-    
-    { dim: 'Clima Social', id: 50, encabezado: 'Me pongo nervioso o me inquieto...', texto: "Por la excesiva competitividad existente en clase.",
-      ayuda: "Sientes tensión en un ambiente donde todos parecen querer ser mejores que los demás.", valor: 0 },
-    
-    { dim: 'Clima Social', id: 51, encabezado: 'Me pongo nervioso o me inquieto...', texto: "Por la falta de apoyo de los profesores.",
-      ayuda: "Consideras que te sientes solo o desprotegido cuando un profesor no te brinda la ayuda que necesitas.", valor: 0 },
-
-    { dim: 'Clima Social', id: 52, encabezado: 'Me pongo nervioso o me inquieto...', texto: "Por la falta de apoyo de los compañeros.",
-      ayuda: "Sientes tristeza o aislamiento si notas que no puedes contar con tus compañeros de clase.", valor: 0 },
-    
-    { dim: 'Clima Social', id: 53, encabezado: 'Me pongo nervioso o me inquieto...', texto: "Por la ausencia de un buen ambiente en clase.",
-      ayuda: "Un mal entorno de clases hace que ir a estudiar sea una experiencia estresante.", valor: 0 },
-    
-    { dim: 'Clima Social', id: 54, encabezado: 'Me pongo nervioso o me inquieto...', texto: "Por la existencia de favoritismos en clase.",
-      ayuda: "Sientes enojo o injusticia al notar que algunos reciben mejor trato que otros sin razón clara.", valor: 0 },
+    { dim: 'Síntomas Comportamentales', id: 25, encabezado: 'He notado en mi conducta...', texto: "Apatía en la forma de vestir o arreglarse.",
+      ayuda: "Has perdido el interés por tu apariencia personal o el cuidado de tu imagen debido al desánimo.", valor: 0 },
   ];
 
-  anteriorEEA() {
-    if (this.indiceEEA > 0) {
-      this.indiceEEA--;
+  anteriorISE() {
+    if (this.indiceISE > 0) {
+      this.indiceISE--;
     }
   }
 
-  get progresoEEA(): number {
-    return ((this.preguntaActual + 1) / this.preguntasEEA.length) * 100;
+  get progresoISE(): number {
+    return ((this.preguntaActual + 1) / this.preguntasISE.length) * 100;
   }
 
-  public registroEEA: any = {
-    'Sintomas Fisicos': 0,
-    'Sobrecarga': 0,
-    'Creencias Rendimiento': 0,
-    'Intervenciones': 0,
-    'Clima Social': 0,
-    'Examenes': 0,
-    'Carencia Contenidos': 0,
-    'Dificultades Participacion': 0
+  public registroISE: any = {
+    'Síntomas Físicos': 0,
+    'Síntomas Psicológicos': 0,
+    'Síntomas Comportamentales': 0
   };
 
-  seleccionarOpcionEEA(pregunta: any, valor: number) {
+  seleccionarOpcionISE(pregunta: any, valor: number) {
     if (pregunta.valor && pregunta.valor !== 0) {
-      this.registroEEA[pregunta.dim] -= pregunta.valor;
+      this.registroISE[pregunta.dim] -= pregunta.valor;
     }
 
     pregunta.valor = valor;
-    this.registroEEA[pregunta.dim] += valor;
+    this.registroISE[pregunta.dim] += valor;
 
-    console.log(`EEA - Actualizado ${pregunta.dim}:`, this.registroEEA[pregunta.dim]);
+    console.log(`ISE - Actualizado ${pregunta.dim}:`, this.registroISE[pregunta.dim]);
 
-    if (this.indiceEEA < this.preguntasEEA.length - 1) {
-      this.indiceEEA++;
+    if (this.indiceISE < this.preguntasISE.length - 1) {
+      this.indiceISE++;
     }
     this.capturarYAnalizar();
   }
 
-  public resultadosECEA: any = {};
+  public resultadosISE: any = {};
 
-async calcularResultadoEEA() {
-  const diagnosticoCategorias: any = {...this.registroEEA};
-  let sumaPromedios = 0;
-  let conteoDimensiones = 0;
-
-  // 1. Procesar cada dimensión para obtener el promedio de intensidad
-  for (const dim in this.registroEEA) {
-    const puntosObtenidos = this.registroEEA[dim];
-    const nPreguntas = this.preguntasEEA.filter(p => p.dim === dim).length;
-    
-    if (nPreguntas > 0) {
-      const promedio = puntosObtenidos / nPreguntas;
-      
-      diagnosticoCategorias[dim] = {
-        puntos: puntosObtenidos,
-        promedio: Number(promedio.toFixed(2)),
-        intensidad: promedio >= 4.0 ? 'Muy Alta' : 
-                    promedio >= 3.0 ? 'Alta' : 
-                    promedio >= 2.0 ? 'Moderada' : 'Baja'
-      };
-
-      sumaPromedios += promedio;
-      conteoDimensiones++;
-    }
-  }
-
-  // 2. Calculamos un puntaje global basado en el promedio de todas las dimensiones
-  const puntajeGlobal = conteoDimensiones > 0 ? Number((sumaPromedios / conteoDimensiones).toFixed(2)) : 0;
-
-  // 3. Objeto para Firebase con casting 'any'
-  const datosParaGuardar: any = {
-    identificador: 'EEA',
-    puntaje: puntajeGlobal, // Representa la intensidad promedio general (1-5)
-    tiempo: 500,
-    categorias: diagnosticoCategorias,
-    fecha: new Date().toISOString()
-  };
+async calcularResultadoISE() {
 
   const user = this.authService.currentUser;
+  const sumaTotal = this.preguntasISE.reduce((acc, p) => acc + (Number(p.valor) || 0), 0);
 
-  if (user) {
+  const diagnosticoCategorias: any = {...this.registroISE};
+
+  const contarPreguntasPorCategoria = this.preguntasISE.reduce((acc, p) => {
+    const categoria = p.dim;
+    acc[categoria] = (acc[categoria] || 0) + 1;
+    return acc;
+  }, {} as { [key: string]: number });
+
+  const resultadosTest = {
+    identificador: 'ISE',
+    puntajeFinal: sumaTotal,
+    categorias: diagnosticoCategorias,
+    nPreguntasCategoria: contarPreguntasPorCategoria,
+    tiempo: 500,
+    uid: this.authService.currentUser?.uid
+  };
+
+  if(user){
     try {
-      await this.authService.guardarResultadoCuestionario(user.uid, datosParaGuardar);
-      alert("Escala de Estresores Académicos guardada con éxito.");
+    const urlBackend = 'http://localhost:7860/api/resultados';
+    this.http.post(urlBackend, resultadosTest).subscribe({
+      next: async (resultadoProcesado: any) => {
+        await this.authService.guardarResultadoCuestionario(user.uid, resultadoProcesado);
+        alert("Resultados analizados y guardados.");
+      },
+      error: (error) => {
+        console.error("Error en el backend:", error);
+        alert("Hubo un error al procesar los datos en el servidor.");
+      }
+    });
     } catch (error) {
-      console.error("Error al guardar EEA:", error);
-      alert("Error al guardar en la base de datos.");
+    console.error("Error general:", error);
     }
   }
-
-  // 4. Actualizar estado local y navegar
-  this.resultadosECEA = diagnosticoCategorias;
-  this.mostrarResultadosFinales = true;
   this.volverAlMenu();
 }
 

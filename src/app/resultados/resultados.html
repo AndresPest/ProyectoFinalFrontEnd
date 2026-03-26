@@ -4,65 +4,59 @@
 
 <div class="results-container" [@fadeIn]>
   <div class="results-header">
-    <div class="icon-circle">
-      <i class="ph ph-chart-line-up"></i>
-    </div>
     <h2>Mis Evaluaciones</h2>
     <p class="header-subtitle">Historial de resultados y seguimiento de bienestar</p>
   </div>
 
-  <div *ngIf="loading" class="loading-state">
-    <mat-spinner diameter="40"></mat-spinner>
-    <p>Consultando base de datos...</p>
-  </div>
-
-  <div *ngIf="!loading && listaResultados.length > 0" class="results-grid">
-    <div *ngFor="let res of listaResultados" class="result-card">
-      
-      <div class="card-top">
-        <span class="test-type">{{ res.identificador_cuestionario }}</span>
-        <span class="date-tag">
-          <i class="ph ph-calendar-blank"></i>
-          {{ res.timestamp?.toDate() | date:'dd/MM/yyyy, h:mm a' }}
-        </span>
-      </div>
-
-      <div class="card-content">
-        <div class="score-section">
-          <div class="score-circle">
-            <span class="main-number">{{ res.puntaje_final }}</span>
-            <span class="label">Puntos</span>
-          </div>
-          <div class="time-info">
-            <i class="ph ph-timer"></i>
-            <span>{{ res.tiempo_respuesta }} seg.</span>
-          </div>
-        </div>
-
-
-
-      <div *ngFor="let cat of getCategorias(res.categorias)" class="category-item">
-        <span class="cat-name">{{ cat }}</span>
-        
-        <div *ngIf="isObject(res.categorias[cat]); else simpleValue" class="cat-details">
-          <span class="detail-tag">{{ res.categorias[cat].intensidad }}</span>
-          <span class="detail-points">{{ res.categorias[cat].puntos }} pts</span>
-          <span class="detail-points">{{ res.categorias[cat].promedio }} %</span>
-        </div>
-
-        <ng-template #simpleValue>
-          <span class="cat-value">{{ res.categorias[cat] }}</span>
-        </ng-template>
-      </div>
-
+  @if (loading) {
+    <div class="loading-state">
+      <mat-spinner diameter="40"></mat-spinner>
+      <p>Consultando base de datos...</p>
     </div>
-  </div>
+  } @else {
+    <div class="results-grid">
+      @for (res of listaResultados; track res.id) {
+        <div class="result-card">
+          
+          <div class="card-top">
+            <h3 class="test-title">
+              {{ res.identificador_cuestionario }}</h3>
+            <span class="date-tag">
+              <i class="ph ph-calendar-blank"></i>
+              {{ res.timestamp?.toDate() | date:'dd/MM/yyyy, h:mm a' }}
+            </span>
+          </div>
 
-  <div *ngIf="!loading && listaResultados.length === 0" class="empty-state">
-    <mat-icon>assessment</mat-icon>
-    <p>Aún no tienes resultados registrados.</p>
-    <button mat-flat-button color="primary" routerLink="/cuestionario">
-      Realizar primer cuestionario
-    </button>
-  </div>
+          <div class="card-summary">
+            <div class="score-brief">
+              <span class="score-value">{{ res.puntaje_final }}</span>
+              <span class="score-label">Puntaje</span>
+            </div>
+            
+            <div class="status-summary">
+              <p class="summary-text">
+                Nivel de estrés detectado: 
+                <strong class="intensity-highlight">Alta</strong> 
+              </p>
+            </div>
+          </div>
+
+          <div class="card-actions">
+            <button mat-button class="btn-details" (click)="verDetalles(res)">
+              <i class="ph ph-eye"></i>
+              Ver más detalles
+            </button>
+          </div>
+        </div>
+      } @empty {
+        <div class="empty-state">
+          <mat-icon>assessment</mat-icon>
+          <p>Aún no tienes resultados registrados.</p>
+          <button mat-flat-button color="primary" routerLink="/cuestionario">
+            Realizar primer cuestionario
+          </button>
+        </div>
+      }
+    </div>
+  }
 </div>

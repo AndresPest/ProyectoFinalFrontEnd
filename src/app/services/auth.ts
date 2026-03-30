@@ -80,7 +80,7 @@ export class AuthService {
       fecha: string
     }){
     
-    if (data.identificador === "Test de Vulnerabilidad al Estrés"){
+    if (data.identificador === "Test de Vulnerabilidad al Estrés - L.H. Miller y A.D. Smith"){
       try {
         const colRef = collection(this.firestore, 'Resultados_Cuestionario');
         return await addDoc(colRef, {
@@ -99,7 +99,7 @@ export class AuthService {
         console.error("Error al guardar cuestionario:", error);
         throw error;
       }
-    }else if (data.identificador === "Cuestionario de Estrés Académico en la Universidad"){
+    }else if (data.identificador === "CEAU - Cuestionario de Estrés Académico en la Universidad"){
       try {
         const colRef = collection(this.firestore, 'Resultados_Cuestionario');
         return await addDoc(colRef, {

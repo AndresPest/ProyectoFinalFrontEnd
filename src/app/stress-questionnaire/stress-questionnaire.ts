@@ -231,7 +231,7 @@ export class StressQuestionnaireComponent implements AfterViewInit{
 
     if(user){
       try {
-      const urlBackend = 'http://localhost:7860/api/resultados';
+      const urlBackend = 'https://crojas3-detectoremociones.hf.space/api/resultados';
       this.http.post(urlBackend, resultadosTest).subscribe({
         next: async (resultadoProcesado: any) => {
           await this.authService.guardarResultadoCuestionario(user.uid, resultadoProcesado);
@@ -390,7 +390,7 @@ export class StressQuestionnaireComponent implements AfterViewInit{
 
     if(user){
       try {
-      const urlBackend = 'http://localhost:7860/api/resultados';
+      const urlBackend = 'https://crojas3-detectoremociones.hf.space/api/resultados';
       this.http.post(urlBackend, resultadosTest).subscribe({
         next: async (resultadoProcesado: any) => {
           await this.authService.guardarResultadoCuestionario(user.uid, resultadoProcesado);
@@ -549,7 +549,7 @@ async calcularResultadoSisco() {
 
   if(user){
     try {
-    const urlBackend = 'http://localhost:7860/api/resultados';
+    const urlBackend = 'https://crojas3-detectoremociones.hf.space/api/resultados';
     this.http.post(urlBackend, resultadosTest).subscribe({
       next: async (resultadoProcesado: any) => {
         await this.authService.guardarResultadoCuestionario(user.uid, resultadoProcesado);
@@ -745,7 +745,7 @@ async calcularResultadoBBS() {
 
     if(user){
       try {
-      const urlBackend = 'http://localhost:7860/api/resultados';
+      const urlBackend = 'https://crojas3-detectoremociones.hf.space/api/resultados';
       this.http.post(urlBackend, resultadosTest).subscribe({
         next: async (resultadoProcesado: any) => {
           await this.authService.guardarResultadoCuestionario(user.uid, resultadoProcesado);
@@ -915,7 +915,7 @@ async calcularResultadoISE() {
 
   if(user){
     try {
-    const urlBackend = 'http://localhost:7860/api/resultados';
+    const urlBackend = 'https://crojas3-detectoremociones.hf.space/api/resultados';
     this.http.post(urlBackend, resultadosTest).subscribe({
       next: async (resultadoProcesado: any) => {
         await this.authService.guardarResultadoCuestionario(user.uid, resultadoProcesado);

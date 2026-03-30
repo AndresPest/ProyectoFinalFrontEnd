@@ -5,8 +5,8 @@
 
   @if (!testSeleccionado) {
     <header class="main-header">
-      <h1>Test de Evaluación de Estrés</h1>
-      <p>Selecciona el instrumento que deseas aplicar</p>
+      <h1>Evaluación de Bienestar y Estrés</h1>
+      <p>Selecciona un instrumento para iniciar tu análisis emocional</p>
     </header>
   }
 
@@ -16,41 +16,25 @@
         <div class="header-ia">
           <div class="logo-ia">AE</div>
           <div>
-            <h2>Análisis Emocional</h2>
-            <p>Información importante sobre la evaluación</p>
+            <h2>Consentimiento de Análisis</h2>
+            <p>Uso de Inteligencia Artificial para Detección Emocional</p>
           </div>
         </div>
-
         <hr>
-
         <div class="contenido-texto">
-          <p><strong>Antes de comenzar, por favor lee atentamente lo siguiente:</strong></p>
-          <p>Esta evaluación consta de tres cuestionarios científicos: Test de Vulnerabilidad, CEAU e Inventario SISCO.</p>
-          <p>Para complementar el análisis, se utilizará tu cámara para detectar emociones mediante modelos de IA <strong>Face-Mesh</strong> y <strong>CNN</strong>.</p>
-
+          <p>Para complementar los cuestionarios, utilizaremos la cámara para detectar micro-expresiones mediante modelos <strong>CNN</strong> y <strong>Face-Mesh</strong>.</p>
           <div class="alerta-privacidad">
-            <p><strong>🛡️ Privacidad Garantizada:</strong> Las fotografías <strong>NO</strong> se guardarán en ningún servidor. El sistema procesa la imagen en tiempo real, extrae la emoción detectada y el nivel de confianza, descartando la imagen original inmediatamente.</p>
+            <p><strong>🛡️ Privacidad:</strong> Las imágenes NO se guardan. Solo se almacena el metadato de la emoción detectada.</p>
           </div>
-          <div class="alerta-privacidad">
-            <p><strong>📍 Apoyo Primario:</strong> Esta herramienta ofrece <strong>ayuda inicial y orientación</strong>, pero <strong>no sustituye la asesoría de un profesional</strong>. Su objetivo es brindarte herramientas prácticas de apoyo; al finalizar, encontrarás opciones para contactar a profesionales capacitados en tu zona si lo requieres.</p>
-          </div>
-
-          <p>Tu participación es completamente voluntaria. Al hacer clic en el botón de abajo, confirmas que comprendes y aceptas estos términos.</p>
+          <p>Al aceptar, autorizas el uso de la cámara exclusivamente para fines de esta investigación académica en la UCAB Guayana.</p>
         </div>
-
-        <button class="btn-entendido" (click)="aceptarConsentimiento()">
-          Entiendo y Aceptar
-        </button>
-        <footer class="footer-modal">
-          © 2026 Aplicación de Reconocimiento Emocional para proporcionar Apoyo Psicológico - Caso de Estudio: Estudiantes de la UCAB Guayana
-          <br> Andrés Pestana - Erick Espinoza
-        </footer>
+        <button class="btn-entendido" (click)="aceptarConsentimiento()">Aceptar y Comenzar</button>
       </div>
     </div>
   }
 
   <video #video autoplay muted hidden class="camara-oculta"></video>
-  <canvas #canvas class="camara-oculta"></canvas>
+  <canvas #canvas class="camara-oculta" style="display: none;"></canvas>
 
   @if (!testSeleccionado) {
     <div class="grid-menu" [@fadeIn]>
@@ -60,9 +44,7 @@
             <span class="badge">{{ test.tiempoEstimado }}</span>
             <h3>{{ test.nombre }}</h3>
             <p>{{ test.descripcion }}</p>
-            <button class="btn-start" mat-raised-button color="primary">
-              Iniciar prueba
-            </button>
+            <button class="btn-start" mat-raised-button color="primary">Iniciar prueba</button>
           </div>
         </div>
       }
@@ -71,9 +53,7 @@
 
   @if (testSeleccionado) {
     <div class="test-view" [@fadeIn]>
-      <button class="btn-back" mat-raised-button color="warn" (click)="volverAlMenu()">
-        ← Volver al menú
-      </button>
+      <button class="btn-back" mat-raised-button color="warn" (click)="volverAlMenu()">← Abandonar Test</button>
       
       @switch (testSeleccionado) {
         
@@ -81,259 +61,104 @@
           <div class="test-stepper">
             <div class="progress-container">
               <div class="progress-bar" [style.width.%]="progresoTestVulnerabilidad"></div>
-              <span class="progress-text">Pregunta {{ preguntaActual + 1 }} de {{ preguntasTestVulnerabilidad.length }}</span>
             </div>
-
             <div class="pregunta-card-single" [@fadeInTrigger]="preguntaActual">
-              @if (preguntaActual > 0) {
-                <button class="btn-mini-back" (click)='anteriorPregunta()'>← Anterior</button>
-              }
-
-              <div class="pregunta-content">
-                <h2 class="pregunta-numero">Pregunta #{{ preguntasTestVulnerabilidad[preguntaActual].id }}</h2>
-                <p class="pregunta-texto-grande">
-                  {{ preguntasTestVulnerabilidad[preguntaActual].texto }}
-                  
-                  @if (preguntasTestVulnerabilidad[preguntaActual].ayuda) {
-                    <button class="btn-info-help" [title]="preguntasTestVulnerabilidad[preguntaActual].ayuda">?</button>
-                  }
-                </p>
-                
-                <div class="opciones-verticales">
-                  @for (opcion of escalaTestVulnerabilidad; track $index) {
-                    <button 
-                      type="button"
-                      class="btn-opcion-grande"
-                      [class.active]="preguntasTestVulnerabilidad[preguntaActual].valor === $index + 1"
-                      (click)="seleccionarOpcionTestVulnerabilidad(preguntasTestVulnerabilidad[preguntaActual], $index + 1)">
-                      <span class="circulo">{{ $index + 1 }}</span>
-                      {{ opcion }}
-                    </button>
-                  }
-                </div>
+              <button *ngIf="preguntaActual > 0" class="btn-mini-back" (click)="anteriorPregunta()">← Volver</button>
+              <h2 class="pregunta-numero">Pregunta #{{ preguntasTestVulnerabilidad[preguntaActual]?.id }}</h2>
+              <p class="pregunta-texto-grande">{{ preguntasTestVulnerabilidad[preguntaActual]?.texto }}</p>
+              <div class="opciones-verticales">
+                @for (opcion of escalaTestVulnerabilidad; track $index) {
+                  <button class="btn-opcion-grande" (click)="seleccionarOpcionTestVulnerabilidad(preguntasTestVulnerabilidad[preguntaActual], $index + 1)">
+                    <span class="circulo">{{ $index + 1 }}</span> {{ opcion }}
+                  </button>
+                }
               </div>
             </div>
-
-            @if (preguntaActual === preguntasTestVulnerabilidad.length - 1 && preguntasTestVulnerabilidad[preguntaActual].valor !== null) {
-              <div class="footer-stepper">
-                <button class="btn-finalizar-grande" (click)="calcularResultadoTestVulnerabilidad()">
-                  Guardar y Obtener Resultados
-                </button>
-              </div>
-            }
+            <button *ngIf="preguntaActual === preguntasTestVulnerabilidad.length - 1" class="btn-finalizar-grande" (click)="calcularResultadoTestVulnerabilidad()">Finalizar Miller</button>
           </div>
         }
 
         @case ('ceau') {
           <div class="test-stepper">
-            <div class="progress-container">
-              <div class="progress-bar" [style.width.%]="progresoCEAU"></div>
-              <span class="progress-text">Pregunta {{ indiceCEAU + 1 }} de {{ preguntasCEAU.length }}</span>
-            </div>
-
+            <div class="progress-container"><div class="progress-bar" [style.width.%]="progresoCEAU"></div></div>
             <div class="pregunta-card-single" [@fadeInTrigger]="indiceCEAU">
-              @if (indiceCEAU > 0) {
-                <button class="btn-mini-back" (click)='anteriorCEAU()'>← Anterior</button>
-              }
-
-              <div class="pregunta-content">
-                <h2 class="pregunta-numero">Pregunta #{{ preguntasCEAU[indiceCEAU].id }}</h2>
-                <p class="enunciado-fijo">¿En qué medida te estresa esta situación académica?</p>
-                <p class="pregunta-texto-grande">
-                  {{ preguntasCEAU[indiceCEAU].texto }}
-                  
-                  @if (preguntasCEAU[indiceCEAU].ayuda) {
-                    <button class="btn-info-help" [title]="preguntasCEAU[indiceCEAU].ayuda">?</button>
-                  }
-                </p>
-                
-                <div class="opciones-verticales">
-                  @for (opcion of escalaCEAU; track $index) {
-                    <button 
-                      class="btn-opcion-grande"
-                      [class.active]="preguntasCEAU[indiceCEAU].valor === $index + 1"
-                      (click)="seleccionarOpcionCEAU(preguntasCEAU[indiceCEAU], $index + 1)">
-                      <span class="circulo">{{ $index + 1 }}</span>
-                      {{ opcion }}
-                    </button>
-                  }
-                </div>
+              <button *ngIf="indiceCEAU > 0" class="btn-mini-back" (click)="anteriorCEAU()">← Volver</button>
+              <p class="enunciado-fijo">¿En qué medida te estresa esta situación?</p>
+              <p class="pregunta-texto-grande">{{ preguntasCEAU[indiceCEAU]?.texto }}</p>
+              <div class="opciones-verticales">
+                @for (opcion of escalaCEAU; track $index) {
+                  <button class="btn-opcion-grande" (click)="seleccionarOpcionCEAU(preguntasCEAU[indiceCEAU], $index + 1)">{{ opcion }}</button>
+                }
               </div>
             </div>
-
-            @if (indiceCEAU === preguntasCEAU.length - 1 && preguntasCEAU[indiceCEAU].valor !== null) {
-              <div class="footer-stepper">
-                <button class="btn-finalizar-grande" (click)="calcularResultadoCEAU()">
-                  Finalizar y Guardar CEAU
-                </button>
-              </div>
-            }
+            <button *ngIf="indiceCEAU === preguntasCEAU.length - 1" class="btn-finalizar-grande" (click)="calcularResultadoCEAU()">Finalizar CEAU</button>
           </div>
         }
 
         @case ('sisco') {
           <div class="test-stepper">
-            
             @if (indiceSisco === -1) {
               <div class="pregunta-card-single">
                 <h2 class="pregunta-numero">Nivel General</h2>
-                <p class="pregunta-texto-grande">Señala tu nivel de estrés del 1 al 5 (donde 1 es poco y 5 es mucho):</p>
+                <p class="pregunta-texto-grande">Señala tu nivel de estrés general (1 al 5):</p>
                 <div class="opciones-horizontal-puntos">
                   @for (n of [1,2,3,4,5]; track n) {
                     <button class="btn-punto" (click)="seleccionarOpcionSisco(n)">{{ n }}</button>
                   }
                 </div>
               </div>
-            }
-
-            @if (indiceSisco >= 0 && !mostrarResultadosFinales) {
-              <div class="progress-container">
-                <div class="progress-bar" [style.width.%]="(indiceSisco+1)/preguntasSisco.length*100"></div>
-              </div>
-
+            } @else {
               <div class="pregunta-card-single" [@fadeInTrigger]="indiceSisco">
-                @if (indiceSisco >= 0) {
-                  <button class="btn-mini-back" (click)='anteriorSISCO()'>← Anterior</button>
-                }
+                <button class="btn-mini-back" (click)="anteriorSISCO()">← Volver</button>
                 <header class="header-fijo-sisco">
                   <span class="dim-badge">{{ preguntasSisco[indiceSisco]?.dim }}</span>
                   <p class="enunciado-contexto">{{ preguntasSisco[indiceSisco]?.encabezado }}</p>
                 </header>
-                <p class="pregunta-texto-grande">
-                  {{ preguntasSisco[indiceSisco]?.texto }}
-                  @if (preguntasSisco[indiceSisco]?.ayuda) {
-                    <button class="btn-info-help" [title]="preguntasSisco[indiceSisco].ayuda">?</button>
-                  }
-                </p>
-
+                <p class="pregunta-texto-grande">{{ preguntasSisco[indiceSisco]?.texto }}</p>
                 <div class="opciones-verticales">
                   @for (opt of escalaSisco; track $index) {
-                    <button 
-                      class="btn-opcion-grande"
-                      [class.active]="preguntasSisco[indiceSisco]?.valor === $index"
-                      (click)="seleccionarOpcionSisco($index)">
-                      {{ opt }}
-                    </button>
+                    <button class="btn-opcion-grande" (click)="seleccionarOpcionSisco($index)">{{ opt }}</button>
                   }
                 </div>
               </div>
-
-              @if (indiceSisco === preguntasSisco.length - 1) {
-                <div class="footer-stepper">
-                  <button class="btn-finalizar-grande" (click)="calcularResultadoSisco()">
-                    Finalizar y Guardar Análisis SISCO
-                  </button>
-                </div>
-              }
-            }
-
-            @if (mostrarResultadosFinales) {
-              <div class="reporte-sisco" [@fadeIn]>
-                <h1>Análisis de Estrés Académico (SISCO)</h1>
-                <div class="resultado-item">
-                  <p>Nivel de Estresores: <strong>{{ resultadosSisco?.estresores }}%</strong></p>
-                </div>
-                <div class="resultado-item">
-                  <p>Reacciones Físicas/Mentales: <strong>{{ resultadosSisco?.sintomas }}%</strong></p>
-                </div>
-                <div class="resultado-item">
-                  <p>Estrategias de Afrontamiento: <strong>{{ resultadosSisco?.afrontamiento }}%</strong></p>
-                </div>
-                <button mat-raised-button color="primary" (click)="resetearTodoSisco()">Regresar al Menú</button>
-              </div>
+              <button *ngIf="indiceSisco === preguntasSisco.length - 1" class="btn-finalizar-grande" (click)="calcularResultadoSisco()">Finalizar SISCO</button>
             }
           </div>
         }
+
         @case ('bbs') {
           <div class="test-stepper">
-            <div class="progress-container">
-              <div class="progress-bar" [style.width.%]="(indiceBBS + 1) / preguntasBBS.length * 100"></div>
-              <span class="progress-text">Pregunta {{ indiceBBS + 1 }} de {{ preguntasBBS.length }}</span>
-            </div>
-
+            <div class="progress-container"><div class="progress-bar" [style.width.%]="progresoBBS"></div></div>
             <div class="pregunta-card-single" [@fadeInTrigger]="indiceBBS">
-              @if (indiceBBS > 0) {
-                <button class="btn-mini-back" (click)='anteriorBBS()'>← Anterior</button>
-              }
-              
-              <div class="pregunta-content">
-                <h2 class="pregunta-numero">Pregunta #{{ preguntasBBS[indiceBBS].id }}</h2>
-                <p class="pregunta-texto-grande">
-                  {{ preguntasBBS[indiceBBS].texto }}
-
-                  @if (preguntasBBS[indiceBBS].ayuda) {
-                    <button class="btn-info-help" [title]="preguntasBBS[indiceBBS].ayuda">?</button>
-                  }
-                </p>
-                
-                <div class="opciones-verticales">
-                  @for (opcion of escalaBBS; track $index) {
-                    <button 
-                      class="btn-opcion-grande"
-                      [class.active]="preguntasBBS[indiceBBS].valor === $index + 1"
-                      (click)="seleccionarOpcionBBS(preguntasBBS[indiceBBS], $index + 1)">
-                      <span class="circulo">{{ $index + 1}}</span>
-                      {{ opcion }}
-                    </button>
-                  }
-                </div>
+              <button *ngIf="indiceBBS > 0" class="btn-mini-back" (click)="anteriorBBS()">← Volver</button>
+              <h2 class="pregunta-numero">Pregunta #{{ preguntasBBS[indiceBBS]?.id }}</h2>
+              <p class="pregunta-texto-grande">{{ preguntasBBS[indiceBBS]?.texto }}</p>
+              <div class="opciones-verticales">
+                @for (opcion of escalaBBS; track $index) {
+                  <button class="btn-opcion-grande" (click)="seleccionarOpcionBBS(preguntasBBS[indiceBBS], $index + 1)">{{ opcion }}</button>
+                }
               </div>
             </div>
-
-            @if (indiceBBS === preguntasBBS.length - 1 && preguntasBBS[indiceBBS].valor !== null) {
-              <div class="footer-stepper">
-                <button class="btn-finalizar-grande" (click)="calcularResultadoBBS()">
-                  Finalizar y Guardar BBS
-                </button>
-              </div>
-            }
+            <button *ngIf="indiceBBS === preguntasBBS.length - 1" class="btn-finalizar-grande" (click)="calcularResultadoBBS()">Finalizar BBS</button>
           </div>
         }
+
         @case ('ISE') {
           <div class="test-stepper">
-            <div class="progress-container">
-              <div class="progress-bar" [style.width.%]="(indiceISE + 1) / preguntasISE.length * 100"></div>
-              <span class="progress-text">Pregunta {{ indiceISE + 1 }} de {{ preguntasISE.length }}</span>
-            </div>
-
+            <div class="progress-container"><div class="progress-bar" [style.width.%]="progresoISE"></div></div>
             <div class="pregunta-card-single" [@fadeInTrigger]="indiceISE">
-              @if (indiceISE > 0) {
-                <button class="btn-mini-back" (click)='anteriorISE()'>← Anterior</button>
-              }
-
-              <div class="pregunta-content">
-                <header class="header-fijo-sisco">
-                  <h2 class="pregunta-numero">Pregunta #{{ preguntasISE[indiceISE].id }}</h2>
-                  <p class="enunciado-contexto">{{ preguntasISE[indiceISE]?.encabezado }}</p>
-                </header>
-                <p class="pregunta-texto-grande">
-                  {{ preguntasISE[indiceISE].texto }}
-                  @if (preguntasISE[indiceISE].ayuda) {
-                    <button class="btn-info-help" [title]="preguntasISE[indiceISE].ayuda">?</button>
-                  }
-                </p>
-                
-                <div class="opciones-verticales">
-                  @for (opcion of escalaISE; track $index) {
-                    <button 
-                      class="btn-opcion-grande"
-                      [class.active]="preguntasISE[indiceISE].valor === $index + 1"
-                      (click)="seleccionarOpcionISE(preguntasISE[indiceISE], $index + 1)">
-                      <span class="circulo">{{ $index + 1 }}</span>
-                      {{ opcion }}
-                    </button>
-                  }
-                </div>
+              <button *ngIf="indiceISE > 0" class="btn-mini-back" (click)="anteriorISE()">← Volver</button>
+              <header class="header-fijo-sisco">
+                <p class="enunciado-contexto">{{ preguntasISE[indiceISE]?.encabezado }}</p>
+              </header>
+              <p class="pregunta-texto-grande">{{ preguntasISE[indiceISE]?.texto }}</p>
+              <div class="opciones-verticales">
+                @for (opcion of escalaISE; track $index) {
+                  <button class="btn-opcion-grande" (click)="seleccionarOpcionISE(preguntasISE[indiceISE], $index + 1)">{{ opcion }}</button>
+                }
               </div>
             </div>
-
-            @if (indiceISE === preguntasISE.length - 1 && preguntasISE[indiceISE].valor !== null) {
-              <div class="footer-stepper">
-                <button class="btn-finalizar-grande" (click)="calcularResultadoISE()">
-                  Finalizar y Guardar ISE
-                </button>
-              </div>
-            }
+            <button *ngIf="indiceISE === preguntasISE.length - 1" class="btn-finalizar-grande" (click)="calcularResultadoISE()">Finalizar ISE</button>
           </div>
         }
       }
@@ -341,36 +166,31 @@
   }
 </div>
 
-<div style="background: #eee; padding: 10px; margin-bottom: 20px; border-radius: 8px;">
-  <strong>Monitor de Categorías</strong>
-  <ul>
-    <strong>Miller Smith:</strong>
-    @for (cat of registroCategMillerSmith | keyvalue; track cat.key) {
-      <li>{{ cat.key }}: {{ cat.value }} pts</li>
-    }
-  </ul>
-  <ul>
-    <strong>CEAU:</strong>
-    @for (cat of registroCEAU | keyvalue; track cat.key) {
-      <li>{{ cat.key }}: {{ cat.value }} pts</li>
-    }
-  </ul>
-  <ul>
-    <strong>SISCO:</strong>
-    @for (cat of registroSISCO | keyvalue; track cat.key) {
-      <li>{{ cat.key }}: {{ cat.value }} pts</li>
-    }
-  </ul>
-  <ul>
-    <strong>BBS:</strong>
-    @for (cat of registroBBS | keyvalue; track cat.key) {
-      <li>{{ cat.key }}: {{ cat.value }} pts</li>
-    }
-  </ul>
-  <ul>
-    <strong>ISE:</strong>
-    @for (cat of registroISE | keyvalue; track cat.key) {
-      <li>{{ cat.key }}: {{ cat.value }} pts</li>
-    }
-  </ul>
+<div class="monitor-debug" style="margin-top: 50px; padding: 20px; background: #f8f9fa; border-top: 2px solid #ddd;">
+  <h3 style="color: #333; border-bottom: 1px solid #ccc; padding-bottom: 10px;">📊 Monitor de Puntos (Investigación)</h3>
+  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px;">
+    
+    <div>
+      <strong>Miller:</strong>
+      <ul style="font-size: 0.85rem; list-style: none; padding: 0;">
+        <li *ngFor="let item of registroMiller | keyvalue">{{item.key}}: {{item.value}} pts</li>
+      </ul>
+    </div>
+
+    <div>
+      <strong>SISCO:</strong>
+      <ul style="font-size: 0.85rem; list-style: none; padding: 0;">
+        <li *ngFor="let item of registroSISCO | keyvalue">{{item.key}}: {{item.value}} pts</li>
+      </ul>
+    </div>
+
+    <div>
+      <strong>Análisis Facial:</strong>
+      <ul style="font-size: 0.85rem; list-style: none; padding: 0;">
+        <li>Capturas CNN: {{ historialAnalisisFacialCNN.length }}</li>
+        <li>Capturas FaceMesh: {{ historialAnalisisFacialFaceMesh.length }}</li>
+      </ul>
+    </div>
+
+  </div>
 </div>

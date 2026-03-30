@@ -220,4 +220,24 @@ export class AuthService {
     return [];
   }
 }
+
+  async guardarAnalisisFacialCuestionario(uid: string, data: { 
+  identificador_cuestionario: string, 
+  historial_cnn: any[], 
+  historial_facemesh: any[] 
+}) {
+  try {
+    const colRef = collection(this.firestore, 'Analisis_Facial_Sesion');
+    return await addDoc(colRef, {
+      usuario_uid: uid,
+      identificador_cuestionario: data.identificador_cuestionario,
+      historial_cnn: data.historial_cnn,
+      historial_facemesh: data.historial_facemesh,
+      timestamp: serverTimestamp()
+    });
+  } catch (error) {
+    console.error("Error al guardar análisis facial de la sesión:", error);
+    throw error;
+  }
+}
 }

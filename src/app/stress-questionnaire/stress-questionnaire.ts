@@ -40,74 +40,51 @@ interface CuestionarioInfo {
   ]
 })
 export class StressQuestionnaireComponent implements AfterViewInit{
-
   @ViewChild('video') videoElement!: ElementRef<HTMLVideoElement>;
   @ViewChild('canvas') canvasElement!: ElementRef<HTMLCanvasElement>;
-  public consentimientoAceptado: boolean = false;
-
-  constructor(private http: HttpClient, private capturaService: CapturaService) {
-    const previo = localStorage.getItem('consentimiento_ia');
-    if (previo === 'true') {
-      this.consentimientoAceptado = false;
-    }
-  }
-
-  aceptarConsentimiento() {
-    this.consentimientoAceptado = true;
-    localStorage.setItem('consentimiento_ia', 'true');
-  }
-
+  
   private authService = inject(AuthService);
+  private http = inject(HttpClient);
+  private capturaService = inject(CapturaService);
 
-  // --- CONFIGURACIÓN INICIAL ---
+  public consentimientoAceptado: boolean = false;
   public testSeleccionado: string | null = null;
   public preguntaActual: number = 0;
+  public cargandoEstres: boolean = false;
+  public mostrarResultadosFinales: boolean = false;
+
+  // Variables de control de cuestionarios
+  public indiceCEAU = 0;
+  public indiceSisco = -1;
+  public indiceBBS = 0;
+  public indiceISE = 0;
+  public siscoNivelGeneral: number = 3; // Corregido: Variable declarada correctamente
+
+  // Historiales de captura facial
+  public historialAnalisisFacialCNN: any[] = [];
+  public historialAnalisisFacialFaceMesh: any[] = [];
+
+  // --- REGISTROS DE PUNTUACIÓN POR CATEGORÍA ---
+  public registroMiller: any = { 'Salud y Hábitos': 0, 'Bienestar y Autocuidado': 0, 'Red de Apoyo': 0, 'Comunicación y Relaciones': 0, 'Estabilidad y Gestión': 0 };
+  public registroCEAU: any = { 'Evaluación y Desempeño': 0, 'Carga y Gestión': 0, 'Entorno': 0, 'Expectativas y Futuro': 0 };
+  public registroSISCO: any = { 'Nivel General': 0, 'Estresores': 0, 'Síntomas': 0, 'Afrontamiento': 0 };
+  public registroBBS: any = { 'Sintomas Fisicos': 0, 'Fatiga y Alteraciones': 0, 'Estado y Tensión': 0, 'Reactividad': 0, 'Toma de Decisiones': 0 };
+  public registroISE: any = { 'Síntomas Físicos': 0, 'Síntomas Psicológicos': 0, 'Síntomas Comportamentales': 0 };
+
+  // --- ESCALAS ---
+  public escalaTestVulnerabilidad = ['Siempre', 'Casi siempre', 'Frecuentemente', 'Casi nunca', 'Nunca'];
+  public escalaCEAU = ['Nada de estrés', 'Poco estrés', 'Algo de estrés', 'Bastante estrés', 'Mucho estrés'];
+  public escalaSisco = ['Nunca', 'Casi nunca', 'Rara vez', 'Algunas veces', 'Casi siempre', 'Siempre'];
+  public escalaBBS = ['No', 'Sí'];
+  public escalaISE = ['Nunca', 'Casi Nunca', 'A veces', 'Casi siempre'];
 
   public listaCuestionarios: CuestionarioInfo[] = [
-    { id: 1, nombre: 'Test de Vulnerabilidad al Estrés', identificador: 'miller', descripcion: 'Evalúa vulnerabilidad ante presiones cotidianas.', tiempoEstimado: '5 min - 10 min' },
-    { id: 2, nombre: 'Cuestionario de Estrés Académico (CEAU)', identificador: 'ceau', descripcion: 'Identifica estresores en el entorno universitario.', tiempoEstimado: '10 min - 15 min' },
-    { id: 3, nombre: 'Inventario SISCO', identificador: 'sisco', descripcion: 'Mide estresores, síntomas y afrontamiento.', tiempoEstimado: '10 min - 15 min' },
-    { id: 4, nombre: 'Inventario sobre vulnerabilidad al estrés.', identificador: 'bbs', descripcion: 'Evalúa cuál es la predisposición del individuo a verse influenciado por los síntomas de estrés', tiempoEstimado: '10 min - 15 min' },
-    { id: 5, nombre: 'Inventario de Síntomas de Estrés. Segunda versión', identificador: 'ISE', descripcion: 'Valorar el grado en el que el estudiante percibe situaciones o circunstancias del contexto académico', tiempoEstimado: '15 min - 20 min' }
+    { id: 1, nombre: 'Test de Vulnerabilidad al Estrés', identificador: 'miller', descripcion: 'Evalúa vulnerabilidad ante presiones cotidianas.', tiempoEstimado: '5-10 min' },
+    { id: 2, nombre: 'Cuestionario de Estrés Académico (CEAU)', identificador: 'ceau', descripcion: 'Identifica estresores en el entorno universitario.', tiempoEstimado: '10-15 min' },
+    { id: 3, nombre: 'Inventario SISCO', identificador: 'sisco', descripcion: 'Mide estresores, síntomas y afrontamiento.', tiempoEstimado: '10-15 min' },
+    { id: 4, nombre: 'Vulnerabilidad al Estrés (BBS)', identificador: 'bbs', descripcion: 'Evalúa predisposición a síntomas de estrés.', tiempoEstimado: '10-15 min' },
+    { id: 5, nombre: 'Inventario de Síntomas de Estrés (ISE)', identificador: 'ISE', descripcion: 'Valorar la percepción de situaciones académicas.', tiempoEstimado: '15-20 min' }
   ];
-
-  // --- NAVEGACIÓN GENERAL ---
-  seleccionarTest(identificador: string) {
-    this.testSeleccionado = identificador;
-    this.resetearVariables();
-  }
-
-  volverAlMenu() {
-    this.testSeleccionado = null;
-  }
-
-  resetearVariables() {
-    this.preguntaActual = 0;
-    this.indiceCEAU = 0;
-    this.indiceSisco = -1;
-    this.indiceBBS = 0;
-    this.indiceISE = 0;
-    this.mostrarResultadosFinales = false;
-  }
-
-  // --- LÓGICA TEST MILLER ---
-
-  public escalaTestVulnerabilidad = [
-    'Siempre', 
-    'Casi siempre', 
-    'Frecuentemente', 
-    'Casi nunca', 
-    'Nunca'
-  ];
-
-  /*
-  Categorias para las preguntas Miller y Smith
-  1. Salud y Hábitos: Salud física y hábitos de vida (1,2,5,6,7,8,14,19)
-  2. Bienestar y Autocuidado: Bienestar emocional y autocuidado (3,10,17,20)
-  3. Red de Apoyo: Red de apoyo social y familiar (4,11,12,13)
-  4. Comunicación y Relaciones: Comunicación y relaciones interpersonales (15,16)
-  5. Estabilidad y Gestión: Estabilidad y gestión externa (9,18)
-  */
 
   public preguntasTestVulnerabilidad = [
     { dim: 'Salud y Hábitos', id: 1, texto: "Hago por lo menos una comida caliente y balanceada al día.",
@@ -171,103 +148,8 @@ export class StressQuestionnaireComponent implements AfterViewInit{
       ayuda: "Tienes momentos de silencio o introspección para calmar tu mente.", valor: 0 }
   ];
 
-  public registroCategMillerSmith: any = {
-    'Salud y Hábitos': 0,
-    'Bienestar y Autocuidado': 0,
-    'Red de Apoyo': 0,
-    'Comunicación y Relaciones': 0,
-    'Estabilidad y Gestión': 0
-  };
 
-  seleccionarOpcionTestVulnerabilidad(pregunta: any, valor: number) {
-    if (pregunta.valor && pregunta.valor !== 0) {
-      this.registroCategMillerSmith[pregunta.dim] -= pregunta.valor;
-    }
 
-    pregunta.valor = valor;
-    this.registroCategMillerSmith[pregunta.dim] += valor;
-
-    console.log(`Registro actualizado para ${pregunta.dim}:`, this.registroCategMillerSmith[pregunta.dim]);
-
-    if (this.preguntaActual < this.preguntasTestVulnerabilidad.length - 1) {
-      this.preguntaActual++;
-    }
-    this.capturarYAnalizar();
-  }
-
-  anteriorPregunta() {
-    if (this.preguntaActual > 0) {
-      this.preguntaActual--;
-    }
-  }
-
-  get progresoTestVulnerabilidad(): number {
-    return ((this.preguntaActual + 1) / this.preguntasTestVulnerabilidad.length) * 100;
-  }
-
-  testCompletado(): boolean {
-    return this.preguntasTestVulnerabilidad.every(p => p.valor !== null);
-  }
-
-  async calcularResultadoTestVulnerabilidad() {
-
-    const user = this.authService.currentUser;
-
-    const contarPreguntasPorCategoria = this.preguntasTestVulnerabilidad.reduce((acc, p) => {
-      const categoria = p.dim;
-      acc[categoria] = (acc[categoria] || 0) + 1;
-      return acc;
-    }, {} as { [key: string]: number });
-
-    const resultadosTest = {
-      identificador: 'Miller',
-      sumaTotal: this.preguntasTestVulnerabilidad.reduce((acc, p) => acc + (Number(p.valor) || 0), 0),
-      puntajeFinal: this.preguntasTestVulnerabilidad.reduce((acc, p) => acc + (Number(p.valor) || 0), 0) - 20,
-      categorias: { ...this.registroCategMillerSmith },
-      nPreguntasCategoria: contarPreguntasPorCategoria,
-      tiempo: 300,
-      uid: this.authService.currentUser?.uid
-    };
-
-    if(user){
-      try {
-      const urlBackend = 'https://crojas3-detectoremociones.hf.space/api/resultados';
-      this.http.post(urlBackend, resultadosTest).subscribe({
-        next: async (resultadoProcesado: any) => {
-          await this.authService.guardarResultadoCuestionario(user.uid, resultadoProcesado);
-          alert("Resultados analizados y guardados.");
-        },
-        error: (error) => {
-          console.error("Error en el backend:", error);
-          alert("Hubo un error al procesar los datos en el servidor.");
-        }
-      });
-      } catch (error) {
-      console.error("Error general:", error);
-      }
-    }
-    this.volverAlMenu();
-  }
-
-  // --- LÓGICA TEST CEAU ---
-  public indiceCEAU: number = 0;
-
-  public escalaCEAU = [
-    'Nada de estrés', 
-    'Poco estrés', 
-    'Algo de estrés', 
-    'Bastante estrés', 
-    'Mucho estrés'
-  ];
-
-  /*
-  Categorias para las preguntas CEAU
-  1. Evaluación y Desempeño: Evaluación y desempeño público (1,2,3,16)
-  2. Carga y Gestión: Carga de trabajo y gestión del tiempo (5,7,9,10,14,15)
-  3. Entorno: Entorno social e institucional (4,6,8,11,12,13)
-  4. Expectativas y Futuro: Expectativas y futuro profesional (17,18,19,20,21)
-  */
-  
   public preguntasCEAU = [
     { dim: 'Evaluación y Desempeño', id: 1, texto: "Realización de exámenes.",
       ayuda: "Evalúa qué tanta presión o nervios sientes cuando tienes que presentar una prueba escrita u oral.", valor: 0 },
@@ -333,101 +215,6 @@ export class StressQuestionnaireComponent implements AfterViewInit{
       ayuda: "Te estresa lo que tus padres o familia esperan de ti y de tus calificaciones.", valor: 0 }
   ];
 
-  public registroCEAU: any = {
-    'Evaluación y Desempeño': 0,
-    'Carga y Gestión': 0,
-    'Entorno': 0,
-    'Expectativas y Futuro': 0
-  };
-
-  seleccionarOpcionCEAU(pregunta: any, valor: number) {
-    if (pregunta.valor && pregunta.valor !== 0) {
-      this.registroCEAU[pregunta.dim] -= pregunta.valor;
-    }
-
-    pregunta.valor = valor;
-    this.registroCEAU[pregunta.dim] += valor;
-
-    console.log(`CEAU - Actualizado ${pregunta.dim}:`, this.registroCEAU[pregunta.dim]);
-
-    if (this.indiceCEAU < this.preguntasCEAU.length - 1) {
-      this.indiceCEAU++;
-    }
-    this.capturarYAnalizar();
-  }
-
-  anteriorCEAU() {
-    if (this.indiceCEAU > 0) {
-      this.indiceCEAU--;
-    }
-  }
-
-  get progresoCEAU(): number {
-    return ((this.indiceCEAU + 1) / this.preguntasCEAU.length) * 100;
-  }
-
-  async calcularResultadoCEAU() {
-
-    const user = this.authService.currentUser;
-    const sumaTotal = this.preguntasCEAU.reduce((acc, p) => acc + (Number(p.valor) || 0), 0);
-
-    const detalleCategorias: any = { ...this.registroCEAU };
-
-    const contarPreguntasPorCategoria = this.preguntasCEAU.reduce((acc, p) => {
-      const categoria = p.dim;
-      acc[categoria] = (acc[categoria] || 0) + 1;
-      return acc;
-    }, {} as { [key: string]: number });
-
-    const resultadosTest = {
-      identificador: 'CEAU',
-      puntajeFinal: sumaTotal,
-      categorias: detalleCategorias,
-      nPreguntasCategoria: contarPreguntasPorCategoria,
-      tiempo: 300,
-      uid: this.authService.currentUser?.uid
-    };
-
-    if(user){
-      try {
-      const urlBackend = 'https://crojas3-detectoremociones.hf.space/api/resultados';
-      this.http.post(urlBackend, resultadosTest).subscribe({
-        next: async (resultadoProcesado: any) => {
-          await this.authService.guardarResultadoCuestionario(user.uid, resultadoProcesado);
-          alert("Resultados analizados y guardados.");
-        },
-        error: (error) => {
-          console.error("Error en el backend:", error);
-          alert("Hubo un error al procesar los datos en el servidor.");
-        }
-      });
-      } catch (error) {
-      console.error("Error general:", error);
-      }
-    }
-    this.volverAlMenu();
-}
-
-  // --- LÓGICA TEST SISCO ---
-  public mostrarResultadosFinales: boolean = false;
-  public siscoNivelGeneral: number = 3;
-  public indiceSisco: number = 0;
-
-  public escalaSisco = [
-    'Nunca', 
-    'Casi nunca', 
-    'Rara vez', 
-    'Algunas veces', 
-    'Casi siempre', 
-    'Siempre'
-  ];
-
-  public resultadosSisco: any = {
-    nivelGeneral: 0,
-    estresores: 0,
-    sintomas: 0,
-    afrontamiento: 0
-  };
 
   public preguntasSisco = [
     // DIMENSIÓN ESTRESORES
@@ -497,119 +284,7 @@ export class StressQuestionnaireComponent implements AfterViewInit{
       ayuda: "Intentas buscar el lado bueno o el aprendizaje incluso en los momentos difíciles.", valor: 0 }
   ];
 
-  public registroSISCO: any = {
-    'Nivel General': 0,
-    'Estresores': 0,
-    'Síntomas': 0,
-    'Afrontamiento': 0
-  };
 
-  seleccionarOpcionSisco(valor: number) {
-    if (this.indiceSisco === -1) {
-      this.siscoNivelGeneral = valor;
-      this.registroSISCO['Nivel General'] = valor;
-      this.indiceSisco = 0;
-      return;
-    }
-    
-    const preguntaActual = this.preguntasSisco[this.indiceSisco];
-
-    if (preguntaActual.valor && preguntaActual.valor !== 0) {
-      this.registroSISCO[preguntaActual.dim] -= preguntaActual.valor;
-    }
-
-    preguntaActual.valor = valor;
-    this.registroSISCO[preguntaActual.dim] += valor;
-
-    console.log(`SISCO - Actualizado ${preguntaActual.dim}:`, this.registroSISCO[preguntaActual.dim]);
-
-    if (this.indiceSisco < this.preguntasSisco.length - 1) {
-      this.indiceSisco++;
-      this.capturarYAnalizar();
-    }
-  }
-
-  public diagnosticoSISCO: any = {};
-
-async calcularResultadoSisco() {
-
-  const user = this.authService.currentUser;
-
-  const detalleCategorias: any = { ...this.registroSISCO };
-  const sumaTotal = this.preguntasSisco.reduce((acc, p) => acc + (Number(p.valor) || 0), 0);
-
-
-  const resultadosTest: any = {
-    identificador: 'SISCO',
-    puntaje: sumaTotal,
-    categorias: detalleCategorias,
-    tiempo: 600,
-    uid: this.authService.currentUser?.uid
-  };
-
-  if(user){
-    try {
-    const urlBackend = 'https://crojas3-detectoremociones.hf.space/api/resultados';
-    this.http.post(urlBackend, resultadosTest).subscribe({
-      next: async (resultadoProcesado: any) => {
-        await this.authService.guardarResultadoCuestionario(user.uid, resultadoProcesado);
-        alert("Resultados analizados y guardados.");
-      },
-      error: (error) => {
-        console.error("Error en el backend:", error);
-        alert("Hubo un error al procesar los datos en el servidor.");
-      }
-    });
-    } catch (error) {
-    console.error("Error general:", error);
-    }
-  }
-  this.volverAlMenu();
-}
-
-  anteriorSISCO() {
-    if (this.indiceSisco > 0) {
-      this.indiceSisco--;
-    }else {
-      this.indiceSisco = -1;
-    }
-  }
-
-  mostrarPantallaResultados(datos: any) {
-    this.resultadosSisco = datos;
-    this.mostrarResultadosFinales = true;
-    
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  }
-
-  resetearTodoSisco() {
-    this.testSeleccionado = null;
-    this.mostrarResultadosFinales = false;
-    this.indiceSisco = -1;
-    this.resultadosSisco = null;
-    
-    this.preguntasSisco.forEach(p => p.valor = 0);
-  }
-
-
-
-  // --- LÓGICA TEST INVENTARIO SOBRE VULNERABILIDAD AL ESTRÉS (Beech, Burns y Sheffield, 1982) ---
-  public indiceBBS: number = 0;
-
-  public escalaBBS = [
-    'No', 
-    'Sí', 
-  ];
-
-  /*
-  Categorias para las preguntas BBS
-  1. Sintomas Fisicos: Síntomas físicos y somatización
-  2. Fatiga y Alteraciones: Fatiga y alteraciones del sueño
-  3. Estado y Tensión: Estado emocional y tensión cognitiva
-  4. Reactividad: Reactividad y sensibilidad interpersonal
-  5. Toma de Decisiones: Control y toma de decisiones
-  */
-  
   public preguntasBBS = [
     { dim: 'Sintomas Fisicos', id: 1, texto: "Tendencia a sufrir frecuentes dolores de cabeza.",
       ayuda: "Notas que el dolor de cabeza aparece seguido, especialmente después de un día pesado o estresante.", valor: 0 },
@@ -678,108 +353,7 @@ async calcularResultadoSisco() {
       ayuda: "Sientes que ya no manejas tu vida y que las cosas simplemente te pasan sin que puedas hacer nada.", valor: 0 }
   ];
 
-  anteriorBBS() {
-    if (this.indiceBBS > 0) {
-      this.indiceBBS--;
-    }
-  }
 
-  get progresoBBS(): number {
-    return ((this.preguntaActual + 1) / this.preguntasBBS.length) * 100;
-  }
-
-  public registroBBS: any = {
-    'Sintomas Fisicos': 0,
-    'Fatiga y Alteraciones': 0,
-    'Estado y Tensión': 0,
-    'Reactividad': 0,
-    'Toma de Decisiones': 0
-  };
-
-  seleccionarOpcionBBS(pregunta: any, valor: number) {
-    if (pregunta.valor !== 0) {
-      const puntoAnterior = pregunta.valor === 2 ? 1 : 0;
-      this.registroBBS[pregunta.dim] -= puntoAnterior;
-    }
-
-    pregunta.valor = valor;
-
-    const nuevoPunto = valor === 2 ? 1 : 0;
-    this.registroBBS[pregunta.dim] += nuevoPunto;
-
-    console.log(`BBS - Vulnerabilidad en ${pregunta.dim}: ${this.registroBBS[pregunta.dim]} puntos`);
-
-    if (this.indiceBBS < this.preguntasBBS.length - 1) {
-      this.indiceBBS++;
-    }
-    
-    this.capturarYAnalizar();
-  }
-
-async calcularResultadoBBS() {
-
-    const user = this.authService.currentUser;
-
-    const sumaTotal = this.preguntasBBS.reduce((acc, p) => {
-      return acc + (p.valor === 2 ? 1 : 0);
-    }, 0);
-
-    const detalleCategorias = { ...this.registroBBS };
-
-    const contarPreguntasPorCategoria = this.preguntasBBS.reduce((acc, p) => {
-      const categoria = p.dim;
-      acc[categoria] = (acc[categoria] || 0) + 1;
-      return acc;
-    }, {} as { [key: string]: number });
-
-    console.log("BBS - Categorias:", contarPreguntasPorCategoria);
-
-    const resultadosTest = {
-      identificador: 'BBS',
-      puntajeFinal: sumaTotal,
-      categorias: detalleCategorias,
-      nPreguntasCategoria: contarPreguntasPorCategoria,
-      tiempo: 400,
-      uid: this.authService.currentUser?.uid
-    };
-
-    if(user){
-      try {
-      const urlBackend = 'https://crojas3-detectoremociones.hf.space/api/resultados';
-      this.http.post(urlBackend, resultadosTest).subscribe({
-        next: async (resultadoProcesado: any) => {
-          await this.authService.guardarResultadoCuestionario(user.uid, resultadoProcesado);
-          alert("Resultados analizados y guardados.");
-        },
-        error: (error) => {
-          console.error("Error en el backend:", error);
-          alert("Hubo un error al procesar los datos en el servidor.");
-        }
-      });
-      } catch (error) {
-      console.error("Error general:", error);
-      }
-    }
-    this.volverAlMenu();
-}
-
-  // --- LÓGICA TEST Inventario de Síntomas de Estrés. Segunda versión - Arturo Barraza Macías ---
-  public indiceISE: number = 0;
-
-  public escalaISE = [
-    'Nunca', 
-    'Casi Nunca', 
-    'A veces', 
-    'Casi siempre'
-  ];
-
-  /*
-  Categorias para las preguntas ISE
-  1. Sintomas físicos: Manifestaciones físicas del estrés académico
-  2. Síntomas Psicológicos: Manifestaciones mentales y emocionales del estrés académico
-  3. Sintomas Comportamentales: Manifestaciones conductuales del estrés académico
-  */
-  
   public preguntasISE = [
     { dim: 'Síntomas Físicos', id: 1, encabezado: 'Siento físicamente que...', texto: "Problemas Digestivos (indigestión, diarrea o estreñimiento).",
       ayuda: "Sientes molestias estomacales, pesadez o cambios en tu ritmo intestinal debido a la tensión académica.", valor: 0 },
@@ -857,150 +431,181 @@ async calcularResultadoBBS() {
       ayuda: "Has perdido el interés por tu apariencia personal o el cuidado de tu imagen debido al desánimo.", valor: 0 },
   ];
 
-  anteriorISE() {
-    if (this.indiceISE > 0) {
-      this.indiceISE--;
-    }
+  constructor() {
+    const previo = localStorage.getItem('consentimiento_ia');
+    if (previo === 'true') this.consentimientoAceptado = true;
   }
-
-  get progresoISE(): number {
-    return ((this.preguntaActual + 1) / this.preguntasISE.length) * 100;
-  }
-
-  public registroISE: any = {
-    'Síntomas Físicos': 0,
-    'Síntomas Psicológicos': 0,
-    'Síntomas Comportamentales': 0
-  };
-
-  seleccionarOpcionISE(pregunta: any, valor: number) {
-    if (pregunta.valor && pregunta.valor !== 0) {
-      this.registroISE[pregunta.dim] -= pregunta.valor;
-    }
-
-    pregunta.valor = valor;
-    this.registroISE[pregunta.dim] += valor;
-
-    console.log(`ISE - Actualizado ${pregunta.dim}:`, this.registroISE[pregunta.dim]);
-
-    if (this.indiceISE < this.preguntasISE.length - 1) {
-      this.indiceISE++;
-    }
-    this.capturarYAnalizar();
-  }
-
-  public resultadosISE: any = {};
-
-async calcularResultadoISE() {
-
-  const user = this.authService.currentUser;
-  const sumaTotal = this.preguntasISE.reduce((acc, p) => acc + (Number(p.valor) || 0), 0);
-
-  const diagnosticoCategorias: any = {...this.registroISE};
-
-  const contarPreguntasPorCategoria = this.preguntasISE.reduce((acc, p) => {
-    const categoria = p.dim;
-    acc[categoria] = (acc[categoria] || 0) + 1;
-    return acc;
-  }, {} as { [key: string]: number });
-
-  const resultadosTest = {
-    identificador: 'ISE',
-    puntajeFinal: sumaTotal,
-    categorias: diagnosticoCategorias,
-    nPreguntasCategoria: contarPreguntasPorCategoria,
-    tiempo: 500,
-    uid: this.authService.currentUser?.uid
-  };
-
-  if(user){
-    try {
-    const urlBackend = 'https://crojas3-detectoremociones.hf.space/api/resultados';
-    this.http.post(urlBackend, resultadosTest).subscribe({
-      next: async (resultadoProcesado: any) => {
-        await this.authService.guardarResultadoCuestionario(user.uid, resultadoProcesado);
-        alert("Resultados analizados y guardados.");
-      },
-      error: (error) => {
-        console.error("Error en el backend:", error);
-        alert("Hubo un error al procesar los datos en el servidor.");
-      }
-    });
-    } catch (error) {
-    console.error("Error general:", error);
-    }
-  }
-  this.volverAlMenu();
-}
-
-  // CAPTURA DE IMAGEN EN CADA PREGUNTA PARA OBTENER RESULTADO
 
   async ngAfterViewInit() {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ video: true });
       this.videoElement.nativeElement.srcObject = stream;
-      console.log("📷 Cámara iniciada en el cuestionario");
     } catch (err) {
-      console.error("Error al acceder a la cámara:", err);
+      console.error("Error cámara:", err);
     }
   }
 
-  // Función auxiliar para identificar la pregunta según el test
-  obtenerIndiceActual(): number {
-    if (this.testSeleccionado === 'miller') return this.preguntaActual;
-    if (this.testSeleccionado === 'ceau') return this.indiceCEAU;
-    if (this.testSeleccionado === 'sisco') return this.indiceSisco;
-    return -1;
+  get progresoTestVulnerabilidad(): number {
+    return (this.preguntasTestVulnerabilidad.length > 0) ? ((this.preguntaActual + 1) / this.preguntasTestVulnerabilidad.length) * 100 : 0;
+  }
+  get progresoCEAU(): number {
+    return (this.preguntasCEAU.length > 0) ? ((this.indiceCEAU + 1) / this.preguntasCEAU.length) * 100 : 0;
+  }
+  get progresoSisco(): number {
+    if (this.preguntasSisco.length === 0) return 0;
+    const actual = this.indiceSisco === -1 ? 0 : this.indiceSisco + 1;
+    return (actual / this.preguntasSisco.length) * 100;
+  }
+  get progresoBBS(): number {
+    return (this.preguntasBBS.length > 0) ? ((this.indiceBBS + 1) / this.preguntasBBS.length) * 100 : 0;
+  }
+  get progresoISE(): number {
+    return (this.preguntasISE.length > 0) ? ((this.indiceISE + 1) / this.preguntasISE.length) * 100 : 0;
   }
 
-  resultadoEstres: any = null;
-  mensajeEstres: string = '';
-  porcentajeEstres: string = '';
-  cargandoEstres: boolean = false;
-  public historialAnalisisFacialCNN: any[] = [];
-  public historialAnalisisFacialFaceMesh: any[] = [];
-
-
-  analizarEstresVisual() {
-    const deteccionesAltas = this.historialAnalisisFacialCNN.filter(d => 
-      d.test === 'miller' && (d.emocion === 'Stress' || d.emocion === 'Anxiety')
-    );
-
-    console.log(`Durante el test de Miller, se detectó estrés visual ${deteccionesAltas.length} veces.`);
-  }
-
+  // --- LÓGICA DE CAPTURA ---
   async capturarYAnalizar() {
-  const video = this.videoElement.nativeElement;
-  const canvas = this.canvasElement.nativeElement;
-  const context = canvas.getContext('2d');
+    const video = this.videoElement.nativeElement;
+    const canvas = this.canvasElement.nativeElement;
+    const context = canvas.getContext('2d');
+    if (!context) return;
+    canvas.width = video.videoWidth; canvas.height = video.videoHeight;
+    context.drawImage(video, 0, 0, canvas.width, canvas.height);
+    const imagenBase64 = canvas.toDataURL('image/jpeg').split(',')[1];
+    try {
+      const [resCNN, resFaceMesh] = await Promise.all([
+        this.capturaService.analizarEmocionCNN(imagenBase64),
+        this.capturaService.analizarEmocionFaceMesh({ imagen: imagenBase64, puntos: [] })
+      ]);
+      const metadata = { pregunta_id: this.obtenerIndiceActual(), timestamp: new Date().toISOString() };
+      this.historialAnalisisFacialCNN.push({ ...resCNN, ...metadata });
+      this.historialAnalisisFacialFaceMesh.push({ ...resFaceMesh, ...metadata });
+    } catch (e) { console.error(e); }
+  }
 
-  canvas.width = video.videoWidth;
-  canvas.height = video.videoHeight;
-  context?.drawImage(video, 0, 0, canvas.width, canvas.height);
-
-  const imagenBase64 = canvas.toDataURL('image/jpeg').split(',')[1];
-
-  try {
-    this.cargandoEstres = true;
-
-    const resCNN = await this.capturaService.analizarEmocionCNN(imagenBase64);
-    
-    const resFaceMesh = await this.capturaService.analizarEmocionFaceMesh({
-      imagen: imagenBase64,
-      puntos: [] 
-    });
-
-    console.log("CNN:", resCNN.emocion);
-    console.log("FaceMesh:", resFaceMesh.emocion);
-
-    this.historialAnalisisFacialCNN.push({ ...resCNN, fecha: new Date() });
-    this.historialAnalisisFacialFaceMesh.push({ ...resFaceMesh, fecha: new Date() });
-
-  } catch (error) {
-      console.error("Error en el análisis:", error);
-    } finally {
-      this.cargandoEstres = false;
+  obtenerIndiceActual(): number {
+    switch (this.testSeleccionado) {
+      case 'miller': return this.preguntaActual;
+      case 'ceau': return this.indiceCEAU;
+      case 'sisco': return this.indiceSisco;
+      case 'bbs': return this.indiceBBS;
+      case 'ISE': return this.indiceISE;
+      default: return -1;
     }
   }
 
+  // --- FUNCIONES DE SELECCIÓN ---
+  seleccionarOpcionTestVulnerabilidad(p: any, v: number) {
+    if (p.valor) this.registroMiller[p.dim] -= p.valor;
+    p.valor = v; this.registroMiller[p.dim] += v;
+    if (this.preguntaActual < this.preguntasTestVulnerabilidad.length - 1) this.preguntaActual++;
+    this.capturarYAnalizar();
+  }
+
+  seleccionarOpcionCEAU(p: any, v: number) {
+    if (p.valor) this.registroCEAU[p.dim] -= p.valor;
+    p.valor = v; this.registroCEAU[p.dim] += v;
+    if (this.indiceCEAU < this.preguntasCEAU.length - 1) this.indiceCEAU++;
+    this.capturarYAnalizar();
+  }
+
+  seleccionarOpcionSisco(valor: number) {
+    if (this.indiceSisco === -1) {
+      this.siscoNivelGeneral = valor; 
+      this.registroSISCO['Nivel General'] = valor;
+      this.indiceSisco = 0;
+      return;
+    }
+    const preguntaActual = this.preguntasSisco[this.indiceSisco];
+    if (preguntaActual.valor) this.registroSISCO[preguntaActual.dim] -= preguntaActual.valor;
+    preguntaActual.valor = valor;
+    this.registroSISCO[preguntaActual.dim] += valor;
+    if (this.indiceSisco < this.preguntasSisco.length - 1) this.indiceSisco++;
+    this.capturarYAnalizar();
+  }
+
+  seleccionarOpcionBBS(p: any, v: number) {
+    if (p.valor !== 0) { const prev = p.valor === 2 ? 1 : 0; this.registroBBS[p.dim] -= prev; }
+    p.valor = v; const nuevo = v === 2 ? 1 : 0; this.registroBBS[p.dim] += nuevo;
+    if (this.indiceBBS < this.preguntasBBS.length - 1) this.indiceBBS++;
+    this.capturarYAnalizar();
+  }
+
+  seleccionarOpcionISE(p: any, v: number) {
+    if (p.valor) this.registroISE[p.dim] -= p.valor;
+    p.valor = v; this.registroISE[p.dim] += v;
+    if (this.indiceISE < this.preguntasISE.length - 1) this.indiceISE++;
+    this.capturarYAnalizar();
+  }
+
+  // --- FINALIZACIÓN Y BACKEND ---
+  private async finalizarYGuardarTodo(id: string, procesado: any) {
+    const user = this.authService.currentUser;
+    if (!user) return;
+    try {
+      await this.authService.guardarResultadoCuestionario(user.uid, procesado);
+      await this.authService.guardarAnalisisFacialCuestionario(user.uid, {
+        identificador_cuestionario: id,
+        historial_cnn: this.historialAnalisisFacialCNN,
+        historial_facemesh: this.historialAnalisisFacialFaceMesh
+      });
+      alert(`Análisis ${id} completado.`);
+      this.resetearVariables(); this.volverAlMenu();
+    } catch (e) { console.error(e); }
+  }
+
+  private enviarAlBackend(data: any, id: string) {
+    const url = 'https://crojas3-detectoremociones.hf.space/api/resultados';
+    this.http.post(url, data).subscribe({
+      next: (res: any) => this.finalizarYGuardarTodo(id, res),
+      error: (err) => console.error("Error backend:", err)
+    });
+  }
+
+  // --- CÁLCULOS FINALES ---
+  calcularResultadoTestVulnerabilidad() {
+    const conteo = this.preguntasTestVulnerabilidad.reduce((acc, p) => { acc[p.dim] = (acc[p.dim] || 0) + 1; return acc; }, {} as any);
+    const data = { identificador: 'Miller', puntajeFinal: this.preguntasTestVulnerabilidad.reduce((a, b) => a + b.valor, 0) - 20, categorias: this.registroMiller, nPreguntasCategoria: conteo, tiempo: 300, uid: this.authService.currentUser?.uid };
+    this.enviarAlBackend(data, 'Miller');
+  }
+
+  calcularResultadoCEAU() {
+    const conteo = this.preguntasCEAU.reduce((acc, p) => { acc[p.dim] = (acc[p.dim] || 0) + 1; return acc; }, {} as any);
+    const data = { identificador: 'CEAU', puntajeFinal: this.preguntasCEAU.reduce((a, b) => a + b.valor, 0), categorias: this.registroCEAU, nPreguntasCategoria: conteo, tiempo: 400, uid: this.authService.currentUser?.uid };
+    this.enviarAlBackend(data, 'CEAU');
+  }
+
+  calcularResultadoSisco() {
+    const conteo = this.preguntasSisco.reduce((acc, p) => { acc[p.dim] = (acc[p.dim] || 0) + 1; return acc; }, {} as any);
+    const data = { identificador: 'SISCO', puntaje: this.preguntasSisco.reduce((a, b) => a + b.valor, 0), categorias: this.registroSISCO, nPreguntasCategoria: conteo, tiempo: 600, uid: this.authService.currentUser?.uid };
+    this.enviarAlBackend(data, 'SISCO');
+  }
+
+  calcularResultadoBBS() {
+    const conteo = this.preguntasBBS.reduce((acc, p) => { acc[p.dim] = (acc[p.dim] || 0) + 1; return acc; }, {} as any);
+    const data = { identificador: 'BBS', puntajeFinal: this.preguntasBBS.reduce((a, b) => a + (b.valor === 2 ? 1 : 0), 0), categorias: this.registroBBS, nPreguntasCategoria: conteo, tiempo: 400, uid: this.authService.currentUser?.uid };
+    this.enviarAlBackend(data, 'BBS');
+  }
+
+  calcularResultadoISE() {
+    const conteo = this.preguntasISE.reduce((acc, p) => { acc[p.dim] = (acc[p.dim] || 0) + 1; return acc; }, {} as any);
+    const data = { identificador: 'ISE', puntajeFinal: this.preguntasISE.reduce((a, b) => a + b.valor, 0), categorias: this.registroISE, nPreguntasCategoria: conteo, tiempo: 500, uid: this.authService.currentUser?.uid };
+    this.enviarAlBackend(data, 'ISE');
+  }
+
+  // --- NAVEGACIÓN ---
+  seleccionarTest(id: string) { this.testSeleccionado = id; this.resetearVariables(); }
+  volverAlMenu() { this.testSeleccionado = null; }
+  aceptarConsentimiento() { this.consentimientoAceptado = true; localStorage.setItem('consentimiento_ia', 'true'); }
+  anteriorPregunta() { if (this.preguntaActual > 0) this.preguntaActual--; }
+  anteriorCEAU() { if (this.indiceCEAU > 0) this.indiceCEAU--; }
+  anteriorSISCO() { if (this.indiceSisco > 0) this.indiceSisco--; else this.indiceSisco = -1; }
+  anteriorBBS() { if (this.indiceBBS > 0) this.indiceBBS--; }
+  anteriorISE() { if (this.indiceISE > 0) this.indiceISE--; }
+
+  resetearVariables() {
+    this.preguntaActual = 0; this.indiceCEAU = 0; this.indiceSisco = -1; this.indiceBBS = 0; this.indiceISE = 0;
+    this.mostrarResultadosFinales = false;
+    this.historialAnalisisFacialCNN = []; this.historialAnalisisFacialFaceMesh = [];
+  }
 }

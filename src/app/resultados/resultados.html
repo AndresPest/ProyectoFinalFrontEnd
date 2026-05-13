@@ -1,13 +1,12 @@
 <app-navbar></app-navbar>
 <router-outlet></router-outlet>
-<app-navbar></app-navbar>
+
+<div class="main-header" [@fadeIn]>
+  <h1>Mis Evaluaciones</h1>
+  <p>Historial de resultados y seguimiento de bienestar</p>
+</div>
 
 <div class="results-container" [@fadeIn]>
-  <div class="results-header">
-    <h2>Mis Evaluaciones</h2>
-    <p class="header-subtitle">Historial de resultados y seguimiento de bienestar</p>
-  </div>
-
   @if (loading) {
     <div class="loading-state">
       <mat-spinner diameter="40"></mat-spinner>
@@ -20,7 +19,7 @@
           
           <div class="card-top">
             <h3 class="test-title">
-              {{ res.identificador_cuestionario }}</h3>
+              {{ res.identificador }}</h3>
             <span class="date-tag">
               <i class="ph ph-calendar-blank"></i>
               {{ res.timestamp?.toDate() | date:'dd/MM/yyyy, h:mm a' }}
@@ -29,14 +28,28 @@
 
           <div class="card-summary">
             <div class="score-brief">
-              <span class="score-value">{{ res.puntaje_final }}</span>
-              <span class="score-label">Puntaje</span>
+              <div class="score-container">
+                <span class="score-value">{{ res.puntaje }}</span>
+                <span class="score-separator">/</span>
+                <span class="score-max">{{ getMaximo(res.identificador) }}</span> 
+              </div>
+              <span class="score-label">Puntaje Total</span>
             </div>
             
             <div class="status-summary">
               <p class="summary-text">
                 Nivel de estrés detectado: 
-                <strong class="intensity-highlight">Alta</strong> 
+                <strong class="intensity-highlight">{{ res.nivel }}</strong> 
+              </p>
+              
+              <p class="summary-text secondary-info">
+                Detección por cámara (CNN): 
+                <span class="tech-value">{{ traducirEmocion(res.resultado_cnn.emocion) }}</span>
+              </p>
+
+              <p class="summary-text secondary-info">
+                Detección facial (Facemesh): 
+                <span class="tech-value">{{ traducirEmocion(res.resultado_facemesh.emocion) }}</span>
               </p>
             </div>
           </div>

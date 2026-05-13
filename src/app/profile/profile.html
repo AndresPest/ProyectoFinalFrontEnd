@@ -6,9 +6,7 @@
     
     <div class="profile-header">
       <div class="avatar-circle">
-        <span>
-          {{ profileForm.get('nombre')?.value?.charAt(0) }}{{ profileForm.get('apellido')?.value?.charAt(0) }}
-        </span>
+        <span>{{ profileForm.get('nombre')?.value?.charAt(0) }}{{ profileForm.get('apellido')?.value?.charAt(0) }}</span>
       </div>
       <h2>Configuración de Perfil</h2>
       <p class="header-subtitle">Gestiona tu información</p>
@@ -32,19 +30,28 @@
 
           <mat-form-field appearance="outline">
             <mat-label>Carrera</mat-label>
-            <input matInput formControlName="carrera" placeholder=" Ej. Ingeniería Informática">
+            <mat-select formControlName="carrera" (selectionChange)="onCarreraChange()">
+              @for (c of carreras; track c.nombre) {
+                <mat-option [value]="c.nombre">{{ c.nombre }}</mat-option>
+              }
+            </mat-select>
           </mat-form-field>
 
           <mat-form-field appearance="outline">
             <mat-label>Semestre</mat-label>
-            <mat-select formControlName="semestre">
-              <mat-option *ngFor="let s of semestres" [value]="s">{{s}}° Semestre</mat-option>
+            <mat-select formControlName="semestre" [disabled]="!profileForm.get('carrera')?.value">
+              @for (s of semestresDisponibles; track s) {
+                <mat-option [value]="s">{{ s }}° Semestre</mat-option>
+              }
             </mat-select>
+            @if (!profileForm.get('carrera')?.value) {
+              <mat-hint>Elige una carrera primero</mat-hint>
+            }
           </mat-form-field>
         </div>
 
         <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Correo Institucional</mat-label>
+          <mat-label>Correo Electrónico</mat-label>
           <input matInput formControlName="correo" placeholder="usuario@est.ucab.edu.ve">
           <mat-icon matSuffix>email</mat-icon>
         </mat-form-field>

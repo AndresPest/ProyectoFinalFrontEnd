@@ -1,4 +1,9 @@
-<h2>Evaluar Estres</h2>
-    <input type="number" [ngModel]="puntaje" (ngModelChange)="puntaje = $event" />
-    <button (click)="enviar()">Enviar</button>
-    <p *ngIf="respuesta">{{ respuesta }}</p>
+<app-navbar></app-navbar>
+
+<main>
+  <router-outlet></router-outlet>
+</main>
+
+<button mat-fab class="sos-button" color="warn" matTooltip="Ayuda Inmediata" (click)="abrirAyuda()">
+  <mat-icon>sos</mat-icon>
+</button>

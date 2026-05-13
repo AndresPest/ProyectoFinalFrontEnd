@@ -1,0 +1,42 @@
+<div class="ayuda-header">
+  <div class="title-group">
+    <h2 mat-dialog-title>Centro de Ayuda</h2>
+  </div>
+  <button mat-icon-button (click)="cerrar()">
+    <mat-icon>close</mat-icon>
+  </button>
+</div>
+
+<mat-dialog-content>
+  <p class="intro-text">
+    Si sientes que no puedes manejar la situación, por favor contacta a emergencias o busca ayuda de un profesional
+  </p>
+
+  <div class="contact-grid">
+    @for (item of contactos; track item.titulo) {
+      <div class="contact-item" [ngClass]="item.clase">
+        <div class="icon-wrapper">
+          <mat-icon>{{ item.icon }}</mat-icon>
+        </div>
+        <div class="text-wrapper">
+          <span class="titulo">{{ item.titulo }}</span>
+          <span class="subtitulo">{{ item.subtitulo }}</span>
+          <span class="numero">{{ item.numero }}</span>
+        </div>
+        <button mat-mini-fab color="primary" (click)="llamar(item.numero)">
+          <mat-icon>call</mat-icon>
+        </button>
+      </div>
+    }
+  </div>
+
+  <div class="disclaimer">
+    <mat-icon>info</mat-icon>
+    <p>Esta plataforma es una herramienta de apoyo, no sustituye la atención médica de emergencia.</p>
+  </div>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-stroked-button color="primary" (click)="irA('ayuda')">Herramientas y recursos</button>
+  <button mat-flat-button color="primary" (click)="cerrar()">Entendido</button>
+</mat-dialog-actions>

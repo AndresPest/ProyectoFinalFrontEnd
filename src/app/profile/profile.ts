@@ -9,26 +9,19 @@ import { MatIconModule } from '@angular/material/icon';
 import { NavbarComponent } from '../navbar/navbar';
 import { trigger, transition, style, animate } from '@angular/animations';
 import { RouterOutlet } from '@angular/router';
-
-// Imports de Firebase
 import { Firestore, doc, getDoc, updateDoc } from '@angular/fire/firestore';
 import { Auth, updatePassword, EmailAuthProvider, reauthenticateWithCredential } from '@angular/fire/auth';
+
+interface Carrera {
+  nombre: string;
+  maxSemestres: number;
+}
 
 @Component({
   selector: 'app-profile',
   standalone: true,
-  imports: [
-    CommonModule, 
-    FormsModule, 
-    ReactiveFormsModule, 
-    MatFormFieldModule, 
-    MatInputModule, 
-    MatButtonModule, 
-    MatSelectModule, 
-    MatIconModule, 
-    RouterOutlet, 
-    NavbarComponent
-  ],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, MatFormFieldModule, MatInputModule, MatButtonModule, MatSelectModule, 
+    MatIconModule, RouterOutlet, NavbarComponent],
   templateUrl: './profile.html',
   styleUrls: ['./profile.scss'],
   animations: [
@@ -41,11 +34,23 @@ import { Auth, updatePassword, EmailAuthProvider, reauthenticateWithCredential }
   ]
 })
 export class ProfileComponent implements OnInit {
+
+  carreras: Carrera[] = [
+    { nombre: 'Administración de Empresas', maxSemestres: 8 },
+    { nombre: 'Contaduría Pública', maxSemestres: 8 },
+    { nombre: 'Relaciones Industriales', maxSemestres: 8 },
+    { nombre: 'Comunicación Social', maxSemestres: 8 },
+    { nombre: 'Ingeniería Civil', maxSemestres: 8 },
+    { nombre: 'Ingeniería Informática', maxSemestres: 8 },
+    { nombre: 'Ingeniería Industrial', maxSemestres: 8 },
+    { nombre: 'Derecho', maxSemestres: 9 }
+  ];
+
+  semestres: number[] = [];
+
   profileForm!: FormGroup;
   hideOld = true;
   hideNew = true;
-  // En tu Firestore el semestre es un String ("10"), por eso usamos strings aquí
-  semestres: string[] = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10"];
 
   constructor(
     private fb: FormBuilder,
@@ -75,14 +80,12 @@ export class ProfileComponent implements OnInit {
     const user = this.auth.currentUser;
     if (user) {
       try {
-        // Referencia al documento usando el UID del usuario autenticado
         const userDocRef = doc(this.firestore, `Usuario/${user.uid}`);
         const docSnap = await getDoc(userDocRef);
 
         if (docSnap.exists()) {
           const userData = docSnap.data();
-          
-          // Mapeo desde Firestore (Mayúsculas) hacia el Formulario (minúsculas)
+
           this.profileForm.patchValue({
             nombre: userData['Nombre'],
             apellido: userData['Apellido'],
@@ -90,6 +93,14 @@ export class ProfileComponent implements OnInit {
             semestre: userData['Semestre'],
             correo: userData['Correo']
           });
+
+          setTimeout(() => {
+            const semestre = userData['Semestre'];
+            
+            if (semestre) {
+              this.profileForm.get('semestre')?.setValue(Number(semestre));
+            }
+          }, 100);
         }
       } catch (error) {
         console.error("Error al obtener datos de Firestore:", error);
@@ -109,7 +120,6 @@ export class ProfileComponent implements OnInit {
     const formValue = this.profileForm.getRawValue();
 
     try {
-      // 1. Actualizar datos en Firestore
       const userDocRef = doc(this.firestore, `Usuario/${user.uid}`);
       
       const datosAActualizar = {
@@ -121,11 +131,9 @@ export class ProfileComponent implements OnInit {
 
       await updateDoc(userDocRef, datosAActualizar);
 
-      // 2. Lógica opcional para cambio de contraseña en Firebase Auth
       if (formValue.passwordNueva && formValue.passwordActual) {
         const credential = EmailAuthProvider.credential(user.email!, formValue.passwordActual);
         
-        // Re-autenticación necesaria para cambios sensibles
         await reauthenticateWithCredential(user, credential);
         await updatePassword(user, formValue.passwordNueva);
         alert('Perfil y contraseña actualizados correctamente.');
@@ -133,7 +141,6 @@ export class ProfileComponent implements OnInit {
         alert('Perfil actualizado correctamente en la nube.');
       }
 
-      // Limpiar campos de password
       this.profileForm.patchValue({ passwordActual: '', passwordNueva: '' });
 
     } catch (error: any) {
@@ -145,4 +152,15 @@ export class ProfileComponent implements OnInit {
       }
     }
   }
+
+    get semestresDisponibles(): number[] {
+      const seleccionada = this.profileForm.get('carrera')?.value;
+      const carrera = this.carreras.find(c => c.nombre === seleccionada);
+      return carrera ? Array.from({ length: carrera.maxSemestres }, (_, i) => i + 1) : [];
+    }
+
+    onCarreraChange() {
+      this.profileForm.get('semestre')?.setValue(null);
+    }
+
 }

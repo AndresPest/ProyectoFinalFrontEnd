@@ -1,0 +1,55 @@
+<h2 mat-dialog-title>Detalles del test</h2>
+<mat-dialog-content>
+    <div class="detalle-container">
+        <p><strong>Cuestionario: {{ data.identificador }}</strong></p>
+        <p><strong>Puntaje:</strong> {{ data.puntaje }}pts.</p>
+        
+        <hr>
+        
+        <h3>Puntuación por categorías</h3>
+        @for (cat of categorias; track cat) {
+            <div class="cat-box">
+                <span>{{ cat }}: </span>
+                <strong>{{ data.categorias[cat].intensidad || data.categorias[cat] }} </strong> <strong class="not-strong"> / {{ getMaximo(cat) }} pts.</strong>
+            </div>
+        }
+        <div class="charts-container">
+            <div class="chart-wrapper">
+                <canvas id="canvasCNN"></canvas>
+            </div>
+            <div class="chart-wrapper">
+                <canvas id="canvasFaceMesh"></canvas>
+            </div>
+        </div>
+        <div class="recomendaciones">
+            <h3>Sugerencias</h3>
+            <p>Basado en los resultados obtenidos en el test:</p>
+            
+            <div class="sugerencias-grid">
+                @for (sug of sugerenciasFiltradas; track sug.texto) {
+                    <div class="sugerencia-item">
+                        <p class="sugerencia-texto">{{ sug.texto }}</p>
+                        
+                        @if (sug.imagen) {
+                            <div class="img-zoom-wrapper" (click)="imgZoomSelected = sug.imagen">
+                                <img [src]="sug.imagen" class="sugerencia-imagen" alt="Icono de bienestar">
+                                <div class="zoom-overlay"><i class="fas fa-search-plus"></i></div>
+                            </div>
+                        }
+                    </div>
+                }
+            </div>
+        </div>
+        @if (imgZoomSelected) {
+        <div class="modal-zoom-overlay" (click)="imgZoomSelected = null" [@fadeIn]>
+            <div class="modal-zoom-content">
+                <span class="close-zoom">&times;</span>
+                <img [src]="imgZoomSelected" class="img-fullscreen">
+            </div>
+        </div>
+        }
+    </div>
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+    <button mat-flat-button color="primary" mat-dialog-close>Entendido</button>
+</mat-dialog-actions>

@@ -4,9 +4,11 @@ import { LoginComponent } from './login/login';
 import { StressQuestionnaireComponent } from './stress-questionnaire/stress-questionnaire';
 import { FaceMeshComponent } from './face-mesh/face-mesh';
 import { FaceMesh1Component } from './facemesh/facemesh';
+import { CentralFunciones } from './central-funciones/central-funciones';
 import { ResultadosComponent } from './resultados/resultados';
 import { RegisterComponent } from './register/register';
 import { ProfileComponent } from './profile/profile';
+import { AyudaGeneral } from './ayuda-general/ayuda-general';
 import { MapasDeCalorComponent } from './mapas-de-calor/mapas-de-calor.component';
 import { AudioReconocimiento } from './audio-reconocimiento/audio-reconocimiento';
 import { authGuard } from './auth-guard';
@@ -18,7 +20,9 @@ export const routes: Routes = [
     { path: 'login', component: LoginComponent },
     { path: 'registro', component: RegisterComponent },
     { path: 'perfil', component: ProfileComponent },
+    { path: 'ayuda', component: AyudaGeneral },
     { path: 'cuestionario', component: StressQuestionnaireComponent },
+    { path: 'centralFunciones', component: CentralFunciones },
     { path: 'reconocimiento-de-voz', component: AudioReconocimiento },
     { path: 'face-mesh', component: FaceMeshComponent },
     { path: 'facemesh', component: FaceMesh1Component },

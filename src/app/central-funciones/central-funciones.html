@@ -1,0 +1,15 @@
+<app-navbar></app-navbar>
+<router-outlet></router-outlet>
+
+<header class="main-header" [@fadeIn]>
+    <h1>Tecnologías Utilizadas</h1>
+    <p>Módulos independientes de funcionalidades de reconocimiento facial y de voz</p>
+</header>
+
+<div class="main-viewport" [@fadeIn]>
+    <div class="glass-container">
+        <button type="button" class="glass-button" (click)="irA('face-mesh')">Análisis Facial (CNN)</button>
+        <button type="button" class="glass-button" (click)="irA('facemesh')">Análisis Facial (Google Face-Mesh)</button>
+        <button type="button" class="glass-button" (click)="irA('reconocimiento-de-voz')">Reconocimiento Emocional por Voz</button>
+    </div>
+</div>

@@ -32,7 +32,10 @@
     "@angular/router": "^20.0.0",
     "@mediapipe/camera_utils": "^0.3.1675466862",
     "@mediapipe/face_mesh": "^0.4.1633559619",
+    "chart.js": "^4.5.1",
     "firebase": "^12.9.0",
+    "pdf-lib": "^1.17.1",
+    "pdfjs-dist": "^4.10.38",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0",
     "zone.js": "^0.15.1"

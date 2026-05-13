@@ -6,7 +6,7 @@ import { Observable } from 'rxjs';
   providedIn: 'root'
 })
 export class GradcamService {
-  private apiUrl = 'https://croxx312-reconocimientoemocional.hf.space/api/gradcam'; // ajusta host/puerto
+  private apiUrl = 'https://croxx312-reconocimientoemocional.hf.space/api/gradcam';
         
   constructor(private http: HttpClient) {}
 
@@ -17,12 +17,12 @@ export class GradcamService {
   /*return this.http.post<any>('http://localhost:5000/api/gradcam', { imagen: imagenB64 })
       .subscribe({
         next: res => {
-          this.mensaje = `✅ Rostro detectado con ${res.puntos?.length || 0} puntos`;
+          this.mensaje = `Rostro detectado con ${res.puntos?.length || 0} puntos`;
           console.log(res.puntos);
         },
         error: err => {
           console.error('Error al contactar con backend:', err);
-          this.mensaje = '❌ No se pudo contactar con el backend';
+          this.mensaje = 'No se pudo contactar con el backend';
         }
       });*/
 

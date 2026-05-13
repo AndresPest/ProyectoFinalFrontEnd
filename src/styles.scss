@@ -37,3 +37,13 @@ body {
 
 html, body { height: 100%; }
 body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+
+.mat-mdc-tooltip {
+  --mdc-plain-tooltip-container-shape: 4px;
+  max-width: 500px !important; 
+}
+
+.no-scroll {
+  overflow: hidden !important;
+  height: 100vh;
+}

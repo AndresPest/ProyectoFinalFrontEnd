@@ -1,7 +1,7 @@
 $primary: #1e3a8a;
 $text-dark: #1f2937;
 $text-muted: #6b7280;
-$glass-bg: rgba(255, 255, 255, 0.8);
+$glass-bg: #ffffffcc;
 $ucab-blue: #003366;
 
 .modern-nav {
@@ -9,9 +9,9 @@ $ucab-blue: #003366;
   top: 0;
   width: 100%;
   z-index: 1000;
-  background: rgba(255, 255, 255, 0.8);
+  background: #ffffffcc;
   backdrop-filter: blur(10px);
-  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  border-bottom: 1px solid #0000000d;
 
   .nav-container {
     max-width: 1200px;
@@ -37,7 +37,6 @@ $ucab-blue: #003366;
   .brand-logo {
     height: 30px;
     width: auto;
-    // Si el logo es blanco, puedes usar filters para cambiarle el color a azul institucional o a tu color primario
     filter: drop-shadow(0 0 0 $ucab-blue) brightness(0) saturate(100%) invert(15%) sepia(95%) saturate(1915%) hue-rotate(195deg) brightness(96%) contrast(101%); 
   }
 
@@ -47,7 +46,7 @@ $ucab-blue: #003366;
     color: $text-dark;
     
     span { 
-      color: $primary; // "Sense" en el color violeta moderno
+      color: $primary;
     }
   }
 }
@@ -57,21 +56,8 @@ $ucab-blue: #003366;
   list-style: none;
   gap: 1.5rem;
 
-  a {
-    text-decoration: none;
-    color: #6b7280;
-    font-size: 0.95rem;
-    font-weight: 500;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    transition: all 0.2s ease;
-
-    i { font-size: 1.1rem; } // Iconos más sutiles
-
-    &:hover, &.active {
-      color: #6366f1;
-    }
+  &:hover, &.active {
+    color: #1e3a8a;
   }
 }
 
@@ -118,7 +104,7 @@ $ucab-blue: #003366;
   transition: all 0.2s ease;
 
   &:hover, &.active {
-    color: #6366f1;
+    color: #1e3a8a;
   }
   
   font-size: 0.95rem;
@@ -128,4 +114,91 @@ $ucab-blue: #003366;
 .nav-spacer {
   height: 8%;
   width: 100%;
+}
+
+.mobile-toggle {
+  display: none; // Oculto en desktop
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  width: 30px;
+  height: 24px;
+  position: relative;
+
+  span, span::before, span::after {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 2px;
+    background: $ucab-blue;
+    left: 0;
+    transition: all 0.3s ease;
+  }
+  span { top: 11px; }
+  span::before { top: -8px; }
+  span::after { top: 8px; }
+
+  // Animación a X cuando está activo
+  span.active {
+    background: transparent;
+    &::before { transform: rotate(45deg); top: 0; }
+    &::after { transform: rotate(-45deg); top: 0; }
+  }
+}
+
+.nav-content {
+  display: flex;
+  flex: 1;
+  justify-content: space-between;
+  align-items: center;
+  margin-left: 2rem;
+}
+
+@media (max-width: 992px) {
+  .mobile-toggle {
+    display: block; // Aparece en móvil
+  }
+
+  .nav-content {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    width: 100%;
+    background: white;
+    flex-direction: column;
+    margin-left: 0;
+    padding: 10px 0px;
+    gap: 20px;
+    box-shadow: 0 10px 15px rgba(0,0,0,0.05);
+    display: none; // Escondido por defecto
+
+    &.show {
+      display: flex; // Se muestra al clickear
+      animation: slideIn 0.3s ease-out;
+    }
+  }
+
+  .nav-menu, .nav-auth, .nav-auth-not-logged {
+    flex-direction: column;
+    width: 100%;
+    gap: 10px;
+    
+    button {
+      width: 100%;
+      justify-content: center;
+    }
+
+    .btn-register {
+      width: 60%;
+    }
+  }
+
+  .nav-auth-not-logged {
+    background-color: red;
+  }
+}
+
+@keyframes slideIn {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
 }

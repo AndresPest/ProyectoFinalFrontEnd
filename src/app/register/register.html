@@ -3,9 +3,9 @@
 
 <div class="auth-container" [@fadeIn]>
   <div class="auth-card">
-    <div class="auth-header">
+    <div class="main-header">
       <img src="assets/logoUCAB.png" alt="UCAB" class="auth-logo">
-      <h2>Crea tu cuenta</h2>
+      <h1>Crea tu cuenta</h1>
       <p>Completa tu perfil para el análisis emocional</p>
     </div>
 
@@ -16,7 +16,7 @@
           <label>Nombre</label>
           <div class="input-wrapper">
             <i class="ph ph-user"></i>
-            <input type="text" placeholder="Ej. Andres" formControlName="nombre" required/>
+            <input type="text" placeholder="Ej. Pedro" formControlName="nombre" required/>
           </div>
         </div>
 
@@ -24,24 +24,36 @@
           <label>Apellido</label>
           <div class="input-wrapper">
             <i class="ph ph-user"></i>
-            <input type="text" placeholder="Ej. Pestana" formControlName="apellido" required/>
+            <input type="text" placeholder="Ej. Perez" formControlName="apellido" required/>
           </div>
         </div>
       </div>
 
       <div class="input-group">
         <label>Carrera</label>
-        <div class="input-wrapper">
+        <div class="input-wrapper select-container">
           <i class="ph ph-graduation-cap"></i>
-          <input type="text" placeholder="Ej. Ingeniería Informática" formControlName="carrera" required/>
+          <select formControlName="carrera" (change)="onCarreraChange()" required>
+            <option value="" disabled selected>Selecciona tu carrera</option>
+            <option *ngFor="let c of carreras" [value]="c.nombre">
+              {{ c.nombre }}
+            </option>
+          </select>
         </div>
       </div>
 
       <div class="input-group">
         <label>Semestre</label>
-        <div class="input-wrapper">
+        <div class="input-wrapper select-container">
           <i class="ph ph-number-circle-seven"></i>
-          <input type="text" placeholder="Ej. 10mo" formControlName="semestre" required/>
+          <select formControlName="semestre" required [attr.disabled]="!form.get('carrera')?.value ? true : null">
+            <option value="" disabled selected>
+              {{ !form.get('carrera')?.value ? '' : 'Selecciona el semestre' }}
+            </option>
+            <option *ngFor="let s of semestresDisponibles" [value]="s">
+              {{ s }}{{ s === 1 ? 'er' : s === 2 ? 'do' : s === 3 ? 'er' : 'to' }} Semestre
+            </option>
+          </select>
         </div>
       </div>
 

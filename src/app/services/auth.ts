@@ -2,6 +2,8 @@ import { Injectable, inject } from '@angular/core';
 import { Auth, authState, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, User } from '@angular/fire/auth';
 import { Firestore, doc, setDoc, collection, addDoc, serverTimestamp, getDoc, query, where, getDocs, orderBy } from '@angular/fire/firestore';
 import { Observable, firstValueFrom } from 'rxjs';
+import { ResultadosCuestionario } from '../resultados/resultados';
+import { AnalisisFacial } from '../resultados/resultados';
 
 export interface DatosUsuario {
   nombre: string;
@@ -60,8 +62,6 @@ export class AuthService {
   logout() {
     return signOut(this.auth);
   }
-
-   //////// GUARDAR RESULTADOS DE CUESTIONARIOS (SISCO, Miller, CEAU)
 
   async guardarResultadoCuestionario(uid: string, data: { 
       identificador: string, 
@@ -193,51 +193,80 @@ export class AuthService {
     }
   }
 
-  async getResultadosCuestionarios() {
-  // 1. Esperamos a que Firebase nos diga quién es el usuario (resolviendo el problema de la recarga)
-  const user = await firstValueFrom(authState(this.auth));
-  
-  if (!user) {
-    console.warn("No se encontró usuario tras esperar authState");
-    return [];
-  }
+  async getResultadosCuestionarios(): Promise<ResultadosCuestionario[]> {
+    const user = await firstValueFrom(authState(this.auth));
+    
+    if (!user) {
+      console.warn("No se encontró usuario tras esperar authState");
+      return [];
+    }
 
-  try {
-    const colRef = collection(this.firestore, 'Resultados_Cuestionario');
-    const q = query(
-      colRef,
-      where('usuario_uid', '==', user.uid),
-      orderBy('timestamp', 'desc')
-    );
+    try {
+      const colRef = collection(this.firestore, 'Resultados_Cuestionario');
+      const q = query(
+        colRef,
+        where('usuario_uid', '==', user.uid),
+        orderBy('timestamp', 'desc')
+      );
 
-    const querySnapshot = await getDocs(q);
-    return querySnapshot.docs.map(doc => ({
-      id: doc.id,
-      ...doc.data()
-    }));
-  } catch (error) {
-    console.error("Error en getResultadosCuestionarios:", error);
-    return [];
+      const querySnapshot = await getDocs(q);
+      return querySnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      } as ResultadosCuestionario));
+    } catch (error) {
+      console.error("Error en getResultadosCuestionarios:", error);
+      return [];
+    }
   }
-}
 
   async guardarAnalisisFacialCuestionario(uid: string, data: { 
-  identificador_cuestionario: string, 
-  historial_cnn: any[], 
-  historial_facemesh: any[] 
-}) {
-  try {
-    const colRef = collection(this.firestore, 'Analisis_Facial_Sesion');
-    return await addDoc(colRef, {
-      usuario_uid: uid,
-      identificador_cuestionario: data.identificador_cuestionario,
-      historial_cnn: data.historial_cnn,
-      historial_facemesh: data.historial_facemesh,
-      timestamp: serverTimestamp()
-    });
-  } catch (error) {
-    console.error("Error al guardar análisis facial de la sesión:", error);
-    throw error;
+    resultado_id: string,
+    identificador_cuestionario: string, 
+    historial_cnn: any[], 
+    historial_facemesh: any[] 
+  }) {
+    try {
+      const colRef = collection(this.firestore, 'Analisis_Facial_Sesion');
+      return await addDoc(colRef, {
+        usuario_uid: uid,
+        identificador_cuestionario: data.identificador_cuestionario,
+        cuestionario_id: data.resultado_id,
+        historial_cnn: data.historial_cnn,
+        historial_facemesh: data.historial_facemesh,
+        timestamp: serverTimestamp()
+      });
+    } catch (error) {
+      console.error("Error al guardar análisis facial de la sesión:", error);
+      throw error;
+    }
   }
-}
+
+  async getAnalisisFacialSesion(): Promise<AnalisisFacial[]> {
+    const user = await firstValueFrom(authState(this.auth));
+    
+    if (!user) {
+      console.warn("No se encontró usuario tras esperar authState");
+      return [];
+    }
+
+    try {
+      const colRef = collection(this.firestore, 'Analisis_Facial_Sesion');
+      const q = query(
+        colRef,
+        where('usuario_uid', '==', user.uid),
+        orderBy('timestamp', 'desc')
+      );
+
+      const querySnapshot = await getDocs(q);
+      return querySnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      } as AnalisisFacial));
+    } catch (error) {
+      console.error("Error en getAnalisisFacialSesion:", error);
+      return [];
+    }
+  }
+
 }

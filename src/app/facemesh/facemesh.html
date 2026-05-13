@@ -1,17 +1,19 @@
 <app-navbar></app-navbar>
 <router-outlet></router-outlet>
 
-<div class="layout">
+<div class="layout" [@fadeIn]>
   <main class="main-content">
     <div class="contenedor-evaluacion">
-      <h2 class="titulo-nivel">Nivel 2 - Geometría Facial (FaceMesh)</h2>
-
+      <header class="main-header">
+        <h1>Análisis Facial (Google Face-Mesh)</h1>
+        <p>Análisis de expresiones faciales mediante lectura de puntos de expresión en malla Face-Mesh.</p>
+    </header>
       <div class="zona-evaluacion">
         <div class="contenedor">
-          <div class="video-section cuadro-captura" id="video-container">
+          <div class="video-section cuadro-captura">
             <video #video autoplay muted playsinline style="display: none;"></video>
-            <canvas #canvas width="640" height="480"></canvas>
-            <div id="estado-captura" *ngIf="!cargando && !resultado">Esperando detección de malla...</div>
+            <canvas #canvas></canvas>
+            <div id="estado-captura" *ngIf="!cargando && !resultado">Esperando captura...</div>
             <div id="estado-captura" *ngIf="cargando">Calculando puntos faciales...</div>
           </div>
         </div>
@@ -21,44 +23,37 @@
         <div class="barra-lateral">
           <div class="barra-emociones">
             <h3>Panel de Resultados</h3>
-            <div *ngIf="resultado"> 
-              <p>Estado emocional: <span class="valor-emocion" style="color: #28a745;">{{ mensaje }}</span></p>
-              <div class="porcentajes">
-                <div *ngFor="let emocion of resultado.porcentajes | keyvalue">
-                  <label>{{ emocion.key }}:</label>
-                  <progress [value]="emocion.value" max="100"></progress>
-                  <span>{{ emocion.value }}%</span>
-                </div>
+            
+            <div *ngIf="resultado" class="porcentajes">
+              <div *ngFor="let emocion of resultado.porcentajes | keyvalue">
+                <label>{{ emocion.key }}:</label>
+                <progress [value]="emocion.value" max="100"></progress>
+                <span>{{ emocion.value }}%</span>
               </div>
+            </div>
+
+            <div class="resultados-internos" *ngIf="mensaje">
+              <hr class="divider">
+              <p>Estado: <span class="valor-emocion">{{ mensaje }}</span></p>
+              <p class="tiempo-text">Tiempo actual: {{ tiempo }}</p> 
+            </div>
+
+            <div class="barra-progreso" *ngIf="cargando">
+              <h4>Analizando Geometría...</h4>
+              <div class="progreso-container">
+                <div class="progreso" style="width: 100%; background: #28a745; height: 100%;"></div>
+              </div>
+              <p id="porcentaje">Procesando landmarks...</p>
             </div>
           </div>
 
-          <div class="barra-progreso" *ngIf="cargando">
-            <h4>Analizando Geometría...</h4>
-            <div class="progreso-container">
-              <div class="progreso" style="width: 100%; background: #28a745; height: 100%;"></div>
-            </div>
-            <p id="porcentaje">Procesando landmarks...</p>
+          <div class="botones">
+            <button id="capturar" (click)="enviarImagenAlDetectorEstres()" [disabled]="cargando">
+              Capturar Imagen
+            </button>
           </div>
         </div>
       </div>
-
-      <div class="resultados">
-        <br>
-        <h3>Resumen de resultados</h3>
-        <p>Estado emocional: <span *ngIf="mensaje" class="emocion">{{ mensaje }}</span></p>
-        <p>Tiempo actual: {{ tiempo }}</p> 
-      </div>
-
-      <div class="botones">
-        <button id="capturar" (click)="enviarImagenAlDetectorEstres()" [disabled]="cargando" style="background-color: #28a745;">
-          Capturar con FaceMesh
-        </button>
-      </div>
     </div>
   </main>
-
-  <footer class="footer">
-    <p>&copy; 2026 Erick | Sistema de Evaluación Emocional</p>
-  </footer>
 </div>

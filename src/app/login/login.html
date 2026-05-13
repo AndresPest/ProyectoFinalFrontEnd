@@ -3,9 +3,9 @@
 
 <div class="auth-container" [@fadeIn]>
   <div class="auth-card">
-    <div class="auth-header">
+    <div class="main-header">
       <img src="assets/logoUCAB.png" alt="UCAB" class="auth-logo">
-      <h2>¡Hola de nuevo!</h2>
+      <h1>¡Bienvenido!</h1>
       <p>Ingresa a tu cuenta para continuar</p>
     </div>
 
@@ -30,9 +30,9 @@
         </div>
       </div>
 
-      <p *ngIf="errorMessage()" style="color: red; font-size: 0.8rem; text-align: center; margin-bottom: 10px;">
-        {{ errorMessage() }}
-      </p>
+      @if (errorMessage()) {
+        <p style="color: red; font-size: 0.8rem; text-align: center; margin-bottom: 10px;">{{ errorMessage() }}</p>
+      }
 
       <button type="submit" class="btn-submit" [disabled]="form.invalid || cargando()">
         {{ cargando() ? 'Cargando...' : 'Entrar' }}

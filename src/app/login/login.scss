@@ -15,18 +15,20 @@ $bg-gradient: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
 }
 
 .auth-card {
-  background: rgba(255, 255, 255, 0.9);
+  background: #ffffffe6;
   backdrop-filter: blur(12px);
   padding: 3rem;
   border-radius: 24px;
   width: 100%;
   max-width: 450px;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.4);
+  box-shadow: 0 20px 40px #00000014;
+  border: 1px solid #ffffff66;
 
-  .auth-header {
+  .main-header {
     text-align: center;
-    margin-bottom: 2rem;
+    padding: 5px 0 10px 0; 
+    margin-bottom: 20px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
 
     .auth-logo {
       height: 45px;
@@ -34,8 +36,20 @@ $bg-gradient: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
       filter: brightness(0) saturate(100%) invert(13%) sepia(30%) saturate(5000%) hue-rotate(190deg);
     }
 
-    h2 { font-size: 1.7rem; color: #111827; margin-bottom: 0.4rem; }
-    p { color: #6b7280; font-size: 0.9rem; line-height: 1.4; }
+    h1 {
+      font-size: 2rem;
+      font-weight: 700;
+      color: #1e3a8a;
+      margin: 0;
+      line-height: 1.2;
+    }
+
+    p {
+      font-size: 1.05rem;
+      color: #64748b;
+      margin-top: 10px;
+      font-weight: 400;
+    }
   }
 }
 
@@ -82,11 +96,15 @@ $bg-gradient: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
   .forgot-pass {
     text-align: right;
     margin-top: 0.5rem;
+
     span {
       font-size: 0.8rem;
       color: $primary;
       cursor: pointer;
-      &:hover { color: $primary; }
+      
+      &:hover {
+        color: $primary;
+      }
     }
   }
 }
@@ -121,7 +139,10 @@ $bg-gradient: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
     color: $primary;
     font-weight: 600;
     cursor: pointer;
-    &:hover { text-decoration: underline; }
+    
+    &:hover {
+      text-decoration: underline;
+    }
   }
 }
 

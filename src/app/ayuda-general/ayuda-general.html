@@ -1,0 +1,150 @@
+<app-navbar></app-navbar>
+<router-outlet></router-outlet>
+
+<div class="ayuda-container" [@fadeIn]>
+  <header class="ayuda-header">
+    <h1>Centro de Herramientas</h1>
+    <p>Información detallada y apoyo profesional</p>
+  </header>
+
+  <mat-tab-group mat-align-tabs="center" class="custom-tabs">
+    <mat-tab label="Directorio Médico">
+      <div class="profesionales-grid">
+        @for (doc of profesionales; track doc.nombre) {
+          <mat-card class="doctor-card">
+            <div class="card-header-main">
+            <div class="avatar-container">
+            @if (doc.fotoUrl) {
+                <img [src]="doc.fotoUrl" [alt]="doc.nombre" class="avatar-img">
+            } @else {
+                <mat-icon>medical_services</mat-icon>
+            }
+            </div>
+              <div class="title-section">
+                <h3>{{ doc.nombre }}</h3>
+                <span class="badge-especialidad">{{ doc.especialidad }}</span>
+              </div>
+            </div>
+
+            <div class="card-content-info">
+              <div class="info-row">
+                <mat-icon>location_on</mat-icon>
+                <span>{{ doc.direccion }}</span>
+              </div>
+              <div class="info-row">
+                <mat-icon>phone</mat-icon>
+                <span class="phone-text">{{ doc.telefono }}</span>
+              </div>
+            </div>
+
+            <mat-accordion class="horarios-accordion">
+              <mat-expansion-panel elevation="0">
+                <mat-expansion-panel-header>
+                  <mat-panel-title>
+                    <mat-icon>schedule</mat-icon> Horarios de Atención
+                  </mat-panel-title>
+                </mat-expansion-panel-header>
+                
+                <div class="horarios-container">
+                  <div class="h-row">
+                    <span class="h-label">Presencial:</span> 
+                    <span class="h-value">{{ doc.horarios.presencial }}</span>
+                  </div>
+                  <div class="h-row online">
+                    <span class="h-label">En Línea:</span> 
+                    <span class="h-value">{{ doc.horarios.online }}</span>
+                  </div>
+                  <div class="h-row riesgo">
+                    <span class="h-label">Pob. Riesgo:</span> 
+                    <span class="h-value">{{ doc.horarios.riesgo }}</span>
+                  </div>
+                </div>
+              </mat-expansion-panel>
+            </mat-accordion>
+          </mat-card>
+        }
+      </div>
+    </mat-tab>
+    <mat-tab label="Libros y Artículos">
+    <div class="resources-grid">
+        @for (libro of libros; track libro.titulo) {
+        <mat-card class="resource-card book-card">
+        <div class="book-preview">
+            @if (libro.urlPortada) {
+            <img [src]="libro.urlPortada" [alt]="libro.titulo" class="img-thumb">
+            } @else {
+            <div class="img-fallback">
+                <mat-icon>menu_book</mat-icon>
+            </div>
+            }
+            <div class="file-badge">PDF</div>
+        </div>
+
+        <div class="book-body">
+            <div class="text-wrapper">
+            <h3>{{ libro.titulo }}</h3>
+            <p class="author">{{ libro.autor }}</p>
+            </div>
+            
+            <div class="book-footer">
+            <a [href]="libro.urlDescarga" target="_blank" class="btn-action">
+                <mat-icon>visibility</mat-icon> 
+                Visualizar PDF
+            </a>
+            </div>
+        </div>
+        </mat-card>
+        }
+    </div>
+    </mat-tab>
+    <mat-tab label="Podcasts">
+    <div class="resources-grid">
+        @for (pod of podcasts; track pod.titulo) {
+        <mat-card class="resource-card podcast-card">
+        <div class="podcast-preview">
+            <img [src]="pod.urlPortada" [alt]="pod.titulo" class="img-thumb">
+            <div class="platform-badge" [class.spotify]="pod.plataforma === 'Spotify'">
+            <mat-icon>{{ pod.plataforma === 'Spotify' ? 'graphic_eq' : 'play_circle' }}</mat-icon>
+            {{ pod.plataforma }}
+            </div>
+        </div>
+
+        <div class="podcast-body">
+            <div class="text-wrapper">
+            <h3>{{ pod.titulo }}</h3>
+            <p class="creator">{{ pod.creador }}</p>
+            </div>
+            
+            <div class="podcast-footer">
+            <a [href]="pod.urlPodcast" target="_blank" class="btn-platform" [class.spotify]="pod.plataforma === 'Spotify'">
+                <mat-icon>{{ pod.plataforma === 'Spotify' ? 'graphic_eq' : 'play_circle' }}</mat-icon>
+                Reproducir en {{ pod.plataforma }}
+            </a>
+            </div>
+        </div>
+        </mat-card>
+        }
+    </div>
+    </mat-tab>
+    <mat-tab label="Infografías">
+        <div class="resources-grid">
+        @for (info of infografias; track info.titulo) {
+            <mat-card class="resource-card info-card">
+            <div class="info-preview">
+                <img [src]="info.urlInfografia" alt="{{ info.titulo }}" class="img-thumb">
+            </div>
+            <div class="info-footer">
+                <h3>{{ info.titulo }}</h3>
+                
+                <div class="date-badge">{{ info.fecha }}</div>
+                
+                <button class="btn-view" (click)="abrirInfografia(info.urlInfografia)">
+                    <mat-icon>visibility</mat-icon> Ver Infografía
+                </button>
+            </div>
+            </mat-card>
+        }
+        </div>
+    </mat-tab>
+  </mat-tab-group>
+</div>

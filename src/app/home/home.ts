@@ -27,10 +27,16 @@ import { Navigation } from '../services/navigation';
 })
 export class Home {
 
-  constructor(private navService: Navigation) {}
+  constructor(private navService: Navigation, private authService: AuthService) {}
 
   irA(ruta: string) {
-    this.navService.irA(ruta);
+    if (ruta === 'cuestionario') {
+      if (this.authService.currentUser) {
+        this.navService.irA('cuestionario');
+      } else {
+        this.navService.irA('login');
+      }
+    }
   }
 
 }

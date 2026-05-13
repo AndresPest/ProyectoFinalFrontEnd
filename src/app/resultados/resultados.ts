@@ -4,19 +4,70 @@ import { NavbarComponent } from '../navbar/navbar';
 import { RouterOutlet } from '@angular/router';
 import { AuthService } from '../services/auth';
 import { Navigation } from '../services/navigation';
-
-
-// Importa los módulos de Material que usaremos en el HTML
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
 import { DetalleResultadoComponent } from './detallesResultados';
-
 import { Component, OnInit, inject,NgZone } from '@angular/core';
-// Firebase
 import { Firestore, collection, query, where, orderBy, getDocs } from '@angular/fire/firestore';
 import { Auth } from '@angular/fire/auth';
+
+export interface ResultadosCuestionario {
+  id: string;
+  usuario_id: string;
+  identificador_cuestionario: string;
+  puntaje_final: number;
+  nivel_estres: string;
+  categorias?: any;
+  // Para Miller y Smith
+  categoriaVulnerableLv1?: any;
+  categoriaVulnerableLv2?: any;
+  categoriaVulnerableLv3?: any;
+  // Para CEAU y SISCO
+  categoriasResaltantes?: any;
+  categoriasAtencion?: any;
+  timestamp: any;
+}
+
+export interface AnalisisFacial {
+  id: string;
+  cuestionario_id: string;
+  usuario_id: string;
+  timestamp: any;
+  historial_cnn: any[];
+  historial_facemesh: any[];
+}
+
+interface ResultadoCompleto {
+  id: string;
+  identificador: string;
+  puntaje: number;
+  nivel: string;
+  categorias?: any;
+  // Para Miller y Smith
+  categoriaVulnerableLv1?: any;
+  categoriaVulnerableLv2?: any;
+  categoriaVulnerableLv3?: any;
+  // Para CEAU y SISCO
+  categoriasResaltantes?: any;
+  categoriasAtencion?: any;
+  historial_cnn: any[];
+  historial_facemesh: any[];
+  resultado_cnn: string;
+  resultado_facemesh: string;
+  timestamp: string;
+}
+
+const EMOCIONES: Record<string, string> = {
+    'happy': 'Feliz',
+    'sad': 'Triste',
+    'angry': 'Enojado',
+    'neutral': 'Neutral',
+    'surprise': 'Sorprendido',
+    'fear': 'Miedo',
+    'disgust': 'Disgustado'
+};
 
 @Component({
   selector: 'app-resultados',
@@ -40,7 +91,8 @@ export class ResultadosComponent implements OnInit {
 
   verDetalles(resultado: any) {
     this.dialog.open(DetalleResultadoComponent, {
-      width: '500px',
+      width: '800px',
+      maxWidth: 'none',
       data: resultado,
       autoFocus: false
     });
@@ -57,30 +109,93 @@ export class ResultadosComponent implements OnInit {
   }
 
   async cargarDatos() {
-      this.loading = true;
-      try {
-        const datos = await this.auth.getResultadosCuestionarios();
-        
-        // Ejecutamos esto dentro de la zona de Angular para forzar el renderizado
-        this.zone.run(() => {
-          this.listaResultados = datos;
-          this.loading = false;
-          console.log("Vista actualizada con éxito");
-        });
+    this.loading = true;
+    try {
+      const datosCuestionario: ResultadosCuestionario[] = await this.auth.getResultadosCuestionarios();
+      const datosFaciales: AnalisisFacial[] = await this.auth.getAnalisisFacialSesion();
+      const resultadosCombinados: ResultadoCompleto[] = [];
 
-      } catch (error) {
-        console.error("Error al cargar:", error);
-        this.zone.run(() => this.loading = false);
+      for (let resultadoCuestionario of datosCuestionario) {
+        for (let analisisFacial of datosFaciales) {
+          if (resultadoCuestionario.id === analisisFacial.cuestionario_id) {
+            
+            const resultadoCompleto: ResultadoCompleto = {
+              id: resultadoCuestionario.id,
+              identificador: resultadoCuestionario.identificador_cuestionario,
+              puntaje: resultadoCuestionario.puntaje_final,
+              nivel: resultadoCuestionario.nivel_estres,
+              categorias: resultadoCuestionario.categorias,
+              // Para Miller y Smith
+              categoriaVulnerableLv1: resultadoCuestionario.categoriaVulnerableLv1,
+              categoriaVulnerableLv2: resultadoCuestionario.categoriaVulnerableLv2,
+              categoriaVulnerableLv3: resultadoCuestionario.categoriaVulnerableLv3,
+              // Para CEAU y SISCO
+              categoriasResaltantes: resultadoCuestionario.categoriasResaltantes,
+              categoriasAtencion: resultadoCuestionario.categoriasAtencion,
+              historial_cnn: analisisFacial.historial_cnn,
+              historial_facemesh: analisisFacial.historial_facemesh,
+              resultado_cnn: this.emocionDominante(analisisFacial.historial_cnn),
+              resultado_facemesh: this.emocionDominante(analisisFacial.historial_facemesh),
+              timestamp: resultadoCuestionario.timestamp
+            };
+            resultadosCombinados.push(resultadoCompleto);
+            console.log("Resultado Completo:", resultadoCompleto);
+          }
+        }
       }
-    }
-    
-    // No olvides esta función para las categorías
-    getCategorias(obj: any): string[] {
-      return obj ? Object.keys(obj) : [];
-    }
+      
+      this.zone.run(() => {
+        this.listaResultados = resultadosCombinados;
+        this.loading = false;
+      });
 
-    // Añade esto debajo de getCategorias
-    isObject(val: any): boolean {
-      return val !== null && typeof val === 'object';
+    } catch (error) {
+      console.error("Error al cargar:", error);
+      this.zone.run(() => this.loading = false);
     }
   }
+
+  emocionDominante(historial: any[]): string {
+    if (!historial || historial.length === 0)
+      return "Arreglo Vacio";
+
+    const frecuenciaEmociones: { [key: string]: number } = {};
+    let modaEmocion = "";
+    let maxFrecuencia = 0;
+
+    for (const emocion of historial) {
+      frecuenciaEmociones[emocion] = (frecuenciaEmociones[emocion] || 0) + 1;
+
+      if (frecuenciaEmociones[emocion] > maxFrecuencia) {
+        maxFrecuencia = frecuenciaEmociones[emocion];
+        modaEmocion = emocion;
+      }
+    }
+    return modaEmocion;
+  }
+    
+  getCategorias(obj: any): string[] {
+    return obj ? Object.keys(obj) : [];
+  }
+
+  isObject(val: any): boolean {
+    return val !== null && typeof val === 'object';
+  }
+
+  getMaximo(nombreTest: string): number {
+    const mapeo = {
+      'Test de Vulnerabilidad al Estrés - L.H. Miller y A.D. Smith': 80,
+      'CEAU - Cuestionario de Estrés Académico en la Universidad': 105,
+      'SISCO - Inventario Sistémico Cognoscitivista para el estudio del estrés académico': 5,
+      'Inventario Sobre Vulnerabilidad al Estrés (Beech, Burns y Sheffield, 1982)': 22,
+      'Inventario de Síntomas de Estrés. Segunda versión - Arturo Barraza Macías': 120
+    };
+    return (mapeo as any)[nombreTest];
+  }
+
+  traducirEmocion(emocion: string): string {
+    if (!emocion) return 'Sin datos';
+    return EMOCIONES[emocion.toLowerCase()];
+  }
+  
+}

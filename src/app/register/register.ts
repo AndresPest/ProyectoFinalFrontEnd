@@ -10,6 +10,11 @@ import { NavbarComponent } from '../navbar/navbar';
 import { AuthService } from '../services/auth';
 import { Navigation } from '../services/navigation';
 
+interface Carrera {
+  nombre: string;
+  maxSemestres: number;
+}
+
 @Component({
   selector: 'app-register',
   standalone: true,
@@ -31,7 +36,19 @@ import { Navigation } from '../services/navigation';
     ])
   ]
 })
+
 export class RegisterComponent {
+
+  carreras: Carrera[] = [
+    { nombre: 'Administración de Empresas', maxSemestres: 8 },
+    { nombre: 'Contaduría Pública', maxSemestres: 8 },
+    { nombre: 'Relaciones Industriales', maxSemestres: 8 },
+    { nombre: 'Comunicación Social', maxSemestres: 8 },
+    { nombre: 'Ingeniería Civil', maxSemestres: 8 },
+    { nombre: 'Ingeniería Informática', maxSemestres: 8 },
+    { nombre: 'Ingeniería Industrial', maxSemestres: 8 },
+    { nombre: 'Derecho', maxSemestres: 9 }
+  ];
 
   constructor(private navService: Navigation) {}
 
@@ -64,7 +81,7 @@ export class RegisterComponent {
         semestre 
       });
       
-      this.router.navigate(['/login']);
+      this.router.navigate(['/home']);
     } catch (error: any) {
       this.cargando = false;
       
@@ -78,5 +95,19 @@ export class RegisterComponent {
 
   irA(ruta: string) {
     this.navService.irA(ruta);
+  }
+
+  get semestresDisponibles(): number[] {
+    const carreraSeleccionada = this.form.get('carrera')?.value;
+    const carrera = this.carreras.find(c => c.nombre === carreraSeleccionada);
+    
+    if (carrera) {
+      return Array.from({ length: carrera.maxSemestres }, (_, i) => i + 1);
+    }
+    return [];
+  }
+
+  onCarreraChange() {
+    this.form.get('semestre')?.setValue('');
   }
 }

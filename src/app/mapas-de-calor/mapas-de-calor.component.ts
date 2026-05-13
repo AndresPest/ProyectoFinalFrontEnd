@@ -38,13 +38,12 @@ import { HttpClient } from '@angular/common/http';
 export class MapasDeCalorComponent {
   /*activaciones: any = {};
 
-  // 👇 aquí inyectas el servicio
   constructor(private http: HttpClient, public capturaService: CapturaService) {}
 
   obtenerActivaciones() {
-    const imagenB64 = this.capturaService.getImagen(); // ahora sí existe
+    const imagenB64 = this.capturaService.getImagen();
     if (!imagenB64) {
-      console.warn('⚠️ No hay captura disponible');
+      console.warn('No hay captura disponible');
       return;
     }
 
@@ -53,7 +52,7 @@ export class MapasDeCalorComponent {
     next: res => {
       this.activaciones = res.activaciones;
     },
-    error: err => console.error('Error al obtener activaciones', err)
+    error: err => console.error('Error', err)
   });
 
   }*/

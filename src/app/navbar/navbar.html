@@ -3,23 +3,33 @@
     <div class="brand" (click)="irA('')">
       <img src="assets/logoUCAB.png" alt="UCAB Logo" class="brand-logo"><span></span>
     </div>
-@if (authService.user$ | async; as user) {
-    <div class="nav-menu">
-      <button class="nav-btn" (click)="irA('cuestionario')">Cuestionario </button>
-      <button class="nav-btn" (click)="irA('facemesh')">Face Mesh </button>
-      <button class="nav-btn" (click)="irA('face-mesh')">Reconocimiento </button>
-      <button class="nav-btn" (click)="irA('resultados')">Resultados </button>
+    <button class="mobile-toggle" (click)="toggleMenu()">
+      <span [class.active]="menuAbierto"></span>
+    </button>
+    
+    <div class="nav-content" [class.show]="menuAbierto">
+      @if (authService.user$ | async; as user) {
+        <div class="nav-menu">
+        </div>
+        <div class="nav-menu">
+          <button class="nav-btn" (click)="irA('cuestionario'); menuAbierto = false">Cuestionario</button>
+          <button class="nav-btn" (click)="irA('resultados'); menuAbierto = false">Resultados</button>
+          <button class="nav-btn" (click)="irA('centralFunciones'); menuAbierto = false">Funcionalidades</button>
+          <button class="nav-btn" (click)="irA('ayuda'); menuAbierto = false">Profesionales e Información</button>
+        </div>
+        <div class="nav-auth" #noAuth>
+          <button class="nav-btn" (click)="irA('perfil'); menuAbierto = false">Mi Perfil</button>
+          <button class="btn-register" (click)="logout(); menuAbierto = false">Cerrar Sesión</button>
+        </div>
+      } @else {
+        <div class="nav-auth" #noAuth>
+        </div>
+        <div class="nav-auth" #noAuth>
+          <button class="nav-btn" (click)="irA('login'); menuAbierto = false">Login</button>
+          <button class="btn-register" (click)="irA('registro'); menuAbierto = false">Registro</button>
+        </div>
+      }
     </div>
-    <div class="nav-auth" #noAuth>
-      <button class="nav-btn" (click)="irA('perfil')">Mi Perfil</button>
-      <button class="btn-register" (click)="logout()">Cerrar Sesión</button>
-    </div>
-} @else {
-    <div class="nav-auth" #noAuth>
-      <button class="nav-btn" (click)="irA('login')">Login</button>
-      <button class="btn-register" (click)="irA('registro')">Registro</button>
-    </div>
-  }
   </div>
 </nav>
 

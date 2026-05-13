@@ -18,12 +18,13 @@ $bg-light: #f8fafc;
   max-width: 800px;
   border-radius: 24px;
   padding: 3rem;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 10px 25px #0000000d;
   border: 1px solid #f1f5f9;
 
   .profile-header {
     text-align: center;
     margin-bottom: 3rem;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
 
     .avatar-circle {
       width: 80px;
@@ -40,8 +41,19 @@ $bg-light: #f8fafc;
       box-shadow: 0 8px 16px rgba($primary, 0.2);
     }
 
-    h2 { font-size: 1.8rem; color: #1e293b; margin: 0; }
-    .header-subtitle { color: #64748b; font-size: 0.95rem; margin-top: 0.5rem; }
+    h2 {
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: #1e3a8a;
+      margin: 0;
+    }
+
+    .header-subtitle {
+      color: #64748b;
+      font-size: 1.05rem;
+      margin-top: 0.5rem;
+      font-weight: 400;
+    }
   }
 }
 
@@ -58,7 +70,10 @@ $bg-light: #f8fafc;
   align-items: center;
   gap: 10px;
 
-  i { color: $accent; font-size: 1.3rem; }
+  i {
+    color: $accent;
+    font-size: 1.3rem;
+  }
 }
 
 .form-grid {
@@ -118,6 +133,7 @@ $bg-light: #f8fafc;
   .mat-mdc-form-field-focus-indicator {
     color: $accent !important;
   }
+  
   .mdc-notched-outline__pill {
     border-color: #e2e8f0 !important;
   }

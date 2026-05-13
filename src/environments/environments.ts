@@ -8,7 +8,7 @@ import { getAnalytics } from "firebase/analytics";
 // For Firebase JS SDK v7.20.0 and later, measurementId is optional
 export const environment = {
   production: false,
-  firebase: { // <-- Esta es la propiedad que te falta
+  firebase: {
     apiKey: "AIzaSyCzthFnNo4ERDhSuRgn2K9cdynwIe1Iwj0",
     authDomain: "reconocimiento-emocional-2d6e4.firebaseapp.com",
     projectId: "reconocimiento-emocional-2d6e4",

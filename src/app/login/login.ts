@@ -43,7 +43,6 @@ export class LoginComponent {
   errorMessage = signal<string | null>(null);
   cargando = signal<boolean>(false);
 
-  // Definición del formulario reactivo
   form: FormGroup = this.fb.group({
     usuario: ['', [Validators.required, Validators.email]],
     password: ['', [Validators.required, Validators.minLength(6)]]
@@ -61,7 +60,7 @@ export class LoginComponent {
       const res = await this.authService.login(usuario, password);
       console.log('Login exitoso con Firebase:', res.user.uid);
       
-      this.router.navigate(['/resultados']);
+      this.router.navigate(['/cuestionario']);
       
     } catch (err: any) {
       console.error('Error de login:', err.code);

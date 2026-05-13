@@ -1,5 +1,6 @@
 import { Component, ViewChild, ElementRef, NgZone} from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { trigger, transition, style, animate } from '@angular/animations';
 import { MatSelectModule } from '@angular/material/select';
 import { MatButtonModule } from '@angular/material/button';
 import { FormsModule } from '@angular/forms';
@@ -12,7 +13,21 @@ import { AudioEmotionService } from '../audio-reconocimiento/audio-reconocimient
   standalone: true,
   imports: [CommonModule, MatSelectModule, MatButtonModule, FormsModule, NavbarComponent, RouterOutlet],
   templateUrl: './audio-reconocimiento.html',
-  styleUrls: ['./audio-reconocimiento.scss']
+  styleUrls: ['./audio-reconocimiento.scss'],
+  animations: [
+    trigger('fadeIn', [
+      transition(':enter', [
+        style({ opacity: 0, transform: 'translateY(10px)' }),
+        animate('300ms ease-out', style({ opacity: 1, transform: 'translateY(0)' }))
+      ])
+    ]),
+    trigger('fadeInTrigger', [
+      transition('* => *', [
+        style({ opacity: 0, transform: 'translateY(10px)' }),
+        animate('300ms ease-out', style({ opacity: 1, transform: 'translateY(0)' }))
+      ])
+    ])
+  ]
 })
 
 export class AudioReconocimiento {
@@ -296,6 +311,19 @@ stopRecording() {
       const wavBlob = this.bufferToWav(audioBuffer);
       resolve(wavBlob);
     });
+  }
+
+  traducirEmocion(label: string): string {
+    const traducciones: any = {
+      'happy': 'Feliz',
+      'sad': 'Triste',
+      'angry': 'Enojado',
+      'neutral': 'Neutral',
+      'surprise': 'Sorprendido',
+      'fear': 'Miedo',
+      'disgust': 'Disgustado'
+    };
+    return traducciones[label.toLowerCase()] || label;
   }
 
 }

@@ -10,8 +10,8 @@ export const authGuard: CanActivateFn = (route, state) => {
   return user(auth).pipe(
     take(1),
     map(u => {
-      if (u) return true; // Si hay usuario, permite el paso
-      router.navigate(['/login']); // Si no, manda al login
+      if (u) return true;
+      router.navigate(['/login']);
       return false;
     })
   );

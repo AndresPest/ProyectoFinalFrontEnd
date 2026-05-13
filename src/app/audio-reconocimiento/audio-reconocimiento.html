@@ -1,53 +1,80 @@
 <app-navbar></app-navbar>
 <router-outlet></router-outlet>
 
-<div class="questionnaire-container">
-  <h2>Reconocimiento de emociones por voz</h2>
-  <div class="voice-emotion-card">
-    <div class="contenedor-grabaciones">
-      <div class="recording-visualizer" *ngIf="recording || secondsElapsed > 0">
-            <div class="recording-dot" *ngIf="recording"></div>
-            <div class="timer">{{ recordingTime }}</div>
+<div class="main-wrapper" [@fadeIn]>
+  <div class="questionnaire-container">
+    <header class="main-header">
+      <h1>Reconocimiento de Emociones</h1>
+      <p>Tu estado emocional analizado con redes neuronales convolucionales (CNN)</p>
+    </header>
+
+    <div class="glass-card voice-card">
+      <div class="visualizer-section">
+        @if (recording || secondsElapsed > 0) {
+          <div class="recording-visualizer">
+            @if (recording) { <div class="recording-dot"></div> }
+            <span class="timer">{{ recordingTime }}</span>
             <canvas #waveformCanvas id="waveform"></canvas>
-            <button class="btn-discard" *ngIf="!recording && secondsElapsed > 0" (click)="discardRecording()" title="Descartar grabación"> <i class="fas fa-trash"></i> </button>
-            <div class="timer" *ngIf="!recording && secondsElapsed > 0"></div>
-
-      </div>
-
-      <div class="controls-row">
-        <button class="btn-record" (click)="toggleRecording()" [disabled]="(recording || secondsElapsed > 0) && !recording">
-          {{ recording ? '⏹️ Detener' : (secondsElapsed > 0 ? '✅ Grabación Lista' : '🎤 Grabar') }}
-        </button>
-
-        <button class="btn-process" *ngIf="!recording && secondsElapsed > 0" (click)="analyzeAudio()" [disabled]="isAnalyzing">
-          <span *ngIf="!isAnalyzing">Analizar</span>
-          <span *ngIf="isAnalyzing">Procesando...</span>
-        </button>
-      </div>
-    </div>
-      <div class="upload-alt">
-        <span>Subir archivo de audio (.wav): </span>
-        <input type="file" (change)="$any($event).target.files[0] && onFileSelected($event)" accept=".wav">
-        <button class="btn-download-alt" *ngIf="!recording && secondsElapsed > 0" (click)="downloadRecording()"> 📥 Descargar </button>
-      </div>
-    </div>
-
-    <div class="results-container" *ngIf="result && resultsArray.length > 0">
-      <h2 class="panel-title">Panel de Resultados</h2>
-      <h3 class="main-prediction">
-        Estado emocional: <strong>{{ result.label }} ({{ (result.confidence * 100).toFixed(1) }}%)</strong>
-      </h3>
-
-      <div class="emotions-grid">
-        <div class="emotion-row" *ngFor="let emotion of resultsArray">
-          <span class="label">{{ emotion.name }}:</span>
-          
-          <div class="bar-background">
-            <div class="bar-fill" [style.width.%]="emotion.percent"></div>
+            
+            @if (!recording && secondsElapsed > 0) {
+              <button class="btn-icon discard" (click)="discardRecording()" title="Descartar">
+                <i class="fas fa-trash"></i>
+              </button>
+            }
           </div>
-          
-          <span class="percentage">{{ emotion.value }}%</span>
+        }
+
+        <div class="controls-group">
+          <button class="btn-main record" [class.is-recording]="recording" (click)="toggleRecording()" 
+                  [disabled]="(recording || secondsElapsed > 0) && !recording">
+            <i class="fas" [class.fa-stop]="recording" [class.fa-microphone]="!recording"></i>
+            {{ recording ? 'Detener' : (secondsElapsed > 0 ? 'Grabación Lista' : 'Iniciar Grabación') }}
+          </button>
+
+          @if (!recording && secondsElapsed > 0) {
+            <button class="btn-main process" (click)="analyzeAudio()" [disabled]="isAnalyzing">
+              {{ isAnalyzing ? 'Procesando...' : 'Analizar Voz' }}
+            </button>
+          }
         </div>
       </div>
+
+      <div class="upload-zone">
+        <label class="file-label">
+          <i class="fas fa-cloud-upload-alt"></i>
+          <span>Subir audio</span>
+          <input type="file" (change)="$any($event).target.files[0] && onFileSelected($event)" accept=".wav" hidden>
+        </label>
+        @if (!recording && secondsElapsed > 0) {
+          <button class="btn-text" (click)="downloadRecording()">
+            <i class="fas fa-download"></i> Descargar
+          </button>
+        }
+      </div>
     </div>
+
+    @if (result && resultsArray.length > 0) {
+      <div class="glass-card results-card">
+        <div class="results-header">
+          <span class="badge-ai">Analisis Realizado</span>
+          <h3>Estado detectado: <strong>{{ traducirEmocion(result.label) }}</strong></h3>
+          <div class="confidence-meter">Confianza: {{ (result.confidence * 100).toFixed(1) }}%</div>
+        </div>
+
+        <div class="emotions-list">
+          @for (emotion of resultsArray; track emotion.name) {
+            <div class="emotion-item">
+              <div class="emotion-info">
+                <span class="name">{{ traducirEmocion(emotion.name) }}</span>
+                <span class="pct">{{ emotion.value }}%</span>
+              </div>
+              <div class="progress-bg">
+                <div class="progress-fill" [style.width.%]="emotion.percent"></div>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+    }
+  </div>
 </div>

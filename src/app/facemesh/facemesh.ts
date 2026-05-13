@@ -1,6 +1,7 @@
-import { Component, ElementRef, ViewChild, AfterViewInit, inject } from '@angular/core';
+import { Component, ElementRef, ViewChild, AfterViewInit, inject, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
+import { trigger, transition, style, animate } from '@angular/animations';
 import { RouterModule } from '@angular/router';
 import { NavbarComponent } from '../navbar/navbar'; 
 import { FaceMesh } from '@mediapipe/face_mesh';
@@ -12,18 +13,29 @@ import { AuthService } from '../services/auth';
 @Component({
   selector: 'app-facemesh',
   standalone: true,
-  imports: [
-    CommonModule, 
-    HttpClientModule, 
-    RouterModule,
-    NavbarComponent
-  ],
+  imports: [CommonModule, HttpClientModule, RouterModule, NavbarComponent],
   templateUrl: './facemesh.html',
-  styleUrls: ['./facemesh.scss']
+  styleUrls: ['./facemesh.scss'],
+  animations: [
+    trigger('fadeIn', [
+      transition(':enter', [
+        style({ opacity: 0, transform: 'translateY(10px)' }),
+        animate('300ms ease-out', style({ opacity: 1, transform: 'translateY(0)' }))
+      ])
+    ]),
+    trigger('fadeInTrigger', [
+      transition('* => *', [
+        style({ opacity: 0, transform: 'translateY(10px)' }),
+        animate('300ms ease-out', style({ opacity: 1, transform: 'translateY(0)' }))
+      ])
+    ])
+  ]
 })
-export class FaceMesh1Component implements AfterViewInit {
+export class FaceMesh1Component implements AfterViewInit, OnDestroy {
   @ViewChild('video') videoRef!: ElementRef<HTMLVideoElement>;
   @ViewChild('canvas') canvasRef!: ElementRef<HTMLCanvasElement>;
+
+  private camera: Camera | null = null;
   
   private authService = inject(AuthService);
   private http = inject(HttpClient);
@@ -51,14 +63,17 @@ export class FaceMesh1Component implements AfterViewInit {
     faceMesh.onResults(res => {
       const canvas = this.canvasRef.nativeElement;
       const ctx = canvas.getContext('2d')!;
+
+      if (canvas.width !== res.image.width || canvas.height !== res.image.height) {
+        canvas.width = res.image.width;
+        canvas.height = res.image.height;
+      }
       
-      // Limpiar y dibujar cámara
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       ctx.drawImage(res.image, 0, 0, canvas.width, canvas.height);
 
       if (res.multiFaceLandmarks && res.multiFaceLandmarks[0]) {
         this.ultimosLandmarks = res.multiFaceLandmarks[0];
-        // Dibujar la malla verde (Tesselation)
         drawConnectors(ctx, this.ultimosLandmarks, mp_face_mesh.FACEMESH_TESSELATION, {
           color: '#00FF0070', 
           lineWidth: 1
@@ -66,11 +81,19 @@ export class FaceMesh1Component implements AfterViewInit {
       }
     });
 
-    const camera = new Camera(this.videoRef.nativeElement, {
+    this.camera = new Camera(this.videoRef.nativeElement, {
       onFrame: async () => await faceMesh.send({image: this.videoRef.nativeElement}),
-      width: 640, height: 480
+      width: 1280, height: 720
     });
-    camera.start();
+    this.camera.start();
+  }
+
+  ngOnDestroy() {
+    if (this.camera) {
+      this.camera.stop();
+      this.camera = null;
+      console.log('Cámara y procesos de FaceMesh detenidos correctamente.');
+    }
   }
 
   enviarImagenAlDetectorEstres() {
@@ -82,8 +105,7 @@ export class FaceMesh1Component implements AfterViewInit {
     this.cargando = true;
     const canvas = this.canvasRef.nativeElement;
     const imgB64 = canvas.toDataURL('image/jpeg', 0.7).split(',')[1];
-
-    // Enviamos imagen + puntos (Landmarks)
+    
     const body = { 
       imagen: imgB64, 
       puntos: this.ultimosLandmarks 

@@ -1,25 +1,33 @@
-.results-container {
-  max-width: 900px;
-  margin: 2rem auto;
-  padding: 0 1rem;
+.main-header {
+  text-align: center;
+  padding: 40px 0 0 0px; 
+  margin-bottom: 20px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  font-family: 'Segoe UI', sans-serif;
+  background: #F8FAFC;
+
+  h1 {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #1e3a8a;
+    margin: 0;
+    line-height: 1.2;
+  }
+
+  p {
+    font-size: 1.05rem;
+    color: #64748b;
+    margin-top: 10px;
+    font-weight: 400;
+  }
 }
 
-.results-header {
-  text-align: center;
-  margin-bottom: 2.5rem;
-  .icon-circle {
-    background: #e8eaf6;
-    width: 60px;
-    height: 60px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin: 0 auto 1rem;
-    i { font-size: 1.8rem; color: #1a237e; }
-  }
-  h2 { color: #1a237e; font-size: 1.8rem; margin: 0; }
-  .header-subtitle { color: #666; margin-top: 0.5rem; }
+.results-container {
+  max-width: 1000px;
+  margin: 1rem auto;
+  padding: 0 1rem;
+  background: #F8FAFC !important;
+  font-family: 'Segoe UI', sans-serif;
 }
 
 .results-grid {
@@ -32,7 +40,7 @@
   background: white;
   border-radius: 16px;
   padding: 1.5rem;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+  box-shadow: 0 4px 15px #0000000d;
   border-left: 6px solid #1a237e;
   transition: transform 0.2s;
 
@@ -70,38 +78,78 @@
     padding: 1rem 0;
     border-top: 1px solid #f0f0f0;
 
-    .score-brief {
+  .score-brief {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-width: 100px;
+
+    .score-container {
       display: flex;
-      flex-direction: column;
-      align-items: center;
-      min-width: 80px;
-      
-      .score-value {
-        font-size: 1.5rem;
-        font-weight: 800;
-        color: #1a237e;
-      }
-      .score-label {
-        font-size: 0.7rem;
-        text-transform: uppercase;
-        color: #999;
-        letter-spacing: 0.5px;
-      }
+      align-items: baseline;
+      gap: 2px;
     }
 
-    .status-summary {
-      .summary-text {
-        margin: 0;
-        color: #555;
-        .intensity-highlight {
-          color: #1a237e; // Puedes cambiar esto según el nivel (rojo para estrés alto, etc)
-          background: #e8eaf6;
-          padding: 2px 8px;
-          border-radius: 6px;
-          margin-left: 5px;
-        }
-      }
+    .score-value {
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: #1a237e;
     }
+
+    .score-separator {
+      font-size: 1.2rem;
+      color: #ccc;
+      margin: 0 2px;
+    }
+
+    .score-max {
+      font-size: 1rem;
+      font-weight: 600;
+      color: #666;
+    }
+
+    .score-label {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      color: #999;
+      letter-spacing: 0.5px;
+      margin-top: -4px;
+    }
+  }
+
+.status-summary {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 5px;
+
+  .summary-text {
+    margin: 0;
+    color: #555;
+    font-size: 0.95rem;
+
+    .intensity-highlight {
+      color: #1a237e;
+      background: #e8eaf6;
+      padding: 2px 8px;
+      border-radius: 6px;
+      margin-left: 5px;
+      font-weight: 700;
+    }
+  }
+
+  .secondary-info {
+    font-size: 0.85rem;
+    color: #777;
+    
+    .tech-value {
+      font-weight: 600;
+      color: #333;
+      margin-left: 4px;
+      text-transform: capitalize;
+    }
+  }
+}
   }
 
   .card-actions {
@@ -117,7 +165,9 @@
       align-items: center;
       gap: 8px;
       
-      i { font-size: 1.1rem; }
+      i {
+        font-size: 1.1rem;
+      }
       
       &:hover {
         background: transparent;

@@ -1,16 +1,19 @@
 <app-navbar></app-navbar>
 <router-outlet></router-outlet>
 
-<div class="layout">
+<div class="layout" [@fadeIn]>
   <main class="main-content">
     <div class="contenedor-evaluacion">
-      <h2 class="titulo-nivel">Nivel 2 - Análisis de Píxeles (CNN)</h2>
-
+      <header class="main-header">
+        <h1>Análisis Facial (CNN)</h1>
+        <p>Análisis de expresiones faciales mediante redes neuronales convolucionales.</p>
+    </header>
       <div class="zona-evaluacion">
         <div class="contenedor">
           <div class="video-section cuadro-captura" id="video-container">
             <video #video autoplay muted playsinline style="display: none;"></video>
-            <canvas #canvas width="640" height="480"></canvas>
+            <canvas #canvas></canvas>
+            
             <div id="estado-captura" *ngIf="!cargando && !resultado">Esperando captura...</div>
             <div id="estado-captura" *ngIf="cargando">Procesando...</div>
           </div>
@@ -21,44 +24,39 @@
         <div class="barra-lateral">
           <div class="barra-emociones">
             <h3>Panel de Resultados</h3>
+            
             <div *ngIf="resultado"> 
-              <p>Estado emocional: <span class="valor-emocion">{{ mensaje }}</span></p>
               <div class="porcentajes">
-                <div *ngFor="let emocion of resultado.porcentajes | keyvalue">
+                <div *ngFor="let emocion of resultado.porcentajes | keyvalue" class="emocion-item">
                   <label>{{ emocion.key }}:</label>
                   <progress [value]="emocion.value" max="100"></progress>
                   <span>{{ emocion.value }}%</span>
                 </div>
               </div>
+
+              <div class="resultados-internos">
+                <hr class="divider">
+                <p><strong>Estado emocional:</strong> <span class="valor-emocion">{{ mensaje }}</span></p>
+                <p class="tiempo-text"><strong>Tiempo:</strong> {{ tiempo }}</p> 
+              </div>
+            </div>
+
+            <div class="barra-progreso" *ngIf="cargando">
+              <h4>Procesando Captura...</h4>
+              <div class="progreso-container">
+                <div class="progreso" style="width: 100%; background: #007bff; height: 100%;"></div>
+              </div>
+              <p id="porcentaje">Enviando datos a la CNN...</p>
             </div>
           </div>
-
-          <div class="barra-progreso" *ngIf="cargando">
-            <h4>Procesando Captura...</h4>
-            <div class="progreso-container">
-              <div class="progreso" style="width: 100%; background: #007bff; height: 100%;"></div>
-            </div>
-            <p id="porcentaje">Enviando datos...</p>
+          
+          <div class="botones">
+            <button id="capturar" (click)="enviarImagenAlDetectorEstres()" [disabled]="cargando">
+              {{ cargando ? 'Analizando...' : 'Capturar Imagen' }}
+            </button>
           </div>
         </div>
       </div>
-
-      <div class="resultados">
-        <br>
-        <h3>Resumen de resultados</h3>
-        <p>Estado emocional: <span *ngIf="mensaje" class="emocion">{{ mensaje }}</span></p>
-        <p>Tiempo actual: {{ tiempo }}</p> 
-      </div>
-
-      <div class="botones">
-        <button id="capturar" (click)="enviarImagenAlDetectorEstres()" [disabled]="cargando">
-          Capturar Emoción
-        </button>
-      </div>
     </div>
   </main>
-
-  <footer class="footer">
-    <p>&copy; 2026 Erick | Sistema de Evaluación Emocional</p>
-  </footer>
 </div>

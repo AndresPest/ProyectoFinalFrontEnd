@@ -1,4 +1,6 @@
-<app-navbar></app-navbar>
+@if (mostrarNavbar) {
+  <app-navbar></app-navbar>
+}
 <router-outlet></router-outlet>
 
 <div class="main-wrapper" [@fadeIn]>
@@ -9,6 +11,11 @@
     </header>
 
     <div class="glass-card voice-card">
+      <div class="voice-prompt">
+        <p class="prompt-text">Cuenta un poco sobre tu día</p>
+        <span class="prompt-subtext">¿Cómo te has sentido a lo largo del día de hoy?</span>
+      </div>
+
       <div class="visualizer-section">
         @if (recording || secondsElapsed > 0) {
           <div class="recording-visualizer">
@@ -23,33 +30,21 @@
             }
           </div>
         }
-
         <div class="controls-group">
-          <button class="btn-main record" [class.is-recording]="recording" (click)="toggleRecording()" 
-                  [disabled]="(recording || secondsElapsed > 0) && !recording">
+          <button class="btn-main record" 
+                  [class.is-recording]="recording" 
+                  (click)="toggleRecording()" 
+                  [disabled]="isAnalyzing || (!recording && secondsElapsed > 0)">
             <i class="fas" [class.fa-stop]="recording" [class.fa-microphone]="!recording"></i>
             {{ recording ? 'Detener' : (secondsElapsed > 0 ? 'Grabación Lista' : 'Iniciar Grabación') }}
           </button>
-
           @if (!recording && secondsElapsed > 0) {
             <button class="btn-main process" (click)="analyzeAudio()" [disabled]="isAnalyzing">
+              <i class="fas" [class.fa-spinner]="isAnalyzing" [class.fa-brain]="!isAnalyzing"></i>
               {{ isAnalyzing ? 'Procesando...' : 'Analizar Voz' }}
             </button>
           }
         </div>
-      </div>
-
-      <div class="upload-zone">
-        <label class="file-label">
-          <i class="fas fa-cloud-upload-alt"></i>
-          <span>Subir audio</span>
-          <input type="file" (change)="$any($event).target.files[0] && onFileSelected($event)" accept=".wav" hidden>
-        </label>
-        @if (!recording && secondsElapsed > 0) {
-          <button class="btn-text" (click)="downloadRecording()">
-            <i class="fas fa-download"></i> Descargar
-          </button>
-        }
       </div>
     </div>
 

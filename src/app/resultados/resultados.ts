@@ -28,6 +28,9 @@ export interface ResultadosCuestionario {
   categoriasResaltantes?: any;
   categoriasAtencion?: any;
   timestamp: any;
+  // Para la voz
+  analisis_voz?: AnalisisVozGeneral | string;
+  duracion?: number;
 }
 
 export interface AnalisisFacial {
@@ -37,6 +40,16 @@ export interface AnalisisFacial {
   timestamp: any;
   historial_cnn: any[];
   historial_facemesh: any[];
+}
+
+export interface AnalisisVozDetallado {
+  nombre: string;
+  porcentaje: number;
+}
+
+export interface AnalisisVozGeneral {
+  emocion_dominante?: string;
+  detalles_probabilidades?: AnalisisVozDetallado[];
 }
 
 interface ResultadoCompleto {
@@ -57,6 +70,11 @@ interface ResultadoCompleto {
   resultado_cnn: string;
   resultado_facemesh: string;
   timestamp: string;
+  // Para la voz
+  tiene_voz: boolean;
+  resultado_voz: string; // Guardará la emoción dominante o 'No definida'
+  detalles_voz_probabilidades: AnalisisVozDetallado[];
+  duracion_voz: number;
 }
 
 const EMOCIONES: Record<string, string> = {
@@ -66,7 +84,8 @@ const EMOCIONES: Record<string, string> = {
     'neutral': 'Neutral',
     'surprise': 'Sorprendido',
     'fear': 'Miedo',
-    'disgust': 'Disgustado'
+    'disgust': 'Disgustado',
+    'no definida': 'No Realizada'
 };
 
 @Component({
@@ -118,6 +137,14 @@ export class ResultadosComponent implements OnInit {
       for (let resultadoCuestionario of datosCuestionario) {
         for (let analisisFacial of datosFaciales) {
           if (resultadoCuestionario.id === analisisFacial.cuestionario_id) {
+
+            const tieneVozValida: boolean = !!(
+              resultadoCuestionario.analisis_voz && 
+              typeof resultadoCuestionario.analisis_voz === 'object' &&
+              'emocion_dominante' in resultadoCuestionario.analisis_voz
+            );
+
+            const infoVoz = tieneVozValida ? (resultadoCuestionario.analisis_voz as AnalisisVozGeneral) : null;
             
             const resultadoCompleto: ResultadoCompleto = {
               id: resultadoCuestionario.id,
@@ -136,6 +163,10 @@ export class ResultadosComponent implements OnInit {
               historial_facemesh: analisisFacial.historial_facemesh,
               resultado_cnn: this.emocionDominante(analisisFacial.historial_cnn),
               resultado_facemesh: this.emocionDominante(analisisFacial.historial_facemesh),
+              tiene_voz: tieneVozValida,
+              resultado_voz: tieneVozValida && infoVoz?.emocion_dominante ? infoVoz.emocion_dominante : 'No definida',
+              detalles_voz_probabilidades: tieneVozValida && infoVoz?.detalles_probabilidades ? infoVoz.detalles_probabilidades : [],
+              duracion_voz: resultadoCuestionario.duracion || 0,
               timestamp: resultadoCuestionario.timestamp
             };
             resultadosCombinados.push(resultadoCompleto);

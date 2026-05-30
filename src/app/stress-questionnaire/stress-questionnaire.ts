@@ -13,6 +13,8 @@ import { HttpClient } from '@angular/common/http';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { Firestore, collection, query, where, orderBy, getDocs, addDoc } from '@angular/fire/firestore';
 import { DOCUMENT } from '@angular/common';
+import { AudioReconocimiento } from '../audio-reconocimiento/audio-reconocimiento';
+import { AudioEmotionService } from '../audio-reconocimiento/audio-reconocimiento.service';
 
 interface CuestionarioInfo {
   id: number;
@@ -25,7 +27,8 @@ interface CuestionarioInfo {
 @Component({
   selector: 'app-stress-questionnaire',
   standalone: true,
-  imports: [CommonModule, MatSelectModule, MatButtonModule, FormsModule, NavbarComponent, RouterOutlet, MatTooltipModule, RouterModule],
+  imports: [CommonModule, MatSelectModule, MatButtonModule, FormsModule, NavbarComponent, RouterOutlet,
+            MatTooltipModule, RouterModule, AudioReconocimiento],
   templateUrl: './stress-questionnaire.html',
   styleUrls: ['./stress-questionnaire.scss'],
   animations: [
@@ -57,6 +60,7 @@ export class StressQuestionnaireComponent implements AfterViewInit, OnDestroy {
 
   private zone = inject(NgZone);
   private cd = inject(ChangeDetectorRef);
+  public vozService = inject(AudioEmotionService);
 
   async ngAfterViewInit() {
     if (!this.consentimientoAceptado) {
@@ -107,6 +111,9 @@ export class StressQuestionnaireComponent implements AfterViewInit, OnDestroy {
   public testSeleccionado: string | null = null;
   public mostrarResultadosFinales: boolean = false;
 
+  public pasoTest: number = 1;
+  public estadoModuloVoz: boolean = false;
+
   // Historiales de captura facial
   public historialAnalisisFacialCNN: any[] = [];
   public historialAnalisisFacialFaceMesh: any[] = [];
@@ -131,11 +138,13 @@ export class StressQuestionnaireComponent implements AfterViewInit, OnDestroy {
   seleccionarTest(id: string) {
     this.testSeleccionado = id;
     this.resetearVariables(); 
+    this.pasoTest = 1;
   }
 
   volverAlMenu() { 
     this.testSeleccionado = null;
     this.resetearVariables();
+    this.pasoTest = 1;
   }
   
   aceptarConsentimiento() {
@@ -181,11 +190,11 @@ export class StressQuestionnaireComponent implements AfterViewInit, OnDestroy {
   }
 
   public registroMiller: any = {
-    'Salud y Hábitos': 0,
-    'Bienestar y Autocuidado': 0,
-    'Red de Apoyo': 0,
-    'Comunicación y Relaciones': 0,
-    'Estabilidad y Gestión': 0
+    'Estilo de Vida': 0,
+    'Apoyo Social': 0,
+    'Exposición de Sentimientos': 0,
+    'Valores y Creencias': 0,
+    'Bienestar Físico': 0
   };
   
   public escalaTestVulnerabilidad = [
@@ -197,64 +206,64 @@ export class StressQuestionnaireComponent implements AfterViewInit, OnDestroy {
   ];
 
   public preguntasTestVulnerabilidad = [
-    { dim: 'Salud y Hábitos', id: 1, texto: "Hago por lo menos una comida caliente y balanceada al día.",
+    { dim: 'Estilo de Vida', id: 1, texto: "Hago por lo menos una comida caliente y balanceada al día.",
       ayuda: "Incluyes alimentos de diferentes grupos y si dedicas un tiempo exclusivo para sentarte a comer.", valor: 0 },
     
-    { dim: 'Salud y Hábitos', id: 2, texto: "Por lo menos cuatro noches a la semana duermo de 7 a 8 horas.",
+    { dim: 'Estilo de Vida', id: 2, texto: "Por lo menos cuatro noches a la semana duermo de 7 a 8 horas.",
       ayuda: "Logras un descanso profundo y continuo la mayoría de las noches para recuperar tu energía.", valor: 0 },
     
-    { dim: 'Bienestar y Autocuidado', id: 3, texto: "Doy y recibo afecto regularmente.",
+    { dim: 'Exposición de Sentimientos', id: 3, texto: "Doy y recibo afecto regularmente.",
       ayuda: "Considera si mantienes contacto físico o emocional cálido con personas cercanas (abrazos, palabras de apoyo).", valor: 0 },
     
-    { dim: 'Red de Apoyo', id: 4, texto: "En 50 millas a la redonda tengo, por lo menos, un familiar en el que puedo confiar.",
+    { dim: 'Apoyo Social', id: 4, texto: "En 50 millas a la redonda tengo, por lo menos, un familiar en el que puedo confiar.",
       ayuda: "Identifica si cuentas con algún pariente cercano que pueda auxiliarte en una emergencia.", valor: 0 },
     
-    { dim: 'Salud y Hábitos', id: 5, texto: "Por lo menos dos veces a la semana hago ejercicios hasta sudar.",
+    { dim: 'Estilo de Vida', id: 5, texto: "Por lo menos dos veces a la semana hago ejercicios hasta sudar.",
       ayuda: "Realizas actividades físicas para liberar tensión y fortalecer tu cuerpo.", valor: 0 },
     
-    { dim: 'Salud y Hábitos', id: 6, texto: "Fumo menos de media cajetilla de cigarrillos al día.",
+    { dim: 'Estilo de Vida', id: 6, texto: "Fumo menos de media cajetilla de cigarrillos al día.",
       ayuda: "Piensa en cuánto fumas y si sientes que eso te quita energía o te hace cansarte más rápido al respirar.", valor: 0 },
     
-    { dim: 'Salud y Hábitos', id: 7, texto: "Tomo menos de 5 tragos (de bebida alcohólica) a la semana.",
+    { dim: 'Estilo de Vida', id: 7, texto: "Tomo menos de 5 tragos (de bebida alcohólica) a la semana.",
       ayuda: "Considera si mantienes un consumo de alcohol moderado que no interfiera con tu claridad mental o salud.", valor: 0 },
     
-    { dim: 'Salud y Hábitos', id: 8, texto: "Tengo el peso apropiado para mi estatura.",
+    { dim: 'Estilo de Vida', id: 8, texto: "Tengo el peso apropiado para mi estatura.",
       ayuda: "Observa si te sientes en un rango de peso saludable que te permita moverte con agilidad y sin fatiga.", valor: 0 },
     
-    { dim: 'Estabilidad y Gestión', id: 9, texto: "Mis ingresos satisfacen mis gastos fundamentales.",
+    { dim: 'Estilo de Vida', id: 9, texto: "Mis ingresos satisfacen mis gastos fundamentales.",
       ayuda: "Tu economía actual te permite cubrir tus necesidades básicas sin vivir en un estado de alerta constante.", valor: 0 },
     
-    { dim: 'Bienestar y Autocuidado', id: 10, texto: "Mis creencias me hacen mas fuerte.",
+    { dim: 'Valores y Creencias', id: 10, texto: "Mis creencias me hacen mas fuerte.",
       ayuda: "Identifica si tus valores personales, espirituales te brindan esperanza y resiliencia.", valor: 0 },
     
-    { dim: 'Red de Apoyo', id: 11, texto: "Asisto regularmente a actividades sociales o del club.",
+    { dim: 'Apoyo Social', id: 11, texto: "Asisto regularmente a actividades sociales o del club.",
       ayuda: "Participas en grupos que te hagan sentir parte de una comunidad fuera de tu entorno privado.", valor: 0 },
     
-    { dim: 'Red de Apoyo', id: 12, texto: "Tengo una red de amigos y conocidos.",
+    { dim: 'Apoyo Social', id: 12, texto: "Tengo una red de amigos y conocidos.",
       ayuda: "Evalúa la cantidad de personas con las que interactúas forman parte de tu círculo social activo.", valor: 0 },
     
-    { dim: 'Red de Apoyo', id: 13, texto: "Tengo uno o más amigos a quienes puedo confiarle mis problemas personales.",
+    { dim: 'Apoyo Social', id: 13, texto: "Tengo uno o más amigos a quienes puedo confiarle mis problemas personales.",
       ayuda: "Considera si tienes a alguien especial con quien puedas desahogarte y hablar con total honestidad.", valor: 0 },
     
-    { dim: 'Salud y Hábitos', id: 14, texto: "Tengo buena salud (vista, oido, dentadura, etc.).",
+    { dim: 'Bienestar Físico', id: 14, texto: "Tengo buena salud (vista, oido, dentadura, etc.).",
       ayuda: "Evalúa tu bienestar físico general y si tus sentidos te permiten desenvolverte sin incomodidades.", valor: 0 },
     
-    { dim: 'Comunicación y Relaciones', id: 15, texto: "Soy capaz de hablar abiertamente sobre mis sentimientos cuando me siento irritado o preocupado.",
+    { dim: 'Exposición de Sentimientos', id: 15, texto: "Soy capaz de hablar abiertamente sobre mis sentimientos cuando me siento irritado o preocupado.",
       ayuda: "Logras expresar tus emociones difíciles de forma asertiva en lugar de guardártelas.", valor: 0 },
     
-    { dim: 'Comunicación y Relaciones', id: 16, texto: "Converso regularmente sobre problemas domesticos con las personas que conviven conmigo.",
+    { dim: 'Apoyo Social', id: 16, texto: "Converso regularmente sobre problemas domesticos con las personas que conviven conmigo.",
       ayuda: "Conversas con las personas que vives para arreglar los problemas de la casa antes de que se vuelvan más grandes.", valor: 0 },
     
-    { dim: 'Bienestar y Autocuidado', id: 17, texto: "Por lo menos una vez a la semana hago algo para divertirme.",
+    { dim: 'Estilo de Vida', id: 17, texto: "Por lo menos una vez a la semana hago algo para divertirme.",
       ayuda: "Dedicas tiempo exclusivo a actividades que te generen alegría y desconexión total.", valor: 0 },
     
-    { dim: 'Estabilidad y Gestión', id: 18, texto: "Soy capaz de organizar racionalmente mi tiempo.",
+    { dim: 'Estilo de Vida', id: 18, texto: "Soy capaz de organizar racionalmente mi tiempo.",
       ayuda: "Gestionas bien tus prioridades o sueles sentirte abrumado por las tareas pendientes.", valor: 0 },
     
-    { dim: 'Salud y Hábitos', id: 19, texto: "Tomo menos de tres tazas de café (o de té o refresco de cola) al día.",
+    { dim: 'Estilo de Vida', id: 19, texto: "Tomo menos de tres tazas de café (o de té o refresco de cola) al día.",
       ayuda: "Observa tu nivel de consumo de cafeína y cómo afecta tu ritmo o ansiedad durante el día.", valor: 0 },
     
-    { dim: 'Bienestar y Autocuidado', id: 20, texto: "Durante el día me dedico a mi mismo un rato de tranquilidad.",
+    { dim: 'Estilo de Vida', id: 20, texto: "Durante el día me dedico a mi mismo un rato de tranquilidad.",
       ayuda: "Tienes momentos de silencio o introspección para calmar tu mente.", valor: 0 }
   ];
 
@@ -299,6 +308,7 @@ export class StressQuestionnaireComponent implements AfterViewInit, OnDestroy {
       tiempo: 300,
       uid: this.authService.currentUser?.uid
     };
+    this.pasoTest = 1;
     this.enviarAlBackend(data, 'Miller');
   }
 
@@ -321,10 +331,10 @@ export class StressQuestionnaireComponent implements AfterViewInit, OnDestroy {
   }
 
   public registroCEAU: any = {
-    'Evaluación y Desempeño': 0,
-    'Carga y Gestión': 0,
-    'Entorno': 0,
-    'Expectativas y Futuro': 0
+    'Expresión y Comunicación de Ideas Propias': 0,
+    'Obligaciones Académicas': 0,
+    'Dificultades Interpersonales': 0,
+    'Expediente y Perspectivas de Futuro': 0
   };
   public escalaCEAU = [
     'Nada de estrés',
@@ -335,67 +345,67 @@ export class StressQuestionnaireComponent implements AfterViewInit, OnDestroy {
   ];
 
   public preguntasCEAU = [
-    { dim: 'Evaluación y Desempeño', id: 1, texto: "Realización de exámenes.",
+    { dim: 'Obligaciones Académicas', id: 1, texto: "Realización de exámenes.",
       ayuda: "Evalúa qué tanta presión o nervios sientes cuando tienes que presentar una prueba escrita u oral.", valor: 0 },
     
-    { dim: 'Evaluación y Desempeño', id: 2, texto: "Exposición de trabajo en clase.",
+    { dim: 'Expresión y Comunicación de Ideas Propias', id: 2, texto: "Exposición de trabajo en clase.",
       ayuda: "Considera el nivel de estrés que te genera hablar en público frente a tus compañeros y el profesor.", valor: 0 },
     
-    { dim: 'Evaluación y Desempeño', id: 3, texto: "Intervención en clases (responder o realizar preguntas, debates).",
+    { dim: 'Expresión y Comunicación de Ideas Propias', id: 3, texto: "Intervención en clases (responder o realizar preguntas, debates).",
       ayuda: "Piensa si te genera ansiedad levantar la mano, dar tu opinión o participar activamente en clases.", valor: 0 },
     
-    { dim: 'Entorno', id: 4, texto: "Tratar con el profesor en su oficina (tutorías, consultas).",
+    { dim: 'Expresión y Comunicación de Ideas Propias', id: 4, texto: "Tratar con el profesor en su oficina (tutorías, consultas).",
       ayuda: "Sientes intimidante o estresante tener que ir con el docente para aclarar dudas o pedir ayuda.", valor: 0 },
     
-    { dim: 'Carga y Gestión', id: 5, texto: "Sobrecarga académica (excesivo número de créditos, trabajos).",
+    { dim: 'Obligaciones Académicas', id: 5, texto: "Sobrecarga académica (excesivo número de créditos, trabajos).",
       ayuda: "Sientes que la cantidad de materias o tareas sobrepasa tu capacidad actual para manejarlo todo.", valor: 0 },
     
-    { dim: 'Entorno', id: 6, texto: "Masificación en las aulas.",
+    { dim: 'Dificultades Interpersonales', id: 6, texto: "Masificación en las aulas.",
       ayuda: "Te incomoda o te genera estrés estudiar en salones con demasiada gente o mucho ruido.", valor: 0 },
     
-    { dim: 'Carga y Gestión', id: 7, texto: "Falta de tiempo para cumplir con las actividades académicas.",
+    { dim: 'Obligaciones Académicas', id: 7, texto: "Falta de tiempo para cumplir con las actividades académicas.",
       ayuda: "Sientes que las horas del día no te alcanzan para terminar tus entregas y estudiar lo suficiente.", valor: 0 },
     
-    { dim: 'Entorno', id: 8, texto: "Competitividad entre compañeros.",
+    { dim: 'Dificultades Interpersonales', id: 8, texto: "Competitividad entre compañeros.",
       ayuda: "Sientes presión por compararte con los demás o si el ambiente de rivalidad te genera tensión.", valor: 0 },
     
-    { dim: 'Carga y Gestión', id: 9, texto: "Realización de trabajos obligatorios para aprobar asignaturas.",
+    { dim: 'Obligaciones Académicas', id: 9, texto: "Realización de trabajos obligatorios para aprobar asignaturas.",
       ayuda: "Te sientes muy presionado por la obligación de terminar trabajos para no reprobar.", valor: 0 },
     
-    { dim: 'Carga y Gestión', id: 10, texto: "La tarea de estudio.",
+    { dim: 'Obligaciones Académicas', id: 10, texto: "La tarea de estudio.",
       ayuda: "Sentarte a estudiar por tu cuenta te resulta una carga pesada o estresante.", valor: 0 },
     
-    { dim: 'Entorno', id: 11, texto: "Trabajar en grupo.",
+    { dim: 'Dificultades Interpersonales', id: 11, texto: "Trabajar en grupo.",
       ayuda: "Genera tensión coordinar con otros, repartir tareas o depender de la nota de tus compañeros.", valor: 0 },
     
-    { dim: 'Entorno', id: 12, texto: "Problemas o conflictos con los profesores.",
+    { dim: 'Dificultades Interpersonales', id: 12, texto: "Problemas o conflictos con los profesores.",
       ayuda: "Sientes el impacto de los desacuerdos, la mala comunicación o la falta de entendimiento con tus docentes.", valor: 0 },
     
-    { dim: 'Entorno', id: 13, texto: "Problemas o conflictos con los compañeros.",
+    { dim: 'Dificultades Interpersonales', id: 13, texto: "Problemas o conflictos con los compañeros.",
       ayuda: "Te afectan las discusiones o la tensión social dentro de tu grupo de estudio o clase.", valor: 0 },
     
-    { dim: 'Carga y Gestión', id: 14, texto: "Poder asistir a todas las clases.",
+    { dim: 'Obligaciones Académicas', id: 14, texto: "Poder asistir a todas las clases.",
       ayuda: "Piensas en la presión que sientes por cumplir con la asistencia obligatoria y no perderte ninguna explicación.", valor: 0 },
     
-    { dim: 'Carga y Gestión', id: 15, texto: "Exceso de responsabilidad por cumplir obligaciones académicas.",
+    { dim: 'Obligaciones Académicas', id: 15, texto: "Exceso de responsabilidad por cumplir obligaciones académicas.",
       ayuda: "Sientes que te exiges demasiado a ti mismo para ser el estudiante 'perfecto' y no fallar en nada.", valor: 0 },
     
-    { dim: 'Evaluación y Desempeño', id: 16, texto: "Obtener notas elevadas en distintas asignaturas.",
+    { dim: 'Expediente y Perspectivas de Futuro', id: 16, texto: "Obtener notas elevadas en distintas asignaturas.",
       ayuda: "Te genera estrés la ambición o necesidad de sacar siempre calificaciones sobresalientes.", valor: 0 },
     
-    { dim: 'Expectativas y Futuro', id: 17, texto: "Perspectivas profesionales futuras.",
+    { dim: 'Expediente y Perspectivas de Futuro', id: 17, texto: "Perspectivas profesionales futuras.",
       ayuda: "Te provoca estrés pensar en si encontrarás trabajo o si serás un buen profesional.", valor: 0 },
     
-    { dim: 'Expectativas y Futuro', id: 18, texto: "Elección de materias durante la carrera.",
+    { dim: 'Expediente y Perspectivas de Futuro', id: 18, texto: "Elección de materias durante la carrera.",
       ayuda: "Sientes tensión al tener que decidir qué camino tomar y el miedo a equivocarte de asignatura.", valor: 0 },
     
-    { dim: 'Expectativas y Futuro', id: 19, texto: "Mantener o conseguir una beca para estudiar.",
+    { dim: 'Expediente y Perspectivas de Futuro', id: 19, texto: "Mantener o conseguir una beca para estudiar.",
       ayuda: "Analiza la presión económica y académica de depender de una nota mínima para seguir estudiando.", valor: 0 },
     
-    { dim: 'Expectativas y Futuro', id: 20, texto: "Acabar la carrera en los plazos estipulados.",
+    { dim: 'Expediente y Perspectivas de Futuro', id: 20, texto: "Acabar la carrera en los plazos estipulados.",
       ayuda: "Sientes la presión del tiempo por graduarte 'cuando toca' y no retrasarte en comparación con otros.", valor: 0 },
     
-    { dim: 'Expectativas y Futuro', id: 21, texto: "Presión familiar por obtener resultados adecuados.",
+    { dim: 'Expediente y Perspectivas de Futuro', id: 21, texto: "Presión familiar por obtener resultados adecuados.",
       ayuda: "Te estresa lo que tus padres o familia esperan de ti y de tus calificaciones.", valor: 0 }
   ];
 
@@ -915,7 +925,7 @@ export class StressQuestionnaireComponent implements AfterViewInit, OnDestroy {
           texto: feedback
         });
 
-        alert('Feedback guardado con éxito.');
+        console.log('Feedback guardado con éxito.');
       } catch (error) {
         console.error('Error al guardar en Firebase:', error);
       }
@@ -959,19 +969,26 @@ export class StressQuestionnaireComponent implements AfterViewInit, OnDestroy {
   }
 
   ///////// Enviar resultados al backend y Firebase
+
+  public resultadoDocIdActual: string | null = null;
+  public vozGrabada: boolean = false;
+  public vozEvaluada: boolean = false;
+
   private async finalizarYGuardarTodo(id: string, procesado: any) {
     const user = this.authService.currentUser;
     if (!user) return;
     try {
       const docRef = await this.authService.guardarResultadoCuestionario(user.uid, procesado);
+      this.resultadoDocIdActual = docRef.id;
+
       await this.authService.guardarAnalisisFacialCuestionario(user.uid, {
         identificador_cuestionario: id,
         resultado_id: docRef.id,
         historial_cnn: this.historialAnalisisFacialCNN,
         historial_facemesh: this.historialAnalisisFacialFaceMesh
       });
-      alert(`Análisis ${id} completado.`);
       this.resetearVariables();
+      console.log(`Estructura base guardada. ID del documento: ${this.resultadoDocIdActual}`);
     } catch (e) {
       console.error(e);
       alert("Error al guardar resultados.");}
@@ -980,8 +997,36 @@ export class StressQuestionnaireComponent implements AfterViewInit, OnDestroy {
   private enviarAlBackend(data: any, id: string) {
     const url = 'https://crojas3-detectoremociones.hf.space/api/resultados';
     this.http.post(url, data).subscribe({
-      next: (res: any) => this.finalizarYGuardarTodo(id, res),
+      next: async (res: any) => {
+        await this.finalizarYGuardarTodo(id, res);
+      },
       error: (err) => console.error("Error backend:", err)
     });
+  }
+
+  public async evaluacionVozOmitida() {
+    const user = this.authService.currentUser;
+    if (!user) return;
+
+    if (this.vozEvaluada) {
+      console.log("Voz Analizada.");
+      this.pasoTest = 3;
+      return;
+    }
+
+    if (this.resultadoDocIdActual) {
+      try {
+        await this.authService.actualizarAudioCuestionario(user.uid, this.resultadoDocIdActual, {
+          analisis_voz: 'no definida',
+          segundos_grabados: 0,
+          fecha_analisis_voz: new Date()
+        });
+        console.log("Voz Omitida.");
+        this.pasoTest = 3;
+      } catch (e) {
+        console.error("Error al guardar audio", e);
+      }
+    }
+    this.pasoTest = 3;
   }
 }

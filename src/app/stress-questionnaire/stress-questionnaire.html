@@ -76,133 +76,154 @@
       @switch (testSeleccionado) {
         @case ('miller') {      
           <div class="test-stepper">
-          @if (!infoMillerSmith) {
-            <div class="progress-container">
-              <div class="progress-bar" [style.width.%]="progresoTestVulnerabilidad"></div>
-            </div>
-            <div class="pregunta-card-single" [@fadeInTrigger]="indiceMiller">
-              @if (indiceMiller > 0) {
-                <button class="btn-mini-back" (click)="anteriorPregunta()">← Volver</button>
-              }
-              <h2 class="pregunta-numero">Pregunta #{{ preguntasTestVulnerabilidad[indiceMiller]?.id }}</h2>
+            @if (!infoMillerSmith) {
+              <div class="progress-container">
+                <div class="progress-bar" [style.width.%]="progresoTestVulnerabilidad"></div>
+              </div>
+              <div class="pregunta-card-single" [@fadeInTrigger]="indiceMiller">
+                @if (indiceMiller > 0) {
+                  <button class="btn-mini-back" (click)="anteriorPregunta()">← Volver</button>
+                }
+                <h2 class="pregunta-numero">Pregunta #{{ preguntasTestVulnerabilidad[indiceMiller]?.id }}</h2>
                 <p class="pregunta-texto-grande">
                   {{ preguntasTestVulnerabilidad[indiceMiller].texto }}
-                  
                   @if (preguntasTestVulnerabilidad[indiceMiller].ayuda) {
                     <button class="btn-info-help" matTooltip="{{preguntasTestVulnerabilidad[indiceMiller].ayuda}}">?</button>
                   }
                 </p>
-              <div class="opciones-verticales">
-                @for (opcion of escalaTestVulnerabilidad; track $index) {
-                  <button class="btn-opcion-grande" [class.active]="preguntasTestVulnerabilidad[indiceMiller].valor === $index + 1"
-                  [disabled]="procesando" (click)="seleccionarOpcionTestVulnerabilidad(preguntasTestVulnerabilidad[indiceMiller], $index + 1)">
-                  <span class="circulo">{{ $index + 1 }}</span> {{ opcion }}
+                <div class="opciones-verticales">
+                  @for (opcion of escalaTestVulnerabilidad; track $index) {
+                    <button class="btn-opcion-grande" [class.active]="preguntasTestVulnerabilidad[indiceMiller].valor === $index + 1"
+                            [disabled]="procesando" (click)="seleccionarOpcionTestVulnerabilidad(preguntasTestVulnerabilidad[indiceMiller], $index + 1)">
+                      <span class="circulo">{{ $index + 1 }}</span> {{ opcion }}
+                    </button>
+                  }
+                </div>
+              </div>
+            }
+            @else {
+              @if (pasoTest === 1) {
+                <div class="glass-card info-test-card" [@fadeIn]>
+                  <div class="info-header">
+                    <div class="icon-badge"><i class="fas fa-file-alt"></i></div>
+                    <span>Detalles del Cuestionario Realizado</span>
+                    <h2>Inventario de Vulnerabilidad al Estrés</h2>
+                  </div>
+                  <div class="main-content-split">
+                    <div class="info-side">
+                      <div class="info-grid">
+                        <div class="info-item">
+                          <label>Autor(es)</label>
+                          <p>Lyle H. Miller y Alma Dell Smith</p>
+                        </div>
+                        <div class="info-item">
+                          <label>Año / Institución</label>
+                          <p>1985 (Universidad de Boston)</p>
+                        </div>
+                        <div class="info-item">
+                          <label>Descripción del instrumento</label>
+                          <p>Evalúa la resistencia ante eventos estresantes basándose en Salud y Hábitos, Bienestar y Autocuidado, Red de Apoyo, Comunicación y Relaciones y Estabilidad y Gestión.</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <button class="btn-continuar-full" (click)="pasoTest = 2">Continuar al Análisis de Voz</button>
+                </div>
+              }
+              @if (pasoTest === 2) {
+                <div class="glass-card info-test-card" [@fadeIn]>
+                  <div class="info-header">
+                    <div class="icon-badge"><i class="fas fa-microphone"></i></div>
+                    <h2>Fase de Reconocimiento Emocional</h2>
+                  </div>
+                  <ng-container *ngTemplateOutlet="moduloVoz"></ng-container>
+                  <button class="btn-continuar-full" (click)="evaluacionVozOmitida()">
+                    Finalizar y Guardar Resultados
                   </button>
-                }
-              </div>
-            </div>
-          } @else {
-            <div class="glass-card info-test-card" [@fadeIn]>
-              <div class="info-header">
-                <div class="icon-badge"><i class="fas fa-file-alt"></i></div>
-                <span>Detalles del Cuestionario Realizado</span>
-                <h2>Inventario de Vulnerabilidad al Estrés</h2>
-              </div>
-              <div class="main-content-split">
-                <div class="info-side">
-                  <div class="info-grid">
-                    <div class="info-item">
-                      <label>Autor(es)</label>
-                      <p>Lyle H. Miller y Alma Dell Smith</p>
-                    </div>
-                    <div class="info-item">
-                      <label>Año / Institución</label>
-                      <p>1985 (Universidad de Boston)</p>
-                    </div>
-                    <div class="info-item">
-                      <label>Descripción del instrumento</label>
-                      <p>Evalúa la resistencia ante eventos estresantes basándose en Salud y Hábitos, Bienestar y Autocuidado, Red de Apoyo, Comunicación y Relaciones y Estabilidad y Gestión.</p>
-                    </div>
-                  </div>
                 </div>
-                <div class="feedback-side">
-                  <div class="feedback-container">
-                    <label class="feedback-label"><i class="fas fa-comment-dots"></i>Nos gustaría conocer tu opinión</label>
-                    <textarea #textarea placeholder="Tu opinión cuenta, ¿Cuentanos cómo podríamos mejorar?" class="feedback-textarea"></textarea>
-                    <button class="btn-feedback" (click)="guardarFeedback('Inventario de Vulnerabilidad al Estrés',textarea.value); textarea.value = ''">Enviar opinión</button>
-                  </div>
-                </div>
-              </div>
-              <button class="btn-continuar-full" (click)="irA('resultados')">
-                Ver Resultados <i class="fas fa-arrow-right"></i>
-              </button>
-            </div>
-          }
+              }
+              @if (pasoTest === 3) {
+                <ng-container *ngTemplateOutlet="moduloFeedback; context: {nombreTest: 'Inventario de Vulnerabilidad al Estrés'}"></ng-container>
+              }
+            }
           </div>
         }
+
 
         @case ('ceau') {
           <div class="test-stepper">
             @if (!infoCEAU) {
-              <div class="progress-container"><div class="progress-bar" [style.width.%]="progresoCEAU"></div></div>
+              <div class="progress-container">
+                <div class="progress-bar" [style.width.%]="progresoCEAU"></div>
+              </div>
               <div class="pregunta-card-single" [@fadeInTrigger]="indiceCEAU">
                 @if (indiceCEAU > 0) {
                   <button class="btn-mini-back" (click)="anteriorCEAU()">← Volver</button>
                 }
                 <p class="enunciado-fijo">¿En qué medida te estresa esta situación?</p>
-                  <p class="pregunta-texto-grande">
-                    {{ preguntasCEAU[indiceCEAU].texto }}
-                    
-                    @if (preguntasCEAU[indiceCEAU].ayuda) {
-                      <button class="btn-info-help" matTooltip="{{preguntasCEAU[indiceCEAU].ayuda}}">?</button>
-                    }
-                  </p>
+                <p class="pregunta-texto-grande">
+                  {{ preguntasCEAU[indiceCEAU].texto }}
+                  @if (preguntasCEAU[indiceCEAU].ayuda) {
+                    <button class="btn-info-help" matTooltip="{{preguntasCEAU[indiceCEAU].ayuda}}">?</button>
+                  }
+                </p>
                 <div class="opciones-verticales">
                   @for (opcion of escalaCEAU; track $index) {
                     <button class="btn-opcion-grande" [class.active]="preguntasCEAU[indiceCEAU].valor === $index + 1"
-                    [disabled]="procesando" (click)="seleccionarOpcionCEAU(preguntasCEAU[indiceCEAU], $index + 1)">
-                    <span class="circulo">{{ $index + 1 }}</span> {{ opcion }}
+                            [disabled]="procesando" (click)="seleccionarOpcionCEAU(preguntasCEAU[indiceCEAU], $index + 1)">
+                      <span class="circulo">{{ $index + 1 }}</span> {{ opcion }}
                     </button>
                   }
                 </div>
               </div>
-          }@else {
-            <div class="glass-card info-test-card" [@fadeIn]>
-              <div class="info-header">
-                <div class="icon-badge"><i class="fas fa-file-alt"></i></div>
-                <span>Detalles del Cuestionario Realizado</span>
-                <h2>Cuestionario de Estrés Académico en la Universidad (CEAU)</h2>
-              </div>
-              <div class="main-content-split">
-                <div class="info-side">
-                  <div class="info-grid">
-                    <div class="info-item">
-                      <label>Autor(es)</label>
-                      <p>García-Ros, Pérez-González, Pérez-Blasco y Zubieta</p>
-                    </div>
-                    <div class="info-item">
-                      <label>Año / Institución</label>
-                      <p>2012 (Universidad de Valencia)</p>
-                    </div>
-                    <div class="info-item">
-                      <label>Descripción del instrumento</label>
-                      <p>Evalúa el nivel de estrés percibido por los estudiantes ante situaciones estresantes propias del contexto universitario.</p>
+            } 
+            @else {
+              @if (pasoTest === 1) {
+                <div class="glass-card info-test-card" [@fadeIn]>
+                  <div class="info-header">
+                    <div class="icon-badge"><i class="fas fa-file-alt"></i></div>
+                    <span>Detalles del Cuestionario Realizado</span>
+                    <h2>Cuestionario de Estrés Académico en la Universidad (CEAU)</h2>
+                  </div>
+                  <div class="main-content-split">
+                    <div class="info-side">
+                      <div class="info-grid">
+                        <div class="info-item">
+                          <label>Autor(es)</label>
+                          <p>García-Ros, Pérez-González, Pérez-Blasco y Zubieta</p>
+                        </div>
+                        <div class="info-item">
+                          <label>Año / Institución</label>
+                          <p>2012 (Universidad de Valencia)</p>
+                        </div>
+                        <div class="info-item">
+                          <label>Descripción del instrumento</label>
+                          <p>Evalúa el nivel de estrés percibido por los estudiantes ante situaciones estresantes propias del contexto universitario.</p>
+                        </div>
+                      </div>
                     </div>
                   </div>
+                  <button class="btn-continuar-full" (click)="pasoTest = 2">
+                    Continuar al Análisis de Voz <i class="fas fa-arrow-right"></i>
+                  </button>
                 </div>
-                <div class="feedback-side">
-                  <div class="feedback-container">
-                    <label class="feedback-label"><i class="fas fa-comment-dots"></i>Nos gustaría conocer tu opinión</label>
-                    <textarea #textarea placeholder="Tu opinión cuenta, ¿Cuentanos cómo podríamos mejorar?" class="feedback-textarea"></textarea>
-                    <button class="btn-feedback" (click)="guardarFeedback('Cuestionario de Estrés Académico en la Universidad (CEAU)',textarea.value); textarea.value = ''">Enviar opinión</button>
+              }
+              @if (pasoTest === 2) {
+                <div class="glass-card info-test-card" [@fadeIn]>
+                  <div class="info-header">
+                    <div class="icon-badge"><i class="fas fa-microphone"></i></div>
+                    <h2>Fase de Reconocimiento Emocional</h2>
                   </div>
+                  <ng-container *ngTemplateOutlet="moduloVoz"></ng-container>
+                  <button class="btn-continuar-full" (click)="pasoTest = 3; evaluacionVozOmitida()">
+                    Finalizar y Guardar Resultados
+                  </button>
                 </div>
-              </div>
-              <button class="btn-continuar-full" (click)="irA('resultados')">
-                Ver Resultados <i class="fas fa-arrow-right"></i>
-              </button>
-            </div>
-          }
+              }
+              @if (pasoTest === 3) {
+                <ng-container *ngTemplateOutlet="moduloFeedback; context: {nombreTest: 'Cuestionario de Estrés Académico en la Universidad (CEAU)'}"></ng-container>
+              }
+            }
           </div>
         }
 
@@ -216,7 +237,7 @@
                   <div class="opciones-horizontal-puntos">
                     @for (n of [1,2,3,4,5]; track n) {
                       <button class="btn-punto" [class.active]="siscoNivelGeneral === n"
-                      [disabled]="procesando" (click)="seleccionarOpcionSisco(n)">{{ n }}</button>
+                              [disabled]="procesando" (click)="seleccionarOpcionSisco(n)">{{ n }}</button>
                     }
                   </div>
                 </div>
@@ -235,63 +256,76 @@
                     {{ preguntasSisco[indiceSisco].texto }}
                     
                     @if (preguntasSisco[indiceSisco].ayuda) {
-                      <button class="btn-info-help" matTooltip="{{preguntasSisco[indiceSisco].ayuda}}" >?</button>
+                      <button class="btn-info-help" matTooltip="{{preguntasSisco[indiceSisco].ayuda}}">?</button>
                     }
                   </p>
                   <div class="opciones-verticales">
                     @for (opcion of escalaSisco; track $index) {
                       <button class="btn-opcion-grande" [class.active]="preguntasSisco[indiceSisco]?.valor === $index + 1"
-                      [disabled]="procesando"(click)="seleccionarOpcionSisco($index + 1)">
-                      <span class="circulo">{{ $index + 1 }}</span> {{ opcion }}
+                              [disabled]="procesando" (click)="seleccionarOpcionSisco($index + 1)">
+                        <span class="circulo">{{ $index + 1 }}</span> {{ opcion }}
                       </button>
                     }
                   </div>
                 </div>
               }
-            }@else {
-              <div class="glass-card info-test-card" [@fadeIn]>
-                <div class="info-header">
-                  <div class="icon-badge"><i class="fas fa-file-alt"></i></div>
-                  <span>Detalles del Cuestionario Realizado</span>
-                  <h2>SISCO - Inventario Sistémico Cognoscitivista para el estudio del estrés académico</h2>
-                </div>
-                <div class="main-content-split">
-                  <div class="info-side">
-                    <div class="info-grid">
-                      <div class="info-item">
-                        <label>Autor(es)</label>
-                        <p>Arturo Barraza Macías</p>
-                      </div>
-                      <div class="info-item">
-                        <label>Año / Institución</label>
-                        <p>2007 (ECORFAN-México S.C)</p>
-                      </div>
-                      <div class="info-item">
-                        <label>Descripción del instrumento</label>
-                        <p>Permite reconocer las situaciones que alteran el equilibrio emocional del estudiante y cómo este emplea estrategias para recuperar dicho control.</p>
+            }
+            @else {
+              @if (pasoTest === 1) {
+                <div class="glass-card info-test-card" [@fadeIn]>
+                  <div class="info-header">
+                    <div class="icon-badge"><i class="fas fa-file-alt"></i></div>
+                      <span>Detalles del Cuestionario Realizado</span>
+                      <h2>SISCO - Inventario Sistémico Cognoscitivista para el estudio del estrés académico</h2>
+                  </div>
+                  <div class="main-content-split">
+                    <div class="info-side">
+                      <div class="info-grid">
+                        <div class="info-item">
+                          <label>Autor(es)</label>
+                          <p>Arturo Barraza Macías</p>
+                        </div>
+                        <div class="info-item">
+                          <label>Año / Institución</label>
+                          <p>2007 (ECORFAN-México S.C)</p>
+                        </div>
+                        <div class="info-item">
+                          <label>Descripción del instrumento</label>
+                          <p>Permite reconocer las situaciones que alteran el equilibrio emocional del estudiante y cómo este emplea estrategias para recuperar dicho control.</p>
+                        </div>
                       </div>
                     </div>
                   </div>
-                  <div class="feedback-side">
-                    <div class="feedback-container">
-                      <label class="feedback-label"><i class="fas fa-comment-dots"></i>Nos gustaría conocer tu opinión</label>
-                      <textarea #textarea placeholder="Tu opinión cuenta, ¿Cuentanos cómo podríamos mejorar?" class="feedback-textarea"></textarea>
-                      <button class="btn-feedback" (click)="guardarFeedback('SISCO - Inventario Sistémico Cognoscitivista para el estudio del estrés académico',textarea.value); textarea.value = ''">Enviar opinión</button>
-                    </div>
-                  </div>
+                  <button class="btn-continuar-full" (click)="pasoTest = 2">
+                    Continuar al Análisis de Voz <i class="fas fa-arrow-right"></i>
+                  </button>
                 </div>
-                <button class="btn-continuar-full" (click)="irA('resultados')">
-                  Ver Resultados <i class="fas fa-arrow-right"></i>
-                </button>
-              </div>
-            }  
+              }
+              @if (pasoTest === 2) {
+                <div class="glass-card info-test-card" [@fadeIn]>
+                  <div class="info-header">
+                    <div class="icon-badge"><i class="fas fa-microphone"></i></div>
+                    <h2>Fase de Reconocimiento Emocional</h2>
+                  </div>
+                  <ng-container *ngTemplateOutlet="moduloVoz"></ng-container>
+                  <button class="btn-continuar-full" (click)="pasoTest = 3; evaluacionVozOmitida()">
+                    Finalizar y Guardar Resultados
+                  </button>
+                </div>
+              }
+              @if (pasoTest === 3) {
+                <ng-container *ngTemplateOutlet="moduloFeedback; context: {nombreTest: 'SISCO - Inventario Sistémico Cognoscitivista'}"></ng-container>
+              }
+            }
           </div>
         }
 
         @case ('bbs') {
           <div class="test-stepper">
             @if (!infoBBS) {
-              <div class="progress-container"><div class="progress-bar" [style.width.%]="progresoBBS"></div></div>
+              <div class="progress-container">
+                <div class="progress-bar" [style.width.%]="progresoBBS"></div>
+              </div>
               <div class="pregunta-card-single" [@fadeInTrigger]="indiceBBS">
                 @if (indiceBBS > 0) {
                   <button class="btn-mini-back" (click)="anteriorBBS()">← Volver</button>
@@ -307,56 +341,69 @@
                 <div class="opciones-verticales">
                   @for (opcion of escalaBBS; track $index) {
                     <button class="btn-opcion-grande" [class.active]="preguntasBBS[indiceBBS].valor === $index + 1"
-                    [disabled]="procesando" (click)="seleccionarOpcionBBS(preguntasBBS[indiceBBS], $index + 1)">
-                    <span class="circulo">{{ $index + 1 }}</span> {{ opcion }}
-                  </button>
+                            [disabled]="procesando" (click)="seleccionarOpcionBBS(preguntasBBS[indiceBBS], $index + 1)">
+                      <span class="circulo">{{ $index + 1 }}</span> {{ opcion }}
+                    </button>
                   }
                 </div>
               </div>
-            }@else {
-              <div class="glass-card info-test-card" [@fadeIn]>
-                <div class="info-header">
-                  <div class="icon-badge"><i class="fas fa-file-alt"></i></div>
-                  <span>Detalles del Cuestionario Realizado</span>
-                  <h2>Inventario Sobre Vulnerabilidad al Estrés</h2>
-                </div>
-                <div class="main-content-split">
-                  <div class="info-side">
-                    <div class="info-grid">
-                      <div class="info-item">
-                        <label>Autor(es)</label>
-                        <p>H.R. Beech, L.E. Burns y J.W. Sheffield</p>
-                      </div>
-                      <div class="info-item">
-                        <label>Año / Institución</label>
-                        <p>1982 - A Behavioural Approach to the Management of Stress (John Wiley & Sons)</p>
-                      </div>
-                      <div class="info-item">
-                        <label>Descripción del instrumento</label>
-                        <p>Identifica qué tan propenso es el usuario a desarrollar trastornos relacionados con el estrés mediante el análisis de patrones conductuales y el manejo de presiones cotidianas.</p>
+            }
+            @else {
+              @if (pasoTest === 1) {
+                <div class="glass-card info-test-card" [@fadeIn]>
+                  <div class="info-header">
+                    <div class="icon-badge"><i class="fas fa-file-alt"></i></div>
+                    <span>Detalles del Cuestionario Realizado</span>
+                    <h2>Inventario de Vulnerabilidad al Estrés (BBS)</h2>
+                  </div>
+                  <div class="main-content-split">
+                    <div class="info-side">
+                      <div class="info-grid">
+                        <div class="info-item">
+                          <label>Autor(es)</label>
+                          <p>H.R. Beech, L.E. Burns y J.W. Sheffield</p>
+                        </div>
+                        <div class="info-item">
+                          <label>Año / Institución</label>
+                          <p>1982 - A Behavioural Approach to the Management of Stress (John Wiley & Sons)</p>
+                        </div>
+                        <div class="info-item">
+                          <label>Descripción del instrumento</label>
+                          <p>Identifica qué tan propenso es el usuario a desarrollar trastornos relacionados con el estrés mediante el análisis de patrones conductuales y el manejo de presiones cotidianas.</p>
+                        </div>
                       </div>
                     </div>
                   </div>
-                  <div class="feedback-side">
-                    <div class="feedback-container">
-                      <label class="feedback-label"><i class="fas fa-comment-dots"></i>Nos gustaría conocer tu opinión</label>
-                      <textarea #textarea placeholder="Tu opinión cuenta, ¿Cuentanos cómo podríamos mejorar?" class="feedback-textarea"></textarea>
-                      <button class="btn-feedback" (click)="guardarFeedback('Inventario de Vulnerabilidad al Estrés', textarea.value); textarea.value = ''">Enviar opinión</button>
-                    </div>
-                  </div>
+                  <button class="btn-continuar-full" (click)="pasoTest = 2">
+                    Continuar al Análisis de Voz <i class="fas fa-arrow-right"></i>
+                  </button>
                 </div>
-                <button class="btn-continuar-full" (click)="irA('resultados')">
-                  Ver Resultados <i class="fas fa-arrow-right"></i>
-                </button>
-              </div>
+              }
+              @if (pasoTest === 2) {
+                <div class="glass-card info-test-card" [@fadeIn]>
+                  <div class="info-header">
+                    <div class="icon-badge"><i class="fas fa-microphone"></i></div>
+                    <h2>Fase de Reconocimiento Emocional</h2>
+                  </div>
+                  <ng-container *ngTemplateOutlet="moduloVoz"></ng-container>
+                  <button class="btn-continuar-full" (click)="pasoTest = 3; evaluacionVozOmitida()">
+                    Finalizar y Guardar Resultados
+                  </button>
+                </div>
+              }
+              @if (pasoTest === 3) {
+                <ng-container *ngTemplateOutlet="moduloFeedback; context: {nombreTest: 'Inventario de Vulnerabilidad al Estrés (BBS)'}"></ng-container>
+              }
             }
           </div>
         }
 
         @case ('ISE') {
           <div class="test-stepper">
-            @if(!infoISE){
-              <div class="progress-container"><div class="progress-bar" [style.width.%]="progresoISE"></div></div>
+            @if (!infoISE) {
+              <div class="progress-container">
+                <div class="progress-bar" [style.width.%]="progresoISE"></div>
+              </div>
               <div class="pregunta-card-single" [@fadeInTrigger]="indiceISE">
                 @if (indiceISE > 0) {
                   <button class="btn-mini-back" (click)="anteriorISE()">← Volver</button>
@@ -366,7 +413,6 @@
                 </header>
                 <p class="pregunta-texto-grande">
                   {{ preguntasISE[indiceISE].texto }}
-                  
                   @if (preguntasISE[indiceISE].ayuda) {
                     <button class="btn-info-help" matTooltip="{{preguntasISE[indiceISE].ayuda}}">?</button>
                   }
@@ -374,48 +420,59 @@
                 <div class="opciones-verticales">
                   @for (opcion of escalaISE; track $index) {
                     <button class="btn-opcion-grande" [class.active]="preguntasISE[indiceISE].valor === $index + 1"
-                    [disabled]="procesando" (click)="seleccionarOpcionISE(preguntasISE[indiceISE], $index + 1)">
-                    <span class="circulo">{{ $index + 1 }}</span> {{ opcion }}
+                            [disabled]="procesando" (click)="seleccionarOpcionISE(preguntasISE[indiceISE], $index + 1)">
+                      <span class="circulo">{{ $index + 1 }}</span> {{ opcion }}
                     </button>
                   }
                 </div>
               </div>
-            }@else {
-              <div class="glass-card info-test-card" [@fadeIn]>
-                <div class="info-header">
-                  <div class="icon-badge"><i class="fas fa-file-alt"></i></div>
-                  <span>Detalles del Cuestionario Realizado</span>
-                  <h2>Inventario de Síntomas de Estrés (ISE - Versión 2)</h2>
-                </div>
-                <div class="main-content-split">
-                  <div class="info-side">
-                    <div class="info-grid">
-                      <div class="info-item">
-                        <label>Autor(es)</label>
-                        <p>Arturo Barraza Macías</p>
-                      </div>
-                      <div class="info-item">
-                        <label>Año / Institución</label>
-                        <p>2015 (ECORFAN-México S.C)</p>
-                      </div>
-                      <div class="info-item">
-                        <label>Descripción del instrumento</label>
-                        <p>Evalúa la frecuencia de las respuestas ante estresores académicos, permitiendo caracterizar el perfil sintomatológico del estudiante ante la presión del entorno.</p>
+            }
+            @else {
+              @if (pasoTest === 1) {
+                <div class="glass-card info-test-card" [@fadeIn]>
+                  <div class="info-header">
+                    <div class="icon-badge"><i class="fas fa-file-alt"></i></div>
+                    <span>Detalles del Cuestionario Realizado</span>
+                    <h2>Inventario de Síntomas de Estrés (ISE - Versión 2)</h2>
+                  </div>
+                  <div class="main-content-split">
+                    <div class="info-side">
+                      <div class="info-grid">
+                        <div class="info-item">
+                          <label>Autor(es)</label>
+                          <p>Arturo Barraza Macías</p>
+                        </div>
+                        <div class="info-item">
+                          <label>Año / Institución</label>
+                          <p>2015 (ECORFAN-México S.C)</p>
+                        </div>
+                        <div class="info-item">
+                          <label>Descripción del instrumento</label>
+                          <p>Evalúa la frecuencia de las respuestas ante estresores académicos, permitiendo caracterizar el perfil sintomatológico del estudiante ante la presión del entorno.</p>
+                        </div>
                       </div>
                     </div>
                   </div>
-                  <div class="feedback-side">
-                    <div class="feedback-container">
-                      <label class="feedback-label"><i class="fas fa-comment-dots"></i>Nos gustaría conocer tu opinión</label>
-                      <textarea #textarea placeholder="Tu opinión cuenta, ¿Cuentanos cómo podríamos mejorar?" class="feedback-textarea"></textarea>
-                      <button class="btn-feedback" (click)="guardarFeedback('Inventario de Síntomas de Estrés (ISE - Versión 2)',textarea.value); textarea.value = ''">Enviar opinión</button>
-                    </div>
-                  </div>
+                  <button class="btn-continuar-full" (click)="pasoTest = 2">
+                    Continuar al Análisis de Voz <i class="fas fa-arrow-right"></i>
+                  </button>
                 </div>
-                <button class="btn-continuar-full" (click)="irA('resultados')">
-                  Ver Resultados <i class="fas fa-arrow-right"></i>
-                </button>
-              </div>
+              }
+              @if (pasoTest === 2) {
+                <div class="glass-card info-test-card" [@fadeIn]>
+                  <div class="info-header">
+                    <div class="icon-badge"><i class="fas fa-microphone"></i></div>
+                    <h2>Fase de Reconocimiento Emocional</h2>
+                  </div>
+                  <ng-container *ngTemplateOutlet="moduloVoz"></ng-container>
+                  <button class="btn-continuar-full" (click)="pasoTest = 3; evaluacionVozOmitida()">
+                    Finalizar y Guardar Resultados
+                  </button>
+                </div>
+              }
+              @if (pasoTest === 3) {
+                <ng-container *ngTemplateOutlet="moduloFeedback; context: {nombreTest: 'Inventario de Síntomas de Estrés (ISE - Versión 2)'}"></ng-container>
+              }
             }
           </div>
         }
@@ -426,3 +483,27 @@
 <footer [@fadeIn]>
   <a (click)="$event.preventDefault(); abrirConfidencialidad()">AVISO: Compromiso de Confidencialidad</a>
 </footer>
+
+<ng-template #moduloFeedback let-nombreTest="nombreTest">
+  <div class="glass-card feedback-card" [@fadeIn]>
+    <div class="thanks-section">
+      <h2>¡Muchas gracias por participar!</h2>
+      <p>Tu feedback es de gran valor para esta investigación.</p>
+    </div>
+
+    <div class="feedback-container">
+      <label class="feedback-label">
+        <i class="fas fa-comment-dots"></i> Nos gustaría conocer tu opinión general
+      </label>
+      <textarea #textarea placeholder="Tu opinión cuenta, ¿Cuentanos, cómo podríamos mejorar?" class="feedback-textarea"></textarea>
+      
+      <button class="btn-feedback" (click)="guardarFeedback(nombreTest, textarea.value); textarea.value = ''; irA('resultados')">
+        Enviar opinión y ver resultados
+      </button>
+    </div>
+  </div>
+</ng-template>
+
+<ng-template #moduloVoz>
+  <app-audio-reconocimiento [mostrarNavbar]="false" [resultadoId]="resultadoDocIdActual" (analisisCompletado)="vozEvaluada = true"></app-audio-reconocimiento>
+</ng-template>

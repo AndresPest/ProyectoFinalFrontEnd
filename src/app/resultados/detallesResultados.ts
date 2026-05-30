@@ -13,8 +13,7 @@ interface Sugerencia {
 }
 
 export const SUGERENCIAS: { [categoria: string]: Sugerencia[] } = {
-  // Sugerencias para indicadores fisiologicos
-  'Salud y Hábitos': [    // Miller
+  'Estilo de Vida': [
     { 
       texto: 'Establece una rutina de sueño regular de al menos 7 horas.',
       imagen: 'https://i.postimg.cc/m2PPFXGw/img1.png' 
@@ -27,7 +26,7 @@ export const SUGERENCIAS: { [categoria: string]: Sugerencia[] } = {
       texto: 'Bebe al menos 2 litros de agua al día y realiza una caminata o ejercicio fisico durante al menos 15min.',
       imagen: 'https://i.postimg.cc/CMPZ5y9X/img3.png'
     }
-  ],'Síntomas': [   // SISCO
+  ],'Síntomas': [
     { 
       texto: 'Practica la respiración diafragmática durante 5 minutos.',
       imagen: 'https://i.postimg.cc/8kKFc8xK/img4.png' 
@@ -40,7 +39,7 @@ export const SUGERENCIAS: { [categoria: string]: Sugerencia[] } = {
       texto: 'Realiza estiramientos suaves de cuello y hombros.',
       imagen: 'https://i.postimg.cc/5NXXF7Mk/img5.png' 
     }
-  ],'Fatiga y Alteraciones': [   // BBS
+  ],'Fatiga y Alteraciones': [
     { 
       texto: 'Implementa pausas activas cada 90 minutos de trabajo.',
       imagen: 'https://i.postimg.cc/8P77rKSQ/img6.png'
@@ -53,7 +52,7 @@ export const SUGERENCIAS: { [categoria: string]: Sugerencia[] } = {
       texto: 'Realiza una caminata ligera de 15 minutos al aire libre.',
       imagen: 'https://i.postimg.cc/X7rryHb7/img9.png'
     }
-  ],'Síntomas Físicos': [   // BBS y ISE
+  ],'Síntomas Físicos': [
     { 
       texto: 'Escucha a tu cuerpo; si los sintomas persisten, consulta a un profesional.',
       imagen: 'https://i.postimg.cc/gk1nyVzc/img10.png' 
@@ -63,8 +62,7 @@ export const SUGERENCIAS: { [categoria: string]: Sugerencia[] } = {
       imagen: 'https://i.postimg.cc/KvCR7PGF/img11.png'
     }
   ],
-  // Sugerencias para indicadores psicoemocionales
-  'Bienestar y Autocuidado': [{
+  'Valores y Creencias': [{
       texto: 'Dedica al menos 20 minutos al día a un pasatiempo que disfrutes.',
       imagen: 'https://i.postimg.cc/gk1nyVz8/img12.png'
     },{
@@ -92,22 +90,21 @@ export const SUGERENCIAS: { [categoria: string]: Sugerencia[] } = {
       texto: 'Limita el tiempo de exposición a noticias negativas.',
       imagen: 'https://i.postimg.cc/GmY9X4tX/img18.png'
     }],
-  // Sugerencias para indicadores de gestión y trabajo
-  'Evaluación y Desempeño': [{
+  'Expresión y Comunicación de Ideas Propias': [{
       texto: 'Define metas pequeñas y alcanzables para evitar la frustración.',
       imagen: 'https://i.postimg.cc/K8L401jp/img19.jpg'
     },{
       texto: 'Reconoce tus logros semanales, por pequeños que sean.',
       imagen: 'https://i.postimg.cc/t4P7Bs7Q/img20.png'
     }],
-  'Carga y Gestión': [{
+  'Obligaciones Académicas': [{
       texto: 'Usa la técnica Pomodoro (25 min trabajo / 5 min descanso).',
       imagen: 'https://i.postimg.cc/pdHr4P53/img21.png'
     },{
       texto: 'Aprende a delegar tareas que no requieren tu supervisión directa.',
       imagen: 'https://i.postimg.cc/VN8vpz0V/img22.png'
     }],
-  'Expectativas y Futuro': [{
+  'Expediente y Perspectivas de Futuro': [{
       texto: 'Céntrate en lo que puedes controlar hoy, no en la incertidumbre del mañana.',
       imagen: 'https://i.postimg.cc/zfrv6qRr/img23.png'
     },{
@@ -121,29 +118,28 @@ export const SUGERENCIAS: { [categoria: string]: Sugerencia[] } = {
       texto: 'Haz una lista de pros y contras para visualizar mejor tus opciones.',
       imagen: 'https://i.postimg.cc/PqQJk0mx/img26.png'
     }],
-  'Estabilidad y Gestión': [{
-      texto: 'Organiza tu espacio de trabajo para reducir el ruido visual.',
-      imagen: 'https://i.postimg.cc/9fY0jsG7/img27.png'
+  'Bienestar Físico': [{
+      texto: 'Realiza estiramientos breves cada dos horas de trabajo y ajusta la altura de tu pantalla para mantener la espalda recta.',
+      imagen: 'https://i.postimg.cc/KzcpzqxD/img27.png'
     },{
-      texto: 'Establece límites claros entre tu vida laboral y personal.',
-      imagen: 'https://i.postimg.cc/Ls35MGz5/img28.png'
+      texto: 'Haz ejercicios sencillos de movilidad articular para tus muñecas y hombros y camina durante 5 minutos después de terminar cada tarea principal.',
+      imagen: 'https://i.postimg.cc/xCjpCxnP/img28.png'
     }],
-  // Sugerencias para indicadores sociales y de entorno
-  'Red de Apoyo': [{
+  'Apoyo Social': [{
       texto: 'Llama a un amigo o familiar con el que no hayas hablado hace tiempo.',
       imagen: 'https://i.postimg.cc/3wFNHzg4/img29.png'
     },{
       texto: 'Participa en actividades grupales o comunitarias.',
       imagen: 'https://i.postimg.cc/s24xRbpP/img30.png'
     }],
-  'Comunicación y Relaciones': [{
+  'Exposición de sentimientos': [{
       texto: 'Practica la escucha activa en tus conversaciones.',
       imagen: 'https://i.postimg.cc/W4wzPxMn/img31.png'
     },{
       texto: 'Expresa tus necesidades de forma asertiva, sin agresividad.',
       imagen: 'https://i.postimg.cc/43QyTjzw/img32.png'
     }],
-  'Entorno': [{
+  'Dificultades Interpersonales': [{
       texto: 'Asegúrate de tener una iluminación adecuada en tu lugar de estancia.',
       imagen: 'https://i.postimg.cc/gJcJc4D3/img33.png'
     },{
@@ -157,7 +153,6 @@ export const SUGERENCIAS: { [categoria: string]: Sugerencia[] } = {
       texto: 'Intenta mantener tus rutinas básicas incluso en días difíciles.',
       imagen: 'https://i.postimg.cc/gJM0xRt9/img35.png'
     }],
-  // Sugerencias para indicadores de respuesta / afrontamiento
   'Estresores': [{
       texto: 'Identifica qué situaciones externas están drenando tu energía.',
       imagen: 'https://i.postimg.cc/26j6jTws/img36.png'
@@ -208,6 +203,24 @@ export class DetalleResultadoComponent implements OnInit {
     setTimeout(() => {
       this.crearGrafica('canvasCNN', this.data.historial_cnn, 'Análisis Facial (CNN)');
       this.crearGrafica('canvasFaceMesh', this.data.historial_facemesh, 'Análisis Facial (FaceMesh)');
+      if (this.data?.tiene_voz && this.data?.detalles_voz_probabilidades) {
+        this.crearGraficaVoz(
+          'canvasVoz', 
+          this.data.detalles_voz_probabilidades, 
+          `Análisis de Voz (${this.data.duracion_voz}s grabados)`
+        );
+      } else {
+        const datosVacios = [
+          { name: 'happy', percent: 0 },
+          { name: 'sad', percent: 0 },
+          { name: 'angry', percent: 0 },
+          { name: 'neutral', percent: 0 },
+          { name: 'surprise', percent: 0 },
+          { name: 'fear', percent: 0 },
+          { name: 'disgust', percent: 0 }
+        ];
+        this.crearGraficaVoz('canvasVoz', datosVacios, 'Análisis de Voz (No Realizado)');
+      }
     }, 100);
 
     if (this.data?.categorias) {
@@ -248,6 +261,14 @@ export class DetalleResultadoComponent implements OnInit {
     //this.sugerenciasFiltradas = resultados.slice(0, 6);
     this.sugerenciasFiltradas = resultados;
 
+    const estresAlto = this.data.categoriaVulnerableLv3?.length > 0;
+
+    if (estresAlto) {
+      this.sugerenciasFiltradas.unshift({
+        texto: 'Tus niveles de estrés muestran indicadores elevados. Te recomendamos agendar una sesión con un profesional de la salud mental para un acompañamiento personalizado.',
+        imagen: 'https://i.postimg.cc/gk1nyVzc/img10.png'
+      });
+    }
     if (this.sugerenciasFiltradas.length === 0) {
       this.sugerenciasFiltradas.push({
         texto: 'Mantén una hidratación adecuada y realiza pausas activas.'
@@ -306,6 +327,7 @@ export class DetalleResultadoComponent implements OnInit {
         },
         options: {
           responsive: true,
+          maintainAspectRatio: false,
           plugins: {
             legend: { display: false },
             title: { 
@@ -317,30 +339,99 @@ export class DetalleResultadoComponent implements OnInit {
         }
       });
   }
+
+  crearGraficaVoz(canvasId: string, detallesProbabilidades: any[], titulo: string) {
+    const ctx = document.getElementById(canvasId) as HTMLCanvasElement;
+    if (!ctx || !detallesProbabilidades || detallesProbabilidades.length === 0) return;
+
+    const traduccionEmociones: { [key: string]: string } = {
+      'happy': 'Feliz',
+      'sad': 'Triste',
+      'angry': 'Enojado',
+      'neutral': 'Neutral',
+      'surprise': 'Sorprendido',
+      'fear': 'Miedo',
+      'disgust': 'Disgustado'
+    };
+
+    const coloresMap: { [key: string]: string } = {
+      'happy': '#4caf50',
+      'sad': '#2196f3',
+      'angry': '#f44336',
+      'neutral': '#9e9e9e',
+      'surprise': '#ffeb3b',
+      'fear': '#ff863b',
+      'disgust': '#8e44ad'
+    };
+
+    const labelsIngles = detallesProbabilidades.map(item => item.name.toLowerCase());
+    const labelsEspanol = labelsIngles.map(label => traduccionEmociones[label] || label);
+    const colores = labelsIngles.map(label => coloresMap[label] || '#bcbcbc');
+    const valores = detallesProbabilidades.map(item => item.percent);
+
+    new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: labelsEspanol,
+        datasets: [{
+          label: 'Porcentaje de certeza (%)',
+          data: valores,
+          backgroundColor: colores,
+          borderRadius: 5
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          title: { 
+            display: true, 
+            text: titulo,
+            font: { size: 16 }
+          }
+        },
+        scales: {
+          y: {
+            beginAtZero: true,
+            max: 100,
+            ticks: {
+              callback: function(value) { return value + '%'; }
+            }
+          }
+        }
+      }
+    });
+  }
   
   getMaximo(nombreTest: string): number {
     const mapeo = {
-      'Salud y Hábitos': 40,
+      // Miller
+      'Estilo de Vida': 55,
+      'Apoyo Social': 25,
+      'Exposición de Sentimientos': 10,
+      'Valores y Creencias': 5,
+      'Bienestar Físico': 5,
+      // CEAU
+      'Obligaciones Académicas': 35,
+      'Expediente y Perspectivas de Futuro': 30,
+      'Entorno': 25,
+      'Expresión y Comunicación de Ideas Propias': 15,
+      //SISCO
+      'Nivel General': 5,
+      'Estresores': 42,
       'Síntomas': 42,
+      'Afrontamiento': 42,
+      // BBS
+      'Síntomas Físicos': 5,
       'Fatiga y Alteraciones': 3,
-      'Síntomas Físicos': 5,  // SISCO
-      'Síntomas Fisicos': 16,  // ISE
-      'Bienestar y Autocuidado': 20,
       'Estado y Tensión': 6,
       'Reactividad': 4,
-      'Síntomas Psicológicos': 52,
-      'Evaluación y Desempeño': 20,
-      'Carga y Gestión': 30,
-      'Expectativas y Futuro': 25,
       'Toma de Decisiones': 4,
-      'Estabilidad y Gestión': 10,
-      'Red de Apoyo': 20,
-      'Comunicación y Relaciones': 10,
-      'Entorno': 30,
-      'Síntomas Comportamentales': 32,
-      'Estresores': 42,
-      'Afrontamiento': 42,
-      'Nivel General': 5
+        // ISE
+      'Síntomas Fisicos': 16,
+      'Síntomas Psicológicos': 52,
+      'Síntomas Comportamentales': 32
     };
     return (mapeo as any)[nombreTest];
   }

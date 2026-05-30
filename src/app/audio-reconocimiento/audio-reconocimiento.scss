@@ -6,7 +6,7 @@ $primary-blue: #1E3A8A;
 $danger-red: #ef4444;
 
 .main-wrapper {
-  min-height: 100vh;
+  min-height: auto;
   background: $background;
   padding: 40px 20px;
   font-family: 'Inter', system-ui, sans-serif;
@@ -46,7 +46,33 @@ $danger-red: #ef4444;
   max-width: 650px;
 }
 
-// Visualizador de Grabación
+.voice-prompt {
+  text-align: center;
+  margin-bottom: 25px;
+  padding: 5px 10px;
+  animation: fadeIn 0.5s ease-out;
+
+  .prompt-icon {
+    font-size: 1.4rem;
+    color: rgba($primary-blue, 0.7);
+    margin-bottom: 8px;
+    display: inline-block;
+  }
+
+  .prompt-text {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #1e293b;
+    margin: 0 0 4px 0;
+  }
+
+  .prompt-subtext {
+    font-size: 0.9rem;
+    color: #64748b;
+    display: block;
+  }
+}
+
 .recording-visualizer {
   background: rgba(255, 255, 255, 0.5);
   border-radius: 16px;
@@ -78,19 +104,18 @@ $danger-red: #ef4444;
   animation: pulse 1.5s infinite;
 }
 
-// Botones Principales
 .controls-group {
   display: flex;
   gap: 15px;
   justify-content: center;
   margin-bottom: 25px;
-  align-items: center; // Alinea verticalmente los botones
+  align-items: center;
 }
 
 .btn-main {
-  min-height: 48px; // Asegura que todos tengan la misma altura
+  min-height: 48px;
   padding: 0 25px;
-  border-radius: 14px; // Bordes más suaves
+  border-radius: 14px;
   font-size: 1rem;
   border: none;
   font-weight: 600;
@@ -103,8 +128,13 @@ $danger-red: #ef4444;
   &.record {
     background: $primary-blue;
     color: white;
-    &:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(30, 58, 138, 0.2); }
-    &.is-recording { background: $danger-red; }
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(30, 58, 138, 0.2);
+    }
+    &.is-recording {
+      background: $danger-red;
+    }
   }
 
   &.process {
@@ -113,30 +143,13 @@ $danger-red: #ef4444;
     background: color.scale($primary-blue, $lightness: -10%);
   }
 
-  &:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
-}
-
-// Zona de subida
-.upload-zone {
-  border-top: 1px dashed rgba(0,0,0,0.1);
-  padding-top: 20px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-
-  .file-label {
-    cursor: pointer;
-    color: $primary-blue;
-    font-size: 0.9rem;
-    font-weight: 500;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    &:hover { text-decoration: underline; }
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
   }
 }
 
-// Panel de Resultados
 .results-card {
   max-width: 500px;
   .results-header {
@@ -152,8 +165,15 @@ $danger-red: #ef4444;
       text-transform: uppercase;
       letter-spacing: 1px;
     }
-    h3 { margin: 15px 0 5px; color: #1e293b; }
-    .confidence-meter { font-size: 0.85rem; color: #64748b; }
+    h3 {
+      margin: 15px 0 5px;
+      color: #1e293b;
+    }
+    
+    .confidence-meter {
+      font-size: 0.85rem;
+      color: #64748b;
+    }
   }
 }
 
@@ -186,10 +206,9 @@ $danger-red: #ef4444;
   }
 }
 
-/* --- Botón de Papelera (Descartar) --- */
 .btn-icon.discard {
-  background: rgba(239, 68, 68, 0.1); // Fondo rojo muy tenue
-  color: #ef4444;                   // Rojo vibrante para el icono
+  background: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
   border: none;
   width: 38px;
   height: 38px;
@@ -199,7 +218,7 @@ $danger-red: #ef4444;
   justify-content: center;
   cursor: pointer;
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-  margin-left: auto; // Lo empuja a la derecha en el visualizador
+  margin-left: auto;
 
   i {
     font-size: 1.1rem;
@@ -217,39 +236,6 @@ $danger-red: #ef4444;
   }
 }
 
-/* --- Botón de Descargar --- */
-.btn-text {
-  background: rgba(255, 255, 255, 0.4); // Fondo semi-transparente
-  color: #1E3A8A;                     // Azul principal
-  border: 1px solid rgba(30, 58, 138, 0.2);
-  padding: 8px 16px;
-  border-radius: 10px;
-  font-size: 0.9rem;
-  font-weight: 600;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  transition: all 0.2s ease;
-
-  i {
-    font-size: 1rem;
-  }
-
-  &:hover {
-    background: #1E3A8A;
-    color: white;
-    border-color: #1E3A8A;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(30, 58, 138, 0.15);
-  }
-
-  &:active {
-    transform: translateY(0);
-  }
-}
-
-/* --- Ajuste extra para el contenedor de subida --- */
 .upload-zone {
   display: flex;
   justify-content: space-between;

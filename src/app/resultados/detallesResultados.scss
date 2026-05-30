@@ -52,23 +52,37 @@
 
     .charts-container {
         display: flex;
-        justify-content: space-around;
-        align-items: center;
+        justify-content: space-between;
+        align-items: stretch;
         gap: 20px;
         margin: 15px 0;
         padding: 15px;
         background: #f9f9f9;
         border-radius: 12px;
 
-        @media (max-width: 600px) {
+        @media (max-width: 768px) {
             flex-direction: column;
+            gap: 30px;
+            padding: 10px;
         }
     }
     
     .chart-wrapper {
         flex: 1;
-        max-width: 45%;
-        min-height: 200px;
+        width: 100%;
+        min-width: 0;
+        max-width: 30%;
+        height: 180px;
+        position: relative;
+        
+        canvas {
+            height: 180px !important;
+        }
+
+        @media (max-width: 768px) {
+            max-width: 100%;
+            height: 220px;
+        }
     }
 
     .cat-box {
@@ -161,20 +175,19 @@
 }
 
 .modal-zoom-overlay {
-    position: fixed; /* Cambiado de absolute a fixed */
+    position: fixed;
     top: 0;
     left: 0;
     width: 100vw;
     height: 100vh;
-    background-color: rgba(0, 0, 0, 0.9); /* Más oscuro para resaltar */
+    background-color: rgba(0, 0, 0, 0.9);
     display: flex;
     justify-content: center;
     align-items: center;
-    z-index: 9999; /* Valor muy alto para superar el MatDialog (que suele ser 1000) */
+    z-index: 9999;
     cursor: zoom-out;
 }
 
-/* Contenido del modal de zoom */
 .modal-zoom-content {
     position: relative;
     max-width: 90%;
@@ -189,7 +202,7 @@
         object-fit: contain;
         border-radius: 8px;
         box-shadow: 0 0 30px rgba(0, 0, 0, 0.5);
-        cursor: default; /* Para que no parezca que puedes clickear la imagen */
+        cursor: default;
     }
 
     .close-zoom {
@@ -204,7 +217,6 @@
     }
 }
 
-/* Opcional: Estilo para la miniatura y el overlay del buscador */
 .img-zoom-wrapper {
     position: relative;
     cursor: zoom-in;

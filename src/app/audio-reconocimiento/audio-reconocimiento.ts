@@ -1,4 +1,4 @@
-import { Component, ViewChild, ElementRef, NgZone} from '@angular/core';
+import { Component, ViewChild, ElementRef, NgZone, Input, Output, EventEmitter} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { trigger, transition, style, animate } from '@angular/animations';
 import { MatSelectModule } from '@angular/material/select';
@@ -7,6 +7,7 @@ import { FormsModule } from '@angular/forms';
 import { NavbarComponent } from '../navbar/navbar';
 import { RouterOutlet } from '@angular/router';
 import { AudioEmotionService } from '../audio-reconocimiento/audio-reconocimiento.service';
+import { AuthService } from '../services/auth';
 
 @Component({
   selector: 'app-audio-reconocimiento',
@@ -31,7 +32,7 @@ import { AudioEmotionService } from '../audio-reconocimiento/audio-reconocimient
 })
 
 export class AudioReconocimiento {
-  recording = false;
+  public recording = false;
   @ViewChild('waveformCanvas') canvas!: ElementRef<HTMLCanvasElement>;
   public recordingTime: string = '00:00';
   private audioContext?: AudioContext;
@@ -40,27 +41,31 @@ export class AudioReconocimiento {
   private timerInterval: any;
   public secondsElapsed: number = 0;
   private mediaRecorder?: MediaRecorder;
-  private audioChunks: Blob[] = [];
+  public audioChunks: Blob[] = [];
   private audioUrl?: string;
-  isAnalyzing = false;
+  public isAnalyzing = false;
   public resultsArray: any[] = [];
   public result: any;
 
-  constructor(private api: AudioEmotionService, private zone: NgZone) {}
+  @Input() mostrarNavbar: boolean = true;
+
+  @Input() resultadoId: string | null = null;
+  @Output() estadoAudioCambiado = new EventEmitter<boolean>();
+  @Output() analisisCompletado = new EventEmitter<void>();
+
+  constructor(private api: AudioEmotionService, private zone: NgZone, private authService: AuthService) {}
 
   async startRecording() {
     this.recording = true;
     this.secondsElapsed = 0;
     this.recordingTime = '00:00';
-    this.audioChunks = []; // Limpiamos el buffer
+    this.audioChunks = [];
 
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       
-      // 1. Configurar MediaRecorder
       this.mediaRecorder = new MediaRecorder(stream);
       
-      // IMPORTANTE: Una sola definición de ondataavailable
       this.mediaRecorder.ondataavailable = (event) => {
         if (event.data.size > 0) {
           this.audioChunks.push(event.data);
@@ -70,7 +75,6 @@ export class AudioReconocimiento {
 
       this.mediaRecorder.start();
 
-      // 2. Gestionar el Temporizador
       if (this.timerInterval) clearInterval(this.timerInterval);
       this.timerInterval = setInterval(() => {
         this.secondsElapsed++;
@@ -81,14 +85,12 @@ export class AudioReconocimiento {
         });
       }, 1000);
 
-      // 3. Configurar Visualizador (Web Audio API)
       this.audioContext = new AudioContext();
       const source = this.audioContext.createMediaStreamSource(stream);
       this.analyser = this.audioContext.createAnalyser();
       this.analyser.fftSize = 256;
       source.connect(this.analyser);
 
-      // 4. Iniciar dibujo
       this.drawWaveform();
 
     } catch (err) {
@@ -105,35 +107,31 @@ export class AudioReconocimiento {
     });
   }
 
-stopRecording() {
-  this.recording = false;
-  
-  if (this.mediaRecorder && this.mediaRecorder.state !== 'inactive') {
-    this.mediaRecorder.stop();
-    // Apagar el micrófono (luz roja del navegador)
-    this.mediaRecorder.stream.getTracks().forEach(track => track.stop());
-  }
+  stopRecording() {
+    this.recording = false;
+    
+    if (this.mediaRecorder && this.mediaRecorder.state !== 'inactive') {
+      this.mediaRecorder.stop();
+      this.mediaRecorder.stream.getTracks().forEach(track => track.stop());
+    }
 
-  if (this.timerInterval) clearInterval(this.timerInterval);
-  if (this.animationId) cancelAnimationFrame(this.animationId);
-}
+    if (this.timerInterval) clearInterval(this.timerInterval);
+    if (this.animationId) cancelAnimationFrame(this.animationId);
+  }
   
   discardRecording() {
-  // 1. Detener cualquier proceso de audio si estuviera activo
   if (this.timerInterval) clearInterval(this.timerInterval);
   if (this.animationId) cancelAnimationFrame(this.animationId);
   this.audioContext?.close();
 
-  // 2. Resetear variables de tiempo y estado
   this.zone.run(() => {
   this.secondsElapsed = 0;
   this.recordingTime = '00:00';
   this.audioChunks = [];
   this.recording = false;
-  this.result = null; // También limpiamos el resultado previo si existe
+  this.result = null;
   });
 
-  // 3. Limpiar el canvas (opcional)
   const canvas = this.canvas.nativeElement;
   const ctx = canvas.getContext('2d');
   ctx?.clearRect(0, 0, canvas.width, canvas.height);
@@ -183,67 +181,57 @@ stopRecording() {
     renderFrame();
   }
 
-  getEmotionEmoji(label: string): string {
-    const emojis: any = {
-      'angry': '😡', 'disgust': '🤢', 'fear': '😨',
-      'happy': '😊', 'neutral': '😐', 'sad': '😢', 'surprise': '😲'
-    };
-    return emojis[label.toLowerCase()] || '🎤';
-  }
-
-  downloadRecording() {
-    // Verificamos que haya datos y que el proceso de grabación exista
-    if (this.audioChunks.length > 0) {
-      const audioBlob = new Blob(this.audioChunks, { type: 'audio/wav' });
-      const url = window.URL.createObjectURL(audioBlob);
-      
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `grabacion_${new Date().getTime()}.wav`;
-      a.click();
-      
-      window.URL.revokeObjectURL(url);
-    } else {
-      console.error("No hay datos de audio para descargar");
-    }
-  }
-
   async analyzeAudio() {
-    if (this.audioChunks.length === 0) return;
+    if (this.audioChunks.length === 0 || this.secondsElapsed === 0) return;
 
     this.isAnalyzing = true;
-    this.resultsArray = []; // [Mejora] Limpiamos resultados previos antes de empezar
+    this.estadoAudioCambiado.emit(true);
+    this.resultsArray = [];
 
     try {
-      // CONVERTIMOS A WAV ANTES DE ENVIAR
       const wavBlob = await this.createWavBlob(this.audioChunks);
 
       this.api.predictEmotion(wavBlob).subscribe({
-        next: (res) => {
+        next: async (res) => {
           this.zone.run(() => {
-            console.log("Respuesta completa del servidor:", res);
             this.result = res;
-            
-            // Verificación de seguridad: ¿Vienen los datos necesarios?
             if (res.classes && res.probs) {
               this.resultsArray = res.classes.map((name: string, index: number) => {
                 const percentage = (res.probs[index] * 100).toFixed(2);
-                return {
-                  name: name,
-                  value: percentage,
-                  percent: parseFloat(percentage)
-                };
+                return { name: name, value: percentage, percent: parseFloat(percentage) };
               });
-              
-              console.log("Array procesado para las barras:", this.resultsArray);
             }
-            
+          });
+
+          const user = this.authService.currentUser;
+          if (user && this.resultadoId) {
+            try {
+              const emocionDetectada = res.emotion || res.label || res.predicted_emotion || 'no definida';
+              const datosVoz = {
+                analisis_voz: {
+                  emocion_dominante: emocionDetectada,
+                  detalles_probabilidades: this.resultsArray.length > 0 ? this.resultsArray : 'sin detalles',
+                },
+                duracion: this.secondsElapsed || 0,
+                fecha_voz: new Date()
+              };
+              await this.authService.actualizarAudioCuestionario(user.uid, this.resultadoId, datosVoz);
+              console.log("Firestore actualizado con éxito con los datos del análisis de voz.");
+              this.analisisCompletado.emit();
+            } catch (fsError) {
+              console.error("Error actualizando Firestore con datos de voz:", fsError);
+            }
+          }
+
+          this.zone.run(() => {
             this.isAnalyzing = false;
+            this.estadoAudioCambiado.emit(false);
           });
         },
         error: (err) => {
           this.zone.run(() => {
             this.isAnalyzing = false;
+            this.estadoAudioCambiado.emit(false);
             console.error("Error en la predicción:", err);
             alert("Hubo un problema al procesar el audio.");
           });
@@ -251,6 +239,7 @@ stopRecording() {
       });
     } catch (error) {
       this.isAnalyzing = false;
+      this.estadoAudioCambiado.emit(false);
       console.error("Error al convertir audio a WAV:", error);
     }
   }

@@ -261,7 +261,7 @@ export class DetalleResultadoComponent implements OnInit {
     //this.sugerenciasFiltradas = resultados.slice(0, 6);
     this.sugerenciasFiltradas = resultados;
 
-    const estresAlto = this.data.categoriaVulnerableLv3?.length > 0;
+    const estresAlto = this.data.categoriaVulnerableLv3?.length > 0 || this.data.categoriasAtencion?.length > 0;
 
     if (estresAlto) {
       this.sugerenciasFiltradas.unshift({

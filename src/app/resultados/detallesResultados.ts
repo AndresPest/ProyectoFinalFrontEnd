@@ -265,7 +265,7 @@ export class DetalleResultadoComponent implements OnInit {
 
     if (estresAlto) {
       this.sugerenciasFiltradas.unshift({
-        texto: 'Te recomendamos agendar una sesión con un profesional de la salud mental para una sesión personalizada.',
+        texto: 'Agenda una sesión con un profesional de la salud mental para una sesión personalizada.',
         imagen: 'https://i.postimg.cc/gk1nyVzc/img10.png'
       });
     }

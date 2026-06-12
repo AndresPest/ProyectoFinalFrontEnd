@@ -419,9 +419,9 @@ export class DetalleResultadoComponent implements OnInit {
       'Expresión y Comunicación de Ideas Propias': 15,
       //SISCO
       'Nivel General': 5,
-      'Estresores': 42,
-      'Síntomas': 42,
-      'Afrontamiento': 42,
+      'Estresores': 35,
+      'Síntomas': 35,
+      'Afrontamiento': 35,
       // BBS
       'Síntomas Físicos': 5,
       'Fatiga y Alteraciones': 3,

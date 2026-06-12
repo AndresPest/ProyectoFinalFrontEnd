@@ -496,85 +496,88 @@ export class StressQuestionnaireComponent implements AfterViewInit, OnDestroy {
   public preguntasSisco = [
     // DIMENSIÓN ESTRESORES
     { dim: 'Estresores', encabezado: '¿Con qué frecuencia te estresa:', texto: 'La sobrecarga de tareas y trabajos académicos que tengo que realizar todos los días.',
-      ayuda: "Sientes que la cantidad de asignaciones supera tu capacidad o el tiempo disponible para terminarlos.", valor: 0 },
+      ayuda: "Sientes que la cantidad de asignaciones supera tu capacidad o el tiempo disponible para terminarlos.", valor: null as number | null },
     
     { dim: 'Estresores', encabezado: '¿Con qué frecuencia te estresa:', texto: 'La personalidad y el carácter de los/as profesores/as que me imparten clases.',
-      ayuda: "La forma de ser de algún docente te genera incomodidad, miedo o malestar.", valor: 0 },
+      ayuda: "La forma de ser de algún docente te genera incomodidad, miedo o malestar.", valor: null as number | null },
     
     { dim: 'Estresores', encabezado: '¿Con qué frecuencia te estresa:', texto: 'La forma de evaluación de mis profesores/as (a través de ensayos, trabajos de investigación, búsquedas en Internet, etc.)',
-      ayuda: "Te genera ansiedad la metodología o el tipo de instrumentos que se usan para calificar tu desempeño.", valor: 0 },
+      ayuda: "Te genera ansiedad la metodología o el tipo de instrumentos que se usan para calificar tu desempeño.", valor: null as number | null },
     
     { dim: 'Estresores', encabezado: '¿Con qué frecuencia te estresa:', texto: 'El nivel de exigencia de mis profesores/as.',
-      ayuda: "Consideras que los profesores piden demasiado o que sus estándares son muy difíciles de alcanzar.", valor: 0 },
+      ayuda: "Consideras que los profesores piden demasiado o que sus estándares son muy difíciles de alcanzar.", valor: null as number | null },
     
     { dim: 'Estresores', encabezado: '¿Con qué frecuencia te estresa:', texto: 'El tipo de trabajo que me piden los profesores (consulta de temas, fichas de trabajo, ensayos, mapas conceptuales, etc.)',
-      ayuda: "Sientes estrés o dificultad por el formato de las tareas que debes entregar constantemente.", valor: 0 },
+      ayuda: "Sientes estrés o dificultad por el formato de las tareas que debes entregar constantemente.", valor: null as number | null },
     
     { dim: 'Estresores', encabezado: '¿Con qué frecuencia te estresa:', texto: 'Tener tiempo limitado para hacer el trabajo que me encargan los/as profesores/as.',
-      ayuda: "Te estresa sentir que los plazos de entrega son demasiado cortos para la complejidad de la asignación.", valor: 0 },
+      ayuda: "Te estresa sentir que los plazos de entrega son demasiado cortos para la complejidad de la asignación.", valor: null as number | null },
     
     { dim: 'Estresores', encabezado: '¿Con qué frecuencia te estresa:', texto: 'La poca claridad que tengo sobre lo que quieren los/as profesores/as.',
-      ayuda: "Te causa estrés no entender las instrucciones o sentir que las expectativas del profesor son ambiguas.", valor: 0 },
+      ayuda: "Te causa estrés no entender las instrucciones o sentir que las expectativas del profesor son ambiguas.", valor: null as number | null },
     
     // DIMENSIÓN SÍNTOMAS    
     { dim: 'Síntomas', encabezado: '¿Con qué frecuencia se te presentan las siguientes reacciones:', texto: 'Fatiga crónica (cansancio permanente).',
-      ayuda: "Sientes que, aunque descanses, siempre estás sin fuerzas para empezar el día.", valor: 0 },
+      ayuda: "Sientes que, aunque descanses, siempre estás sin fuerzas para empezar el día.", valor: null as number | null },
 
     { dim: 'Síntomas', encabezado: '¿Con qué frecuencia se te presentan las siguientes reacciones:', texto: 'Sentimientos de depresión y tristeza (decaído).',
-      ayuda: "Te sientes sin ánimos, con ganas de llorar o con una tristeza que no se va.", valor: 0 },
+      ayuda: "Te sientes sin ánimos, con ganas de llorar o con una tristeza que no se va.", valor: null as number | null },
 
     { dim: 'Síntomas', encabezado: '¿Con qué frecuencia se te presentan las siguientes reacciones:', texto: 'Ansiedad, angustia o desesperación.',
-      ayuda: "Sientes un nudo en el pecho, falta de aire o una preocupación excesiva por lo que viene.", valor: 0 },
+      ayuda: "Sientes un nudo en el pecho, falta de aire o una preocupación excesiva por lo que viene.", valor: null as number | null },
 
     { dim: 'Síntomas', encabezado: '¿Con qué frecuencia se te presentan las siguientes reacciones:', texto: 'Problemas de concentración.',
-      ayuda: "Te distraes con facilidad o te cuesta mucho entender lo que estás leyendo.", valor: 0 },
+      ayuda: "Te distraes con facilidad o te cuesta mucho entender lo que estás leyendo.", valor: null as number | null },
     
     { dim: 'Síntomas', encabezado: '¿Con qué frecuencia se te presentan las siguientes reacciones:', texto: 'Sentimiento de agresividad o aumento de irritabilidad.',
-      ayuda: "Sientes que pierdes la paciencia muy rápido o que cualquier cosa te hace enojar.", valor: 0 },
+      ayuda: "Sientes que pierdes la paciencia muy rápido o que cualquier cosa te hace enojar.", valor: null as number | null },
     
     { dim: 'Síntomas', encabezado: '¿Con qué frecuencia se te presentan las siguientes reacciones:', texto: 'Conflictos o tendencia a polemizar o discutir.',
-      ayuda: "Consideras que estás buscando peleas o discusiones con otros más de lo normal.", valor: 0 },
+      ayuda: "Consideras que estás buscando peleas o discusiones con otros más de lo normal.", valor: null as number | null },
     
     { dim: 'Síntomas', encabezado: '¿Con qué frecuencia se te presentan las siguientes reacciones:', texto: 'Desgano para realizar las labores académicas.',
-      ayuda: "Sientes que no tienes ninguna motivación para abrir los libros o estudiar.", valor: 0 },
+      ayuda: "Sientes que no tienes ninguna motivación para abrir los libros o estudiar.", valor: null as number | null },
 
     // DIMENSIÓN AFRONTAMIENTO
     { dim: 'Afrontamiento', encabezado: '¿Con qué frecuencia para enfrentar tu estrés te orientas a:', texto: 'Concentrarse en resolver la situación que me preocupa.',
-      ayuda: "Consideras que te pones manos a la obra para solucionar el problema.", valor: 0 },
+      ayuda: "Consideras que te pones manos a la obra para solucionar el problema.", valor: null as number | null },
 
     { dim: 'Afrontamiento', encabezado: '¿Con qué frecuencia para enfrentar tu estrés te orientas a:', texto: 'Establecer soluciones concretas para resolver la situación que me preocupa.',
-      ayuda: "Haces una lista de pasos reales que puedes seguir para que el problema desaparezca.", valor: 0 },
+      ayuda: "Haces una lista de pasos reales que puedes seguir para que el problema desaparezca.", valor: null as number | null },
 
     { dim: 'Afrontamiento', encabezado: '¿Con qué frecuencia para enfrentar tu estrés te orientas a:', texto: 'Analizar lo positivo y negativo de las soluciones pensadas para solucionar la situación que me preocupa.',
-      ayuda: "Piensas bien los pros y contras antes de decidir cómo actuar frente al estrés.", valor: 0 },
+      ayuda: "Piensas bien los pros y contras antes de decidir cómo actuar frente al estrés.", valor: null as number | null },
     
     { dim: 'Afrontamiento', encabezado: '¿Con qué frecuencia para enfrentar tu estrés te orientas a:', texto: 'Mantener el control sobre mis emociones para que no me afecte lo que me estresa.',
-      ayuda: "Intentas estar frío y racional para que las emociones no te nublen el juicio.", valor: 0 },
+      ayuda: "Intentas estar frío y racional para que las emociones no te nublen el juicio.", valor: null as number | null },
     
     { dim: 'Afrontamiento', encabezado: '¿Con qué frecuencia para enfrentar tu estrés te orientas a:', texto: 'Recordar situaciones similares ocurridas anteriormente y pensar en cómo las solucioné.',
-      ayuda: "Consideras que usas tu experiencia pasada para darte cuenta de que ya has podido antes y podrás ahora.", valor: 0 },
+      ayuda: "Consideras que usas tu experiencia pasada para darte cuenta de que ya has podido antes y podrás ahora.", valor: null as number | null },
 
     { dim: 'Afrontamiento', encabezado: '¿Con qué frecuencia para enfrentar tu estrés te orientas a:', texto: 'Elaboración de un plan para enfrentar lo que me estresa y ejecución de sus tareas.',
-      ayuda: "Diseñas una estrategia paso a paso y la sigues hasta terminar con lo que te preocupa.", valor: 0 },
+      ayuda: "Diseñas una estrategia paso a paso y la sigues hasta terminar con lo que te preocupa.", valor: null as number | null },
     
     { dim: 'Afrontamiento', encabezado: '¿Con qué frecuencia para enfrentar tu estrés te orientas a:', texto: 'Fijarse o tratar de obtener lo positivo de la situación que preocupa.',
-      ayuda: "Intentas buscar el lado bueno o el aprendizaje incluso en los momentos difíciles.", valor: 0 }
+      ayuda: "Intentas buscar el lado bueno o el aprendizaje incluso en los momentos difíciles.", valor: null as number | null }
   ];
 
   seleccionarOpcionSisco(valor: number) {
 
+    if (this.procesando) return;
+    
     if (this.indiceSisco === -1) {
+      this.procesando = true;
       this.siscoNivelGeneral = valor; 
       this.registroSISCO['Nivel General'] = valor;
-      this.indiceSisco = 0;
-      this.procesando = false;
+      
+      setTimeout(() => {
+        this.indiceSisco = 0;
+        this.procesando = false;
+      }, 300);
       return;
     }
     
     const preguntaActual = this.preguntasSisco[this.indiceSisco];
-
-    if (this.procesando)
-      return;
 
     this.procesando = true;
 
@@ -607,7 +610,7 @@ export class StressQuestionnaireComponent implements AfterViewInit, OnDestroy {
     const conteoCateg = this.preguntasSisco.reduce((acc, p) => { acc[p.dim] = (acc[p.dim] || 0) + 1; return acc; }, {} as any);
     const data = {
       identificador: 'SISCO',
-      puntaje: this.preguntasSisco.reduce((a, b) => a + b.valor, 0),
+      puntaje: this.preguntasSisco.reduce((a, b) => a + (b.valor ?? 0), 0),
       categorias: this.registroSISCO,
       nPreguntasCategoria: conteoCateg,
       tiempo: 600,

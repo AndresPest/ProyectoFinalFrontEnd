@@ -249,7 +249,6 @@
                 <div class="pregunta-card-single" [@fadeInTrigger]="indiceSisco">
                   <button class="btn-mini-back" (click)="anteriorSISCO()">← Volver</button>
                   <header class="header-fijo-sisco">
-                    <span class="dim-badge">{{ preguntasSisco[indiceSisco]?.dim }}</span>
                     <p class="enunciado-contexto">{{ preguntasSisco[indiceSisco]?.encabezado }}</p>
                   </header>
                   <p class="pregunta-texto-grande">
@@ -261,9 +260,9 @@
                   </p>
                   <div class="opciones-verticales">
                     @for (opcion of escalaSisco; track $index) {
-                      <button class="btn-opcion-grande" [class.active]="preguntasSisco[indiceSisco]?.valor === $index + 1"
-                              [disabled]="procesando" (click)="seleccionarOpcionSisco($index + 1)">
-                        <span class="circulo">{{ $index + 1 }}</span> {{ opcion }}
+                      <button class="btn-opcion-grande" [class.active]="preguntasSisco[indiceSisco]?.valor === $index && preguntasSisco[indiceSisco]?.valor !== null"
+                              [disabled]="procesando" (click)="seleccionarOpcionSisco($index)">
+                        <span class="circulo">{{ $index }}</span> {{ opcion }}
                       </button>
                     }
                   </div>

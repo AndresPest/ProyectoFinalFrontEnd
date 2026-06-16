@@ -704,7 +704,7 @@ export class StressQuestionnaireComponent implements AfterViewInit, OnDestroy {
       tiempo: 600,
       uid: this.authService.currentUser?.uid
     };
-    //this.enviarAlBackend(data, 'SISCO');
+    this.enviarAlBackend(data, 'SISCO');
   }
 
   ///////// Inventario Sobre Vulnerabilidad al Estrés (Beech, Burns y Sheffield, 1982)

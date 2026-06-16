@@ -39,16 +39,16 @@
             {{ recording ? 'Detener' : (secondsElapsed > 0 ? 'Grabación Lista' : 'Iniciar Grabación') }}
           </button>
           @if (!recording && secondsElapsed > 0) {
-            <button class="btn-main process" (click)="analyzeAudio()" [disabled]="isAnalyzing">
+            <button class="btn-main process" (click)="analyzeAudio()" [disabled]="isAnalyzing || result">
               <i class="fas" [class.fa-spinner]="isAnalyzing" [class.fa-brain]="!isAnalyzing"></i>
-              {{ isAnalyzing ? 'Procesando...' : 'Analizar Voz' }}
+              {{ isAnalyzing ? 'Procesando...' : (result ? 'Completado' : 'Analizar Voz') }}
             </button>
           }
         </div>
       </div>
     </div>
 
-    @if (result && resultsArray.length > 0) {
+    @if (mostrarResultados && result && resultsArray.length > 0) {
       <div class="glass-card results-card">
         <div class="results-header">
           <span class="badge-ai">Analisis Realizado</span>

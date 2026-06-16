@@ -201,6 +201,8 @@ export class DetalleResultadoComponent implements OnInit {
   ngOnInit() {
     
     setTimeout(() => {
+      this.crearGrafica('canvasInicialCNN', this.data.historial_emocionInicialCNN, 'Emoción Inicial (CNN)');
+      this.crearGrafica('canvasInicialFaceMesh', this.data.historial_emocionInicialFaceMesh, 'Emoción Inicial (FaceMesh)');
       this.crearGrafica('canvasCNN', this.data.historial_cnn, 'Análisis Facial (CNN)');
       this.crearGrafica('canvasFaceMesh', this.data.historial_facemesh, 'Análisis Facial (FaceMesh)');
       if (this.data?.tiene_voz && this.data?.detalles_voz_probabilidades) {

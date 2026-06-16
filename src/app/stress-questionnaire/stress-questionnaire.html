@@ -16,8 +16,8 @@
         <div class="header-ia">
           <div class="logo-ia">AE</div>
           <div>
-            <h2>Consentimiento de Análisis</h2>
-            <p>Uso de Inteligencia Artificial para Detección Emocional</p>
+            <h2>Consentimiento y Confidencialidad</h2>
+            <p>Aplicación de Reconocimiento Emocional para proporcionar Apoyo Psicológico - Caso de Estudio: Estudiantes de la UCAB Guayana</p>
           </div>
         </div>
         <hr>
@@ -27,7 +27,7 @@
           <p>Para complementar el análisis, se utilizará tu cámara para detectar emociones mediante modelos de IA <strong>Face-Mesh</strong> y <strong>CNN</strong>.</p>
 
           <div class="alerta-privacidad">
-            <p><strong>🛡️ Privacidad:</strong> Las imágenes NO se guardan. Solo se almacena el metadato de la emoción detectada.</p>
+            <p><strong>🛡️ Privacidad:</strong> Las imágenes y audios NO se guardan. Solo se almacena el resultado de la emoción detectada.</p>
             <div class="img-contenedor">
               <img src="https://i.postimg.cc/HsnBrbwk/image.png" class="img-privacidad">
             </div>
@@ -57,14 +57,25 @@
   @if (!testSeleccionado) {
     <div class="grid-menu" [@fadeIn]>
       @for (test of listaCuestionarios; track test.identificador) {
-        <div class="test-card" (click)="seleccionarTest(test.identificador)">
-          <div class="card-content">
-            <h3>{{ test.nombre }}</h3>
-            <span class="badge">{{ test.tiempoEstimado }}</span>
-            <p>{{ test.descripcion }}</p>
-            <button class="btn-start">Iniciar prueba</button>
+        @if (test.identificador === 'sisco') {
+          <div class="test-card" (click)="seleccionarTest(test.identificador)">
+            <div class="card-content">
+              <h3>{{ test.nombre }}</h3>
+              <span class="badge">{{ test.tiempoEstimado }}</span>
+              <p>{{ test.descripcion }}</p>
+              <button class="btn-start">Iniciar prueba</button>
+            </div>
           </div>
-        </div>
+        } @else {
+          <div class="test-card disabled">
+            <div class="card-content">
+              <h3>{{ test.nombre }}</h3>
+              <span class="badge">{{ test.tiempoEstimado }}</span>
+              <p>{{ test.descripcion }}</p>
+              <button class="btn-start">Iniciar prueba</button>
+            </div>
+          </div>
+        }
       }
     </div>
   }
@@ -136,8 +147,10 @@
                     <div class="icon-badge"><i class="fas fa-microphone"></i></div>
                     <h2>Fase de Reconocimiento Emocional</h2>
                   </div>
-                  <ng-container *ngTemplateOutlet="moduloVoz"></ng-container>
-                  <button class="btn-continuar-full" (click)="evaluacionVozOmitida()">
+                  <app-audio-reconocimiento #moduloVoz [mostrarNavbar]="false" [mostrarResultados]="false"
+                  [resultadoId]="resultadoDocIdActual" (analisisCompletado)="vozEvaluada = true">
+                  </app-audio-reconocimiento>
+                  <button class="btn-continuar-full" [disabled]="moduloVoz.bloquear" [class.btn-disabled]="moduloVoz.bloquear" (click)="pasoTest = 3; evaluacionVozOmitida()">
                     Finalizar y Guardar Resultados
                   </button>
                 </div>
@@ -214,8 +227,10 @@
                     <div class="icon-badge"><i class="fas fa-microphone"></i></div>
                     <h2>Fase de Reconocimiento Emocional</h2>
                   </div>
-                  <ng-container *ngTemplateOutlet="moduloVoz"></ng-container>
-                  <button class="btn-continuar-full" (click)="pasoTest = 3; evaluacionVozOmitida()">
+                  <app-audio-reconocimiento #moduloVoz [mostrarNavbar]="false" [mostrarResultados]="false"
+                  [resultadoId]="resultadoDocIdActual" (analisisCompletado)="vozEvaluada = true">
+                  </app-audio-reconocimiento>
+                  <button class="btn-continuar-full" [disabled]="moduloVoz.bloquear" [class.btn-disabled]="moduloVoz.bloquear" (click)="pasoTest = 3; evaluacionVozOmitida()">
                     Finalizar y Guardar Resultados
                   </button>
                 </div>
@@ -306,8 +321,10 @@
                     <div class="icon-badge"><i class="fas fa-microphone"></i></div>
                     <h2>Fase de Reconocimiento Emocional</h2>
                   </div>
-                  <ng-container *ngTemplateOutlet="moduloVoz"></ng-container>
-                  <button class="btn-continuar-full" (click)="pasoTest = 3; evaluacionVozOmitida()">
+                  <app-audio-reconocimiento #moduloVoz [mostrarNavbar]="false" [mostrarResultados]="false"
+                  [resultadoId]="resultadoDocIdActual" (analisisCompletado)="vozEvaluada = true">
+                  </app-audio-reconocimiento>
+                  <button class="btn-continuar-full" [disabled]="moduloVoz.bloquear" [class.btn-disabled]="moduloVoz.bloquear" (click)="pasoTest = 3; evaluacionVozOmitida()">
                     Finalizar y Guardar Resultados
                   </button>
                 </div>
@@ -384,8 +401,10 @@
                     <div class="icon-badge"><i class="fas fa-microphone"></i></div>
                     <h2>Fase de Reconocimiento Emocional</h2>
                   </div>
-                  <ng-container *ngTemplateOutlet="moduloVoz"></ng-container>
-                  <button class="btn-continuar-full" (click)="pasoTest = 3; evaluacionVozOmitida()">
+                  <app-audio-reconocimiento #moduloVoz [mostrarNavbar]="false" [mostrarResultados]="false"
+                  [resultadoId]="resultadoDocIdActual" (analisisCompletado)="vozEvaluada = true">
+                  </app-audio-reconocimiento>
+                  <button class="btn-continuar-full" [disabled]="moduloVoz.bloquear" [class.btn-disabled]="moduloVoz.bloquear" (click)="pasoTest = 3; evaluacionVozOmitida()">
                     Finalizar y Guardar Resultados
                   </button>
                 </div>
@@ -463,8 +482,10 @@
                     <div class="icon-badge"><i class="fas fa-microphone"></i></div>
                     <h2>Fase de Reconocimiento Emocional</h2>
                   </div>
-                  <ng-container *ngTemplateOutlet="moduloVoz"></ng-container>
-                  <button class="btn-continuar-full" (click)="pasoTest = 3; evaluacionVozOmitida()">
+                  <app-audio-reconocimiento #moduloVoz [mostrarNavbar]="false" [mostrarResultados]="false"
+                  [resultadoId]="resultadoDocIdActual" (analisisCompletado)="vozEvaluada = true">
+                  </app-audio-reconocimiento>
+                  <button class="btn-continuar-full" [disabled]="moduloVoz.bloquear" [class.btn-disabled]="moduloVoz.bloquear" (click)="pasoTest = 3; evaluacionVozOmitida()">
                     Finalizar y Guardar Resultados
                   </button>
                 </div>
@@ -501,8 +522,4 @@
       </button>
     </div>
   </div>
-</ng-template>
-
-<ng-template #moduloVoz>
-  <app-audio-reconocimiento [mostrarNavbar]="false" [resultadoId]="resultadoDocIdActual" (analisisCompletado)="vozEvaluada = true"></app-audio-reconocimiento>
 </ng-template>

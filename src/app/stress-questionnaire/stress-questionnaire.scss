@@ -50,6 +50,20 @@ $glass-border: rgba(255, 255, 255, 0.25);
   flex-direction: column;
 }
 
+.test-card.disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  pointer-events: none;
+  filter: grayscale(80%);
+}
+
+.test-card.disabled .btn-start:disabled {
+  background-color: #cccccc;
+  color: #666666;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
 .test-card:hover {
   transform: translateY(-5px);
   box-shadow: 0 10px 20px #0000001a;
@@ -643,6 +657,12 @@ $glass-border: rgba(255, 255, 255, 0.25);
   &:hover i {
     transform: translateX(5px);
   }
+}
+
+.btn-disabled {
+  opacity: 0.5 !important;
+  cursor: not-allowed !important;
+  pointer-events: none !important;
 }
 
 .feedback-card {

@@ -48,12 +48,17 @@ export class AudioReconocimiento {
   public result: any;
 
   @Input() mostrarNavbar: boolean = true;
+  @Input() mostrarResultados: boolean = true;
 
   @Input() resultadoId: string | null = null;
   @Output() estadoAudioCambiado = new EventEmitter<boolean>();
   @Output() analisisCompletado = new EventEmitter<void>();
 
   constructor(private api: AudioEmotionService, private zone: NgZone, private authService: AuthService) {}
+
+  get bloquear(): boolean {
+    return this.recording || this.isAnalyzing || (this.secondsElapsed > 0 && !this.result);
+  }
 
   async startRecording() {
     this.recording = true;

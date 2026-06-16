@@ -13,7 +13,18 @@
                 <strong>{{ data.categorias[cat].intensidad || data.categorias[cat] }} </strong> <strong class="not-strong"> / {{ getMaximo(cat) }} pts.</strong>
             </div>
         }
-        <div class="charts-container">
+        <h3 class="section-chart-title">Resultado Inicial (Previo al cuestionario)</h3>
+        <div class="charts-grid-two">
+            <div class="chart-wrapper">
+                <canvas id="canvasInicialCNN"></canvas>
+            </div>
+            <div class="chart-wrapper">
+                <canvas id="canvasInicialFaceMesh"></canvas>
+            </div>
+        </div>
+
+        <h3 class="section-chart-title">Resultados durante el Cuestionario y Voz</h3>
+        <div class="charts-grid-three">
             <div class="chart-wrapper">
                 <canvas id="canvasCNN"></canvas>
             </div>

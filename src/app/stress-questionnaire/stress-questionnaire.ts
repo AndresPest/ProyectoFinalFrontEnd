@@ -11,7 +11,7 @@ import { RouterOutlet } from '@angular/router';
 import { CapturaService } from '../services/captura.service';
 import { HttpClient } from '@angular/common/http';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { Firestore, collection, query, where, orderBy, getDocs, addDoc } from '@angular/fire/firestore';
+import { Firestore, collection, addDoc } from '@angular/fire/firestore';
 import { DOCUMENT } from '@angular/common';
 import { AudioReconocimiento } from '../audio-reconocimiento/audio-reconocimiento';
 import { AudioEmotionService } from '../audio-reconocimiento/audio-reconocimiento.service';
@@ -53,9 +53,15 @@ export class StressQuestionnaireComponent implements AfterViewInit, OnDestroy {
 
   private mediaStream: MediaStream | null = null;
 
-  constructor(private router: Router, private renderer: Renderer2, @Inject(DOCUMENT) private document: Document) {
+  constructor(private router: Router, private renderer: Renderer2, @Inject(DOCUMENT) private document: Document, private cdr: ChangeDetectorRef) {
     const previo = localStorage.getItem('consentimiento');
     if (previo === 'true') this.consentimientoAceptado = true;
+  }
+
+  onBloquearFinalizar(estado: boolean) {
+    console.log("PADRE RECIBE ESTADO DE BLOQUEO:", estado);
+    this.bloquearFinalizar = estado;
+    this.cdr.detectChanges();
   }
 
   private zone = inject(NgZone);
@@ -72,11 +78,82 @@ export class StressQuestionnaireComponent implements AfterViewInit, OnDestroy {
     } catch (err) {
       console.error("Error cámara:", err);
     }
+
+    if (this.consentimientoAceptado) {
+      this.capturarEmocionInicial();
+    }
   }
 
   ngOnDestroy() {
     this.detenerCamara();
     this.desbloquearScroll();
+  }
+
+  async capturarEmocionInicial() {
+    console.log("Iniciando captura de emoción inicial (3 fotos, 1 por segundo)...");
+    const totalFotos = 3;
+
+    this.emocionInicialCNN = [];
+    this.emocionInicialFaceMesh = [];
+
+    for (let i = 0; i < totalFotos; i++) {
+      if (i > 0) {
+        await new Promise(resolve => setTimeout(resolve, 1000));
+      }
+
+      try {
+        const resultadoFoto = await this.analisisInicial();
+        
+        if (resultadoFoto) {
+          const { cnn, facemesh, timestamp } = resultadoFoto;
+
+          this.emocionInicialCNN.push({ ...cnn, timestamp });
+          this.emocionInicialFaceMesh.push({ ...facemesh, timestamp });
+
+          console.log(`Foto inicial #${i + 1} capturada y dividida con éxito.`);
+        }
+      } catch (error) {
+        console.error(`Error en la captura de foto inicial #${i + 1}:`, error);
+      }
+    }
+
+    console.log("Ráfaga inicial completada.");
+    console.log("Historial CNN Inicial:", this.emocionInicialCNN);
+    console.log("Historial FaceMesh Inicial:", this.emocionInicialFaceMesh);
+  }
+
+  private async analisisInicial(): Promise<any> {
+
+    if (!this.videoElement?.nativeElement || !this.canvasElement?.nativeElement || !this.mediaStream) {
+      console.warn("Cámara o elementos nativos no listos para la captura inicial.");
+      return null;
+    }
+
+    const context = this.canvasElement.nativeElement.getContext('2d');
+    if (!context) return null;
+
+    this.canvasElement.nativeElement.width = this.videoElement.nativeElement.videoWidth || 1280;
+    this.canvasElement.nativeElement.height = this.videoElement.nativeElement.videoHeight || 720;
+    
+    context.drawImage(this.videoElement.nativeElement, 0, 0, this.canvasElement.nativeElement.width, this.canvasElement.nativeElement.height);
+    
+    const imagenBase64 = this.canvasElement.nativeElement.toDataURL('image/jpeg').split(',')[1];
+
+    try {
+      const [resCNN, resFaceMesh] = await Promise.all([
+        this.capturaService.analizarEmocionCNN(imagenBase64),
+        this.capturaService.analizarEmocionFaceMesh({ imagen: imagenBase64, puntos: [] })
+      ]);
+
+      return {
+        cnn: resCNN,
+        facemesh: resFaceMesh,
+        timestamp: new Date().toISOString()
+      };
+    } catch (error) {
+      console.error("Error al procesar el análisis inicial:", error);
+      return null;
+    }
   }
 
   private detenerCamara() {
@@ -91,6 +168,11 @@ export class StressQuestionnaireComponent implements AfterViewInit, OnDestroy {
 
   irA(ruta: string) {
     this.router.navigate([ruta]);
+  }
+
+  actualizarEstadoFinalizar(bloquear: boolean) {
+    this.bloquearFinalizar = bloquear;
+    this.cdr.detectChanges();
   }
 
   abrirConfidencialidad() {
@@ -113,10 +195,13 @@ export class StressQuestionnaireComponent implements AfterViewInit, OnDestroy {
 
   public pasoTest: number = 1;
   public estadoModuloVoz: boolean = false;
+  public bloquearFinalizar: boolean = false;
 
   // Historiales de captura facial
   public historialAnalisisFacialCNN: any[] = [];
   public historialAnalisisFacialFaceMesh: any[] = [];
+  public emocionInicialCNN: any[] = [];
+  public emocionInicialFaceMesh: any[] = [];
 
   public listaCuestionarios: CuestionarioInfo[] = [
     { id: 1, nombre: '¿Qué tanto sientes que te afecta el día a día?', identificador: 'miller',
@@ -145,6 +230,9 @@ export class StressQuestionnaireComponent implements AfterViewInit, OnDestroy {
     this.testSeleccionado = null;
     this.resetearVariables();
     this.pasoTest = 1;
+    this.emocionInicialCNN = [];
+    this.emocionInicialFaceMesh = [];
+    this.capturarEmocionInicial();
   }
   
   aceptarConsentimiento() {
@@ -616,7 +704,7 @@ export class StressQuestionnaireComponent implements AfterViewInit, OnDestroy {
       tiempo: 600,
       uid: this.authService.currentUser?.uid
     };
-    this.enviarAlBackend(data, 'SISCO');
+    //this.enviarAlBackend(data, 'SISCO');
   }
 
   ///////// Inventario Sobre Vulnerabilidad al Estrés (Beech, Burns y Sheffield, 1982)
@@ -956,8 +1044,8 @@ export class StressQuestionnaireComponent implements AfterViewInit, OnDestroy {
       this.historialAnalisisFacialCNN.push({ ...resCNN, ...metadata });
       this.historialAnalisisFacialFaceMesh.push({ ...resFaceMesh, ...metadata });
     } catch (e) {
-        console.error(e); 
-      }
+      console.error(e); 
+    }
   }
 
   obtenerIndiceActual(): number {
@@ -983,12 +1071,15 @@ export class StressQuestionnaireComponent implements AfterViewInit, OnDestroy {
     try {
       const docRef = await this.authService.guardarResultadoCuestionario(user.uid, procesado);
       this.resultadoDocIdActual = docRef.id;
+      
 
       await this.authService.guardarAnalisisFacialCuestionario(user.uid, {
         identificador_cuestionario: id,
         resultado_id: docRef.id,
         historial_cnn: this.historialAnalisisFacialCNN,
-        historial_facemesh: this.historialAnalisisFacialFaceMesh
+        historial_facemesh: this.historialAnalisisFacialFaceMesh,
+        historial_emocionInicialCNN: this.emocionInicialCNN,
+        historial_emocionInicialFaceMesh: this.emocionInicialFaceMesh
       });
       this.resetearVariables();
       console.log(`Estructura base guardada. ID del documento: ${this.resultadoDocIdActual}`);

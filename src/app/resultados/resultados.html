@@ -41,6 +41,16 @@
                 Nivel de estrés detectado: 
                 <strong class="intensity-highlight">{{ res.nivel }}</strong> 
               </p>
+
+              <p class="summary-text secondary-info">
+                Analisis Inicial (CNN): 
+                <span class="tech-value">{{ traducirEmocion(res.resultado_analisisInicialCNN.emocion) }}</span>
+              </p>
+
+              <p class="summary-text secondary-info">
+                Analisis Inicial (FaceMesh): 
+                <span class="tech-value">{{ traducirEmocion(res.resultado_analisisInicialFaceMesh.emocion) }}</span>
+              </p>
               
               <p class="summary-text secondary-info">
                 Detección por cámara (CNN): 
@@ -48,7 +58,7 @@
               </p>
 
               <p class="summary-text secondary-info">
-                Detección facial (Facemesh): 
+                Detección facial (FaceMesh): 
                 <span class="tech-value">{{ traducirEmocion(res.resultado_facemesh.emocion) }}</span>
               </p>
               <p class="summary-text secondary-info">
@@ -69,7 +79,7 @@
         <div class="empty-state">
           <mat-icon>assessment</mat-icon>
           <p>Aún no tienes resultados registrados.</p>
-          <button mat-flat-button color="primary" routerLink="/cuestionario">
+          <button mat-flat-button color="primary" (click)="irA('cuestionario')">
             Realizar primer cuestionario
           </button>
         </div>

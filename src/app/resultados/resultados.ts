@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { trigger, transition, style, animate } from '@angular/animations';
 import { NavbarComponent } from '../navbar/navbar';
-import { RouterOutlet } from '@angular/router';
+import { RouterOutlet, Router, RouterModule } from '@angular/router';
 import { AuthService } from '../services/auth';
 import { Navigation } from '../services/navigation';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
@@ -9,7 +9,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
 import { DetalleResultadoComponent } from './detallesResultados';
-import { Component, OnInit, inject,NgZone } from '@angular/core';
+import { Component, OnInit, inject, NgZone } from '@angular/core';
 import { Firestore, collection, query, where, orderBy, getDocs } from '@angular/fire/firestore';
 import { Auth } from '@angular/fire/auth';
 
@@ -38,6 +38,8 @@ export interface AnalisisFacial {
   cuestionario_id: string;
   usuario_id: string;
   timestamp: any;
+  historial_emocionInicialCNN: any[];
+  historial_emocionInicialFaceMesh: any[];
   historial_cnn: any[];
   historial_facemesh: any[];
 }
@@ -65,14 +67,18 @@ interface ResultadoCompleto {
   // Para CEAU y SISCO
   categoriasResaltantes?: any;
   categoriasAtencion?: any;
+  historial_emocionInicialCNN: any[];
+  historial_emocionInicialFaceMesh: any[];
   historial_cnn: any[];
   historial_facemesh: any[];
+  resultado_analisisInicialCNN: string;
+  resultado_analisisInicialFaceMesh: string;
   resultado_cnn: string;
   resultado_facemesh: string;
   timestamp: string;
   // Para la voz
   tiene_voz: boolean;
-  resultado_voz: string; // Guardará la emoción dominante o 'No definida'
+  resultado_voz: string;
   detalles_voz_probabilidades: AnalisisVozDetallado[];
   duracion_voz: number;
 }
@@ -108,6 +114,9 @@ export class ResultadosComponent implements OnInit {
 
   private dialog = inject(MatDialog);
 
+  constructor(private router: Router) {
+  }
+
   verDetalles(resultado: any) {
     this.dialog.open(DetalleResultadoComponent, {
       width: '800px',
@@ -125,6 +134,10 @@ export class ResultadosComponent implements OnInit {
 
   ngOnInit() {
     this.cargarDatos();
+  }
+
+  irA(ruta: string) {
+    this.router.navigate([ruta]);
   }
 
   async cargarDatos() {
@@ -159,8 +172,12 @@ export class ResultadosComponent implements OnInit {
               // Para CEAU y SISCO
               categoriasResaltantes: resultadoCuestionario.categoriasResaltantes,
               categoriasAtencion: resultadoCuestionario.categoriasAtencion,
+              historial_emocionInicialCNN: analisisFacial.historial_emocionInicialCNN,
+              historial_emocionInicialFaceMesh: analisisFacial.historial_emocionInicialFaceMesh,
               historial_cnn: analisisFacial.historial_cnn,
               historial_facemesh: analisisFacial.historial_facemesh,
+              resultado_analisisInicialCNN: this.emocionDominante(analisisFacial.historial_emocionInicialCNN),
+              resultado_analisisInicialFaceMesh: this.emocionDominante(analisisFacial.historial_emocionInicialFaceMesh),
               resultado_cnn: this.emocionDominante(analisisFacial.historial_cnn),
               resultado_facemesh: this.emocionDominante(analisisFacial.historial_facemesh),
               tiene_voz: tieneVozValida,

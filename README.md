@@ -1,59 +1,91 @@
-# Version1
+Aplicación Angular 20 para la interfaz de usuario del sistema de reconocimiento emocional. Consume la API del backend, gestiona la captura de cámara y micrófono, y muestra los resultados e historial. Desplegada en Firebase Hosting.
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 20.0.5.
+## Requisitos previos
 
-## Development server
+- Node.js 18 o superior
+- Angular CLI 20.0.5 o superior
+- Cuenta de Firebase con Hosting habilitado
 
-To start a local development server, run:
+## Instalación
+
+1. Clonar el repositorio:
+   ```bash
+   git clone https://github.com/AndresPest/ProyectoFinalFrontEnd.git
+   cd ProyectoFinalFrontEnd
+   ```
+
+2. Instalar dependencias:
+   ```bash
+   npm install
+   ```
+
+## Configuración
+
+1. **Entorno de Firebase**:
+   - Abrir `src/environments/environments.ts`.
+   - Reemplazar los valores de `firebase` con los de tu propio proyecto:
+
+   ```typescript
+   export const environment = {
+     production: false,
+     firebase: {
+       apiKey: "TU_API_KEY",
+       authDomain: "TU_PROYECTO.firebaseapp.com",
+       projectId: "TU_PROYECTO",
+       storageBucket: "TU_PROYECTO.firebasestorage.app",
+       messagingSenderId: "TU_SENDER_ID",
+       appId: "TU_APP_ID",
+       measurementId: "TU_MEASUREMENT_ID"
+     }
+   };
+   ```
+
+   El archivo actual contiene la configuración del proyecto `reconocimiento-emocional-2d6e4` como referencia.
+
+2. **Dependencias de MediaPipe**:
+   El proyecto incluye `@mediapipe/face_mesh` y `@mediapipe/camera_utils` como dependencias de CommonJS. El archivo `angular.json` ya las tiene declaradas en `allowedCommonJsDependencies` para evitar advertencias de compilación.
+
+## Ejecución local
 
 ```bash
 ng serve
 ```
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+La aplicación estará disponible en `http://localhost:4200/` y se recargará automáticamente al modificar los archivos.
 
-## Code scaffolding
-
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
-
-```bash
-ng generate component component-name
-```
-
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
-
-```bash
-ng generate --help
-```
-
-## Building
-
-To build the project run:
+## Compilación para producción
 
 ```bash
 ng build
 ```
 
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
+Los archivos resultantes se almacenarán en el directorio `dist/`.
 
-## Running unit tests
+## Despliegue en Firebase Hosting
 
-To execute unit tests with the [Karma](https://karma-runner.github.io) test runner, use the following command:
+1. Instalar Firebase CLI:
+   ```bash
+   npm install -g firebase-tools
+   ```
 
-```bash
-ng test
-```
+2. Iniciar sesión:
+   ```bash
+   firebase login
+   ```
 
-## Running end-to-end tests
+3. Inicializar el proyecto (si no está configurado):
+   ```bash
+   firebase init hosting
+   ```
+   Seleccionar el proyecto de Firebase correspondiente y establecer `dist/TESISFRONTEND/browser` como directorio público.
 
-For end-to-end (e2e) testing, run:
+4. Desplegar:
+   ```bash
+   firebase deploy
+   ```
 
-```bash
-ng e2e
-```
+---
 
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
+## Notas sobre la configuración de Firebase
 
-## Additional Resources
-
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+Ambos componentes comparten el mismo proyecto de Firebase. La configuración del frontend se toma directamente del archivo `environments.ts`, mientras que el backend utiliza una cuenta de servicio para acceder a Realtime Database. Es importante que ambas configuraciones apunten al mismo proyecto para garantizar la coherencia de los datos.

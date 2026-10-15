@@ -54,7 +54,7 @@
   <video #video autoplay muted hidden class="camara-oculta"></video>
   <canvas #canvas class="camara-oculta" style="display: none;"></canvas>
 
-  @if (!testSeleccionado) {
+  <!--@if (!testSeleccionado) {
     <div class="grid-menu" [@fadeIn]>
       @for (test of listaCuestionarios; track test.identificador) {
         @if (test.identificador === 'sisco') {
@@ -76,6 +76,21 @@
             </div>
           </div>
         }
+      }
+    </div>
+  }-->
+
+    @if (!testSeleccionado) {
+    <div class="grid-menu" [@fadeIn]>
+      @for (test of listaCuestionarios; track test.identificador) {
+        <div class="test-card" (click)="seleccionarTest(test.identificador)">
+          <div class="card-content">
+            <h3>{{ test.nombre }}</h3>
+            <span class="badge">{{ test.tiempoEstimado }}</span>
+            <p>{{ test.descripcion }}</p>
+            <button class="btn-start">Iniciar prueba</button>
+          </div>
+        </div>
       }
     </div>
   }

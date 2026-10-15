@@ -15,6 +15,7 @@ import { Firestore, collection, addDoc } from '@angular/fire/firestore';
 import { DOCUMENT } from '@angular/common';
 import { AudioReconocimiento } from '../audio-reconocimiento/audio-reconocimiento';
 import { AudioEmotionService } from '../audio-reconocimiento/audio-reconocimiento.service';
+import { FaceMesh, Results } from '@mediapipe/face_mesh';
 
 interface CuestionarioInfo {
   id: number;
@@ -53,6 +54,10 @@ export class StressQuestionnaireComponent implements AfterViewInit, OnDestroy {
 
   private mediaStream: MediaStream | null = null;
 
+  private faceMesh: FaceMesh | null = null;
+  private faceMeshLoopActivo = false;
+  private ultimosLandmarks: { x: number; y: number; z: number }[][] | null = null;
+
   constructor(private router: Router, private renderer: Renderer2, @Inject(DOCUMENT) private document: Document, private cdr: ChangeDetectorRef) {
     const previo = localStorage.getItem('consentimiento');
     if (previo === 'true') this.consentimientoAceptado = true;
@@ -75,6 +80,7 @@ export class StressQuestionnaireComponent implements AfterViewInit, OnDestroy {
     try {
       this.mediaStream = await navigator.mediaDevices.getUserMedia({ video: true });
       this.videoElement.nativeElement.srcObject = this.mediaStream;
+      await this.iniciarFaceMeshLocal();
     } catch (err) {
       console.error("Error cámara:", err);
     }
@@ -85,8 +91,105 @@ export class StressQuestionnaireComponent implements AfterViewInit, OnDestroy {
   }
 
   ngOnDestroy() {
+    this.faceMeshLoopActivo = false;
+    if (this.faceMesh) {
+      this.faceMesh.close();
+      this.faceMesh = null;
+    }
+
     this.detenerCamara();
     this.desbloquearScroll();
+  }
+
+  private async iniciarFaceMeshLocal(): Promise<void> {
+    if (this.faceMesh) return;
+
+    this.faceMesh = new FaceMesh({
+      locateFile: (f: string) => `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${f}`
+    });
+
+    this.faceMesh.setOptions({
+      maxNumFaces: 1,
+      refineLandmarks: false,
+      minDetectionConfidence: 0.5,
+      minTrackingConfidence: 0.5
+    });
+
+    this.faceMesh.onResults((res: Results) => {
+      if (res.multiFaceLandmarks && res.multiFaceLandmarks.length > 0) {
+        this.ultimosLandmarks = res.multiFaceLandmarks;
+      } else {
+        this.ultimosLandmarks = null;
+      }
+    });
+
+    this.faceMeshLoopActivo = true;
+    this.loopFaceMesh();
+  }
+
+  private async loopFaceMesh(): Promise<void> {
+    if (!this.faceMeshLoopActivo || !this.faceMesh) return;
+
+    const video = this.videoElement?.nativeElement;
+    if (video && video.readyState >= 2 && this.mediaStream) {
+      try {
+        await this.faceMesh.send({ image: video });
+      } catch {
+        // ignorar errores de frame puntuales
+      }
+    }
+
+    requestAnimationFrame(() => this.loopFaceMesh());
+  }
+
+  private recortarRostroConLandmarks(
+    canvasOrigen: HTMLCanvasElement,
+    margen: number = 0.15
+  ): HTMLCanvasElement | null {
+    if (!this.ultimosLandmarks || this.ultimosLandmarks.length === 0) {
+      return null;
+    }
+
+    const ancho = canvasOrigen.width;
+    const alto = canvasOrigen.height;
+
+    let minX = 1, minY = 1, maxX = 0, maxY = 0;
+
+    for (const cara of this.ultimosLandmarks) {
+      for (const p of cara) {
+        if (p.x < minX) minX = p.x;
+        if (p.y < minY) minY = p.y;
+        if (p.x > maxX) maxX = p.x;
+        if (p.y > maxY) maxY = p.y;
+      }
+    }
+
+    if (maxX <= minX || maxY <= minY) return null;
+
+    let x = minX * ancho;
+    let y = minY * alto;
+    let w = (maxX - minX) * ancho;
+    let h = (maxY - minY) * alto;
+
+    const mx = w * margen;
+    const my = h * margen;
+
+    x = Math.max(0, Math.floor(x - mx));
+    y = Math.max(0, Math.floor(y - my));
+    w = Math.min(ancho - x, Math.ceil(w + mx * 2));
+    h = Math.min(alto - y, Math.ceil(h + my * 2));
+
+    if (w <= 0 || h <= 0) return null;
+
+    const canvasRecorte = document.createElement('canvas');
+    canvasRecorte.width = w;
+    canvasRecorte.height = h;
+    const ctx = canvasRecorte.getContext('2d');
+    if (!ctx) return null;
+
+    ctx.drawImage(canvasOrigen, x, y, w, h, 0, 0, w, h);
+
+    return canvasRecorte;
   }
 
   async capturarEmocionInicial() {
@@ -125,7 +228,7 @@ export class StressQuestionnaireComponent implements AfterViewInit, OnDestroy {
   private async analisisInicial(): Promise<any> {
 
     if (!this.videoElement?.nativeElement || !this.canvasElement?.nativeElement || !this.mediaStream) {
-      console.warn("Cámara o elementos nativos no listos para la captura inicial.");
+      console.warn("Cámara no disponible para la captura inicial.");
       return null;
     }
 
@@ -137,7 +240,15 @@ export class StressQuestionnaireComponent implements AfterViewInit, OnDestroy {
     
     context.drawImage(this.videoElement.nativeElement, 0, 0, this.canvasElement.nativeElement.width, this.canvasElement.nativeElement.height);
     
-    const imagenBase64 = this.canvasElement.nativeElement.toDataURL('image/jpeg').split(',')[1];
+    let canvasEnvio: HTMLCanvasElement = this.canvasElement.nativeElement;
+    const recorte = this.recortarRostroConLandmarks(this.canvasElement.nativeElement, 0.09);
+    if (recorte) {
+      canvasEnvio = recorte;
+      } else {
+      console.warn('Sin landmarks en la imagen. Enviando frame completo.');
+    }
+
+    const imagenBase64 = canvasEnvio.toDataURL('image/jpeg', 0.9).split(',')[1];
 
     try {
       const [resCNN, resFaceMesh] = await Promise.all([
@@ -1033,7 +1144,16 @@ export class StressQuestionnaireComponent implements AfterViewInit, OnDestroy {
 
     canvas.width = video.videoWidth; canvas.height = video.videoHeight;
     context.drawImage(video, 0, 0, canvas.width, canvas.height);
-    const imagenBase64 = canvas.toDataURL('image/jpeg').split(',')[1];
+
+    let canvasEnvio: HTMLCanvasElement = canvas;
+    const recorte = this.recortarRostroConLandmarks(canvas, 0.09);
+    if (recorte) {
+      canvasEnvio = recorte;
+    } else {
+      console.warn('Sin landmarks en la imagen. Enviando frame completo.');
+    }
+
+    const imagenBase64 = canvasEnvio.toDataURL('image/jpeg', 0.9).split(',')[1];
 
     try {
       const [resCNN, resFaceMesh] = await Promise.all([

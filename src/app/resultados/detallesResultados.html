@@ -36,21 +36,31 @@
             </div>
         </div>
         <div class="recomendaciones">
-            <h3>Sugerencias</h3>
-            <p>Basado en los resultados obtenidos en el test:</p>
-            
+            <div class="recomendaciones-header">
+                <div>
+                <h3>Sugerencias</h3>
+                <p>Basado en los resultados obtenidos en el test</p>
+                </div>
+            </div>
+
             <div class="sugerencias-grid">
                 @for (sug of sugerenciasFiltradas; track sug.texto) {
-                    <div class="sugerencia-item">
-                        <p class="sugerencia-texto">{{ sug.texto }}</p>
-                        
-                        @if (sug.imagen) {
-                            <div class="img-zoom-wrapper" (click)="imgZoomSelected = sug.imagen">
-                                <img [src]="sug.imagen" class="sugerencia-imagen" alt="Icono de bienestar">
-                                <div class="zoom-overlay"><i class="fas fa-search-plus"></i></div>
-                            </div>
-                        }
+                <div class="sugerencia-item">
+                    <div class="sugerencia-decoracion"></div>
+
+                    @if (sug.imagen) {
+                    <div class="img-zoom-wrapper" (click)="imgZoomSelected = sug.imagen">
+                        <img [src]="sug.imagen" class="sugerencia-imagen" alt="Icono de bienestar">
+                        <div class="zoom-overlay">
+                        <i class="fas fa-search-plus"></i>
+                        </div>
                     </div>
+                    }
+
+                    <div class="sugerencia-contenido">
+                    <p class="sugerencia-texto">{{ sug.texto }}</p>
+                    </div>
+                </div>
                 }
             </div>
         </div>

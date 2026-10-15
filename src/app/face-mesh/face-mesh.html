@@ -13,6 +13,10 @@
           <div class="video-section cuadro-captura" id="video-container">
             <video #video autoplay muted playsinline style="display: none;"></video>
             <canvas #canvas></canvas>
+            <div class="preview-recorte" *ngIf="ultimoRecorteBase64">
+              <p class="preview-label">Recorte enviado al modelo:</p>
+              <img [src]="ultimoRecorteBase64" alt="Recorte del rostro">
+            </div>
             
             <div id="estado-captura" *ngIf="!cargando && !resultado">Esperando captura...</div>
             <div id="estado-captura" *ngIf="cargando">Procesando...</div>
